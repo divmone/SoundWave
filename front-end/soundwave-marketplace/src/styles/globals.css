@@ -1,0 +1,142 @@
+/* ══════════════════════════════════════════════
+   SOUNDWAVE — GLOBAL STYLES
+   ══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --void:       #050508;
+  --bg:         #0d0d12;
+  --bg2:        #13131a;
+  --bg3:        #1a1a24;
+  --bg4:        #22222f;
+  --line:       rgba(255,255,255,0.06);
+  --line2:      rgba(255,255,255,0.1);
+  --line-hot:   rgba(99,215,255,0.3);
+  --text:       #f0f0f8;
+  --text2:      #7878a0;
+  --text3:      #40405a;
+  --cyan:       #63d7ff;
+  --cyan-dim:   rgba(99,215,255,0.15);
+  --cyan-glow:  rgba(99,215,255,0.35);
+  --cyan-dark:  #1e9ecb;
+  --violet:     #9b6dff;
+  --violet-dim: rgba(155,109,255,0.12);
+  --red:        #ff4466;
+  --red-dim:    rgba(255,68,102,0.15);
+  --green:      #22d37a;
+  --green-dim:  rgba(34,211,122,0.15);
+  --font-display: 'Nunito', sans-serif;
+  --font-mono:    'Space Grotesk', sans-serif;
+  --font-body:    'Nunito Sans', sans-serif;
+  --radius-pill:  999px;
+  --radius-lg:    20px;
+  --radius-md:    14px;
+  --radius-sm:    10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+::selection { background: var(--cyan-dark); color: #000; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-dark); }
+
+/* ─── KEYFRAMES ─── */
+@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+@keyframes waveBar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.8); } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.88) translateY(24px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+@keyframes scanH { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes checkDraw { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+
+/* ─── SHARED BUTTON BASE ─── */
+.btn-primary, .btn-ghost, .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-pill);
+  transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, opacity 0.15s, background 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.btn-primary:active, .btn-ghost:active, .btn-danger:active {
+  transform: scale(0.93) !important;
+  transition: transform 0.08s ease !important;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+  color: #000;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 20px rgba(99,215,255,0.25);
+}
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(99,215,255,0.4);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  padding: 0.65rem 1.5rem;
+  font-size: 0.82rem;
+  border: 1.5px solid var(--line2);
+}
+.btn-ghost:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--cyan-dim);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #c0392b, var(--red));
+  color: #fff;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.82rem;
+}
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--red-dim); }
+
+/* ─── INPUT FOCUS RING ─── */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--cyan-dark) !important;
+  box-shadow: 0 0 0 3px var(--cyan-dim) !important;
+}
