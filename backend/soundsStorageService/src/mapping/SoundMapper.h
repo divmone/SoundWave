@@ -1,15 +1,15 @@
 #pragma once
 
 #include <vector>
-#include "models/Sounds.h"
-#include "dto/requests/SoundRequestTo.h"
-#include "dto/responses/SoundResponseTo.h"
+#include <models/Sounds.h>
+#include <dto/requests/SoundRequestTo.h>
+#include <dto/responses/SoundResponseTo.h>
 
 namespace soundwaveSounds
 {
 
 using namespace drogon_model::soundwaveSounds;
-using namespace soundwaveSounds::dto;
+using namespace dto;
 
 class SoundMapper
 {
@@ -17,6 +17,10 @@ public:
     static Sounds ToEntity(const SoundRequestTo& dto)
     {
         Sounds entity;
+        if (dto.id.has_value())
+        {
+            entity.setId(dto.id.value());
+        }
         entity.setUserId(dto.userId);
         entity.setFilename(dto.filename);
         entity.setOriginalName(dto.originalName);

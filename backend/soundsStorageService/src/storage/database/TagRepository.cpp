@@ -1,15 +1,15 @@
-#include "SoundRepository.h"
+#include "TagRepository.h"
 
 namespace soundwaveSounds
 {
 
 using namespace drogon::orm;
 
-std::variant<std::string, DatabaseError> SoundRepository::Create(const Sounds& entity)
+std::variant<std::string, DatabaseError> TagRepository::Create(const Tags& entity)
 {
     try
     {
-        auto existing = Mapper().findBy(Criteria(Sounds::Cols::_filename, CompareOperator::EQ, entity.getValueOfFilename()));
+        auto existing = Mapper().findBy(Criteria(Tags::Cols::_name, CompareOperator::EQ, entity.getValueOfName()));
         if (existing.size())
         {
             return DatabaseError::AlreadyExists;
@@ -22,7 +22,7 @@ std::variant<std::string, DatabaseError> SoundRepository::Create(const Sounds& e
     }
 }
 
-std::variant<Sounds, DatabaseError> SoundRepository::GetByID(std::string id)
+std::variant<Tags, DatabaseError> TagRepository::GetByID(std::string id)
 {
     try
     {
@@ -38,7 +38,7 @@ std::variant<Sounds, DatabaseError> SoundRepository::GetByID(std::string id)
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Update(std::string id, const Sounds& entity)
+std::variant<bool, DatabaseError> TagRepository::Update(std::string id, const Tags& entity)
 {
     try
     {
@@ -55,7 +55,7 @@ std::variant<bool, DatabaseError> SoundRepository::Update(std::string id, const 
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Delete(std::string id)
+std::variant<bool, DatabaseError> TagRepository::Delete(std::string id)
 {
     try
     {
@@ -71,7 +71,7 @@ std::variant<bool, DatabaseError> SoundRepository::Delete(std::string id)
     }
 }
 
-std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::ReadAll()
+std::variant<std::vector<Tags>, DatabaseError> TagRepository::ReadAll()
 {
     try
     {
@@ -83,7 +83,7 @@ std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::ReadAll()
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Exists(std::string id)
+std::variant<bool, DatabaseError> TagRepository::Exists(std::string id)
 {
     try
     {
@@ -100,11 +100,16 @@ std::variant<bool, DatabaseError> SoundRepository::Exists(std::string id)
     }
 }
 
-std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByUserId(const std::string& userId)
+std::variant<Tags, DatabaseError> TagRepository::FindByName(const std::string& name)
 {
     try
     {
-        return Mapper().findBy(Criteria(Sounds::Cols::_user_id, CompareOperator::EQ, userId));
+        auto results = Mapper().findBy(Criteria(Tags::Cols::_name, CompareOperator::EQ, name));
+        if (results.empty())
+        {
+            return DatabaseError::NotFound;
+        }
+        return results[0];
     }
     catch(const std::exception& e)
     {
@@ -112,11 +117,12 @@ std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByUserId(c
     }
 }
 
-std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByFilename(const std::string& filename)
+std::variant<std::vector<Tags>, DatabaseError> TagRepository::FindByNames(const std::vector<std::string>& names)
 {
     try
     {
-        return Mapper().findBy(Criteria(Sounds::Cols::_filename, CompareOperator::EQ, filename));
+        auto criteria = Criteria(Tags::Cols::_name, CompareOperator::In, names);
+        return Mapper().findBy(criteria);
     }
     catch(const std::exception& e)
     {
