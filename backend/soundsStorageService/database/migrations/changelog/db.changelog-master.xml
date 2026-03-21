@@ -10,7 +10,7 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="VARCHAR(255)">
+            <column name="user_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="filename" type="VARCHAR(512)">
@@ -44,15 +44,116 @@
         <createIndex tableName="sounds" indexName="idx_sounds_user_id">
             <column name="user_id"/>
         </createIndex>
-    </changeSet>
-
-    <changeSet id="3" author="soundwave">
         <createIndex tableName="sounds" indexName="idx_sounds_filename">
             <column name="filename"/>
         </createIndex>
     </changeSet>
 
+    <changeSet id="3" author="soundwave">
+        <createTable tableName="products">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="sound_id" type="UUID">
+                <constraints nullable="false" references="sounds(id)" foreignKeyName="fk_products_sound"/>
+            </column>
+            <column name="author_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rating" type="DECIMAL(3,2)" defaultValue="0.00"/>
+            <column name="download_count" type="BIGINT" defaultValue="0"/>
+            <column name="is_published" type="BOOLEAN" defaultValue="false"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
     <changeSet id="4" author="soundwave">
+        <createIndex tableName="products" indexName="idx_products_author_id">
+            <column name="author_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_title">
+            <column name="title"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_price">
+            <column name="price"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_rating">
+            <column name="rating"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="5" author="soundwave">
+        <createTable tableName="tags">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6" author="soundwave">
+        <createTable tableName="product_tags">
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" references="products(id)" foreignKeyName="fk_product_tags_product"/>
+            </column>
+            <column name="tag_id" type="UUID">
+                <constraints nullable="false" references="tags(id)" foreignKeyName="fk_product_tags_tag"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addPrimaryKey tableName="product_tags" columnNames="product_id, tag_id"/>
+    </changeSet>
+
+    <changeSet id="7" author="soundwave">
+        <createTable tableName="sales">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" references="products(id)" foreignKeyName="fk_sales_product"/>
+            </column>
+            <column name="buyer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method" type="VARCHAR(50)"/>
+            <column name="status" type="VARCHAR(50)" defaultValue="completed"/>
+            <column name="purchased_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="8" author="soundwave">
+        <createIndex tableName="sales" indexName="idx_sales_product_id">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="sales" indexName="idx_sales_buyer_id">
+            <column name="buyer_id"/>
+        </createIndex>
+        <createIndex tableName="sales" indexName="idx_sales_purchased_at">
+            <column name="purchased_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="9" author="soundwave">
         <sql splitStatements="false">
             <![CDATA[
             CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -68,6 +169,14 @@
             <![CDATA[
             CREATE TRIGGER update_sounds_updated_at
             BEFORE UPDATE ON sounds
+            FOR EACH ROW
+            EXECUTE FUNCTION update_updated_at_column();
+            ]]>
+        </sql>
+        <sql splitStatements="false">
+            <![CDATA[
+            CREATE TRIGGER update_products_updated_at
+            BEFORE UPDATE ON products
             FOR EACH ROW
             EXECUTE FUNCTION update_updated_at_column();
             ]]>
