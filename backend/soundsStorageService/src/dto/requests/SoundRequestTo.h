@@ -2,9 +2,8 @@
 
 #include <string>
 #include <optional>
-#include <jsoncpp/json/json.h>
-#include <stdexcept>
-#include "exceptions/ValidationException.h"
+#include <json/json.h>
+#include <exceptions/ValidationException.h>
 
 namespace soundwaveSounds::dto
 {

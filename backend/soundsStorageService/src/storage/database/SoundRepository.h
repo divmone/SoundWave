@@ -6,8 +6,8 @@
 #include <drogon/orm/Mapper.h>
 #include <drogon/HttpAppFramework.h>
 #include "IDatabaseRepository.h"
-#include "models/Sounds.h"
-#include "exceptions/DatabaseError.h"
+#include <models/Sounds.h>
+#include <exceptions/DatabaseError.h>
 
 namespace soundwaveSounds
 {
@@ -29,7 +29,6 @@ public:
 
     std::variant<std::vector<Sounds>, DatabaseError> FindByUserId(const std::string& userId);
     std::variant<std::vector<Sounds>, DatabaseError> FindByFilename(const std::string& filename);
-    std::variant<std::vector<Sounds>, DatabaseError> FindByMimeType(const std::string& mimeType);
 };
 
 }

@@ -1,4 +1,8 @@
-#include "SoundService.h"
+#include <services/SoundService.h>
+#include <storage/database/SoundRepository.h>
+#include <mapping/SoundMapper.h>
+#include <exceptions/DatabaseException.h>
+#include <exceptions/NotFoundException.h>
 
 namespace soundwaveSounds
 {
@@ -14,7 +18,7 @@ SoundResponseTo SoundService::Create(const SoundRequestTo& request)
 {
     request.validate();
 
-    Sounds entity = SoundMapper::ToEntity(request);
+    auto entity = SoundMapper::ToEntity(request);
     auto result = m_dao->Create(entity);
 
     if (std::holds_alternative<DatabaseError>(result))
@@ -22,7 +26,7 @@ SoundResponseTo SoundService::Create(const SoundRequestTo& request)
         throw DatabaseException("Failed to create sound");
     }
 
-    std::string id = std::get<std::string>(result);
+    auto id = std::get<std::string>(result);
     auto getResult = m_dao->GetByID(id);
 
     if (std::holds_alternative<DatabaseError>(getResult))
@@ -39,7 +43,7 @@ SoundResponseTo SoundService::Read(const std::string& id)
 
     if (std::holds_alternative<DatabaseError>(result))
     {
-        DatabaseError error = std::get<DatabaseError>(result);
+        auto error = std::get<DatabaseError>(result);
         if (error == DatabaseError::NotFound)
         {
             throw NotFoundException("Sound not found");
@@ -54,12 +58,12 @@ SoundResponseTo SoundService::Update(const SoundRequestTo& request, const std::s
 {
     request.validate();
 
-    Sounds entity = SoundMapper::ToEntityForUpdate(request, id);
+    auto entity = SoundMapper::ToEntityForUpdate(request, id);
     auto updateResult = m_dao->Update(id, entity);
 
     if (std::holds_alternative<DatabaseError>(updateResult))
     {
-        DatabaseError error = std::get<DatabaseError>(updateResult);
+        auto error = std::get<DatabaseError>(updateResult);
         if (error == DatabaseError::NotFound)
         {
             throw NotFoundException("Sound not found for update");
@@ -83,7 +87,7 @@ bool SoundService::Delete(const std::string& id)
 
     if (std::holds_alternative<DatabaseError>(result))
     {
-        DatabaseError error = std::get<DatabaseError>(result);
+        auto error = std::get<DatabaseError>(result);
         if (error == DatabaseError::NotFound)
         {
             throw NotFoundException("Sound not found for deletion");
@@ -118,13 +122,13 @@ std::vector<SoundResponseTo> SoundService::GetByUserId(const std::string& userId
     return SoundMapper::ToResponseList(std::get<std::vector<Sounds>>(result));
 }
 
-std::vector<SoundResponseTo> SoundService::GetByMimeType(const std::string& mimeType)
+std::vector<SoundResponseTo> SoundService::GetByFilename(const std::string& filename)
 {
-    auto result = m_dao->FindByMimeType(mimeType);
+    auto result = m_dao->FindByFilename(filename);
 
     if (std::holds_alternative<DatabaseError>(result))
     {
-        throw DatabaseException("Failed to retrieve sounds by MIME type");
+        throw DatabaseException("Failed to retrieve sounds by filename");
     }
 
     return SoundMapper::ToResponseList(std::get<std::vector<Sounds>>(result));
