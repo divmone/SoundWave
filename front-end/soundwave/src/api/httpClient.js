@@ -30,7 +30,7 @@
  * ─────────────────────────────────────────────────────────────
  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const BASE_URL = process.env.REACT_APP_API_URL || '';
 const TIMEOUT  = 15_000; // 15 секунд
 
 // ── Token helpers ──────────────────────────────────────────
@@ -70,10 +70,12 @@ async function execute(method, path, body = null, options = {}) {
     // Пустой ответ (204 No Content)
     if (res.status === 204) return null;
 
-    const data = await res.json().catch(() => ({}));
+    const text = await res.text().catch(() => '');
+    let data = {};
+    try { data = JSON.parse(text); } catch { /* plain text response */ }
 
     if (!res.ok) {
-      const err = new Error(data.message || `HTTP ${res.status}`);
+      const err = new Error(data.message || text || `HTTP ${res.status}`);
       err.status = res.status;
       err.code   = data.code   || null;
       err.fields = data.fields || null;

@@ -21,11 +21,14 @@ namespace shop::repositories {
         User create(
             const std::string &google_id,
             const std::string &email,
-            const std::string &username,
-            const std::string &avatar_url);
+            const std::string &username);
 
         std::optional<User> findByGoogleId(const std::string &) const;
 
+        std::string createSession(int user_id);
+        void deleteSession(const std::string &token);
+
+        std::optional<User> findByToken(const std::string& token) const;
     private:
         userver::storages::postgres::ClusterPtr pg_cluster;
     };

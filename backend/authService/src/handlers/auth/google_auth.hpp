@@ -12,7 +12,7 @@ namespace shop::handlers {
     class GoogleAuthHandler final : public
             userver::server::handlers::HttpHandlerBase {
     public:
-        static constexpr std::string_view kName = "handler-google-auth";
+        static constexpr std::string_view kName = "handler-auth-google";
 
         GoogleAuthHandler(
             const userver::components::ComponentConfig &config,
@@ -25,5 +25,6 @@ namespace shop::handlers {
 
     private:
         shop::services::AuthService &auth_service_;
+        shop::repositories::UserRepository &user_repository_;
     };
 }

@@ -59,20 +59,6 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
 
         {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px',
-            background: 'rgba(99,215,255,0.06)', border: '1px solid var(--line-hot)', borderRadius: 20,
-          }}>
-            <span style={{
-              width: 5, height: 5, borderRadius: '50%', background: 'var(--cyan)',
-              animation: 'pulse 2s ease infinite', boxShadow: '0 0 6px var(--cyan)',
-            }} />
-            <span style={{
-              fontSize: '0.62rem', fontFamily: 'var(--font-mono)',
-              letterSpacing: '0.15em', color: 'var(--cyan)', fontWeight: 600,
-            }}>LIVE</span>
-          </div>
-
           {user ? (
             // Logged in state
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -102,9 +88,6 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
             <>
               <button className="btn-ghost" onClick={() => onNavigate?.('login')} style={{ padding: '0.48rem 1.2rem', fontSize: '0.78rem' }}>
                 Sign In
-              </button>
-              <button className="btn-primary" onClick={() => onNavigate?.('register')} style={{ padding: '0.48rem 1.3rem', fontSize: '0.78rem' }}>
-                Sign Up
               </button>
             </>
           )}

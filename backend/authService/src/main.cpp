@@ -12,10 +12,8 @@
 
 #include <userver/utils/daemon_run.hpp>
 
-#include <hello.hpp>
-#include <hello_postgres.hpp>
-
 #include "handlers/auth/google_auth.hpp"
+#include "handlers/auth/logout.h"
 #include "services/auth_service.hpp"
 
 int main(int argc, char* argv[]) {
@@ -23,10 +21,13 @@ int main(int argc, char* argv[]) {
         userver::components::MinimalServerComponentList()
             .AppendComponentList(userver::clients::http::ComponentList())
             .Append<userver::congestion_control::Component>()
+            .Append<userver::clients::dns::Component>("dns-client")
+            .Append<userver::components::TestsuiteSupport>()
             .Append<userver::components::Postgres>("postgres-db-1")
             .Append<shop::services::AuthService>("auth-service")
             .Append<shop::repositories::UserRepository>("user-repository")
             .Append<shop::handlers::GoogleAuthHandler>("handler-auth-google")
+            .Append<shop::handlers::LogoutHandler>("handler-logout")
         ;
 
     return userver::utils::DaemonMain(argc, argv, component_list);

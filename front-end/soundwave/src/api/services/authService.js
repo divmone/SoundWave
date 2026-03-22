@@ -1,5 +1,5 @@
-import { post, get }       from '../httpClient';
-import { setToken, clearToken } from '../httpClient';
+import { post, get }    from '../httpClient';
+import { clearToken } from '../httpClient';
 
 /**
  * AUTH SERVICE
@@ -66,8 +66,9 @@ export async function forgotPassword({ email }) {
 // code — OAuth2 authorization code из Google redirect
 export async function loginWithGoogle({ code }) {
   const data = await post('/auth/google', { code });
-  saveSession(data);
-  return data;
+  const user = data.user ?? data;
+  saveSession({ ...data, user });
+  return { user };
 }
 
 // ── OAuth: Apple ───────────────────────────────────────────

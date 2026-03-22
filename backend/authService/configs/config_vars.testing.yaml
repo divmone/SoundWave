@@ -8,3 +8,7 @@ server-port: 8080
 
 # change to URI of your postgres database
 pg-connection: postgresql://myuser:mypassword@localhost:5432/mydb
+
+# Google OAuth2 credentials
+google-client-id: YOUR_GOOGLE_CLIENT_ID
+google-client-secret: YOUR_GOOGLE_CLIENT_SECRET

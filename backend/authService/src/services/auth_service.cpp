@@ -4,39 +4,91 @@
 
 #include "auth_service.hpp"
 
+#include <userver/components/component_config.hpp>
 #include <userver/components/component_context.hpp>
+#include <userver/clients/http/component.hpp>
+#include <userver/formats/json/serialize.hpp>
+#include <userver/server/handlers/exceptions.hpp>
 #include <userver/utils/exception.hpp>
 
 namespace shop::services {
-    AuthService::AuthService(const userver::components::ComponentConfig& config,
-           const userver::components::ComponentContext& context)
-               : ComponentBase(config, context)
-                , user_repository_(context.FindComponent<repositories::UserRepository>("user-repository"))
-                , client_(context.FindComponent<userver::clients::http::Client>("http-client")){
-
+    userver::yaml_config::Schema AuthService::GetStaticConfigSchema() {
+        return userver::yaml_config::MergeSchemas<userver::components::ComponentBase>(R"(
+type: object
+description: AuthService config
+additionalProperties: false
+properties:
+    google-client-id:
+        type: string
+        description: Google OAuth2 client ID
+    google-client-secret:
+        type: string
+        description: Google OAuth2 client secret
+)");
     }
 
+    AuthService::AuthService(const userver::components::ComponentConfig &config,
+                             const userver::components::ComponentContext &context)
+        : ComponentBase(config, context)
+          , user_repository_(context.FindComponent<repositories::UserRepository>("user-repository"))
+          , client_(context.FindComponent<userver::components::HttpClient>("http-client").GetHttpClient())
+          , google_client_id_(config["google-client-id"].As<std::string>())
+          , google_client_secret_(config["google-client-secret"].As<std::string>()) {
+    }
 
-    User AuthService::loginWithGoogle(const std::string &google_id) {
-        const auto res = client_.CreateRequest()
-        .get("https://oauth2.googleapis.com/tokeninfo?id_token=" + google_id)
-        .retry(2)
-        .perform();
+    User AuthService::loginWithGoogle(const std::string &code) {
+        const auto token_response = client_.CreateRequest()
+            .post(
+                "https://oauth2.googleapis.com/token",
+                "code=" + code +
+                "&client_id=" + google_client_id_ +
+                "&client_secret=" + google_client_secret_ +
+                "&redirect_uri=http://localhost:3000/auth/callback"
+                "&grant_type=authorization_code"
+            )
+            .headers({{"Content-Type", "application/x-www-form-urlencoded"}})
+            .retry(2)
+            .timeout(std::chrono::seconds(10))
+            .perform();
 
-        if (res->status_code() != 200) {
-            throw std::runtime_error("invalid google token");
+        if (token_response->status_code() != 200) {
+            throw userver::server::handlers::ClientError(
+                userver::server::handlers::ExternalBody{
+                    "Google token exchange failed: " + token_response->body()
+                });
         }
 
-        const auto json = userver::formats::json::FromString(res->body());
-        const auto google_token = json["sub"].As<std::string>();
-        const auto email = json["email"].As<std::string>();
-        const auto name = json["name"].As<std::string>();
+        const auto token_json = userver::formats::json::FromString(token_response->body());
+        const auto id_token = token_json["id_token"].As<std::string>("");
 
-        const auto user = user_repository_.findByGoogleId(google_token);
-        if (!user) {
-            user_repository_.create(google_token, email, name, "");
+        if (id_token.empty()) {
+            throw userver::server::handlers::ClientError(
+                userver::server::handlers::ExternalBody{"Google did not return id_token"});
         }
 
-        return *user;
+        const auto userinfo_response = client_.CreateRequest()
+            .get("https://oauth2.googleapis.com/tokeninfo?id_token=" + id_token)
+            .retry(2)
+            .timeout(std::chrono::seconds(10))
+            .perform();
+
+        if (userinfo_response->status_code() != 200) {
+            throw userver::server::handlers::ClientError(
+                userver::server::handlers::ExternalBody{
+                    "Google tokeninfo failed: " + userinfo_response->body()
+                });
+        }
+
+        const auto userinfo = userver::formats::json::FromString(userinfo_response->body());
+        const auto google_sub   = userinfo["sub"].As<std::string>();
+        const auto email        = userinfo["email"].As<std::string>();
+        const auto name         = userinfo["name"].As<std::string>("");
+
+        const auto existing = user_repository_.findByGoogleId(google_sub);
+        if (existing) {
+            return *existing;
+        }
+
+        return user_repository_.create(google_sub, email, name);
     }
 }

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/globals.css';
 
 import { useProducts }  from '../hooks/useProducts';
 import { useStats }     from '../hooks/useStats';
 import { useAuth }      from '../hooks/useAuth';
-import { logoutUser }   from '../api/services/authService';
+import { logoutUser, loginWithGoogle, loginWithApple } from '../api/services/authService';
+import { parseOAuthCallback } from '../utils/oauthUtils';
 
 import Header       from '../components/layout/Header';
 import Footer       from '../components/layout/Footer';
@@ -17,18 +18,23 @@ import StatsBar     from '../components/StatsBar';
 import CTASection   from '../components/CTASection';
 import UploadModal  from '../components/product/UploadModal';
 
-import LoginPage          from './LoginPage';
-import RegisterPage       from './RegisterPage';
-import ForgotPasswordPage from './ForgotPasswordPage';
-import RoleSelectPage     from './RoleSelectPage';
+import LoginPage from './LoginPage';
+
+// Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
+function getInitialPage() {
+  const params = new URLSearchParams(window.location.search);
+  const state  = params.get('state');
+  if ((state === 'google' || state === 'apple') && params.get('code')) return 'oauth-callback';
+  return 'home';
+}
 
 export default function App() {
-  const [page,        setPage]       = useState('home');
+  const [page,        setPage]       = useState(getInitialPage);
   const [category,    setCategory]   = useState('all');
   const [search,      setSearch]     = useState('');
   const [modal,       setModal]      = useState(false);
-  // oauthUser — временный пользователь после OAuth, до выбора роли
-  const [oauthUser,   setOauthUser]  = useState(null);
+  const [oauthError,  setOauthError] = useState('');
+  const oauthDone = useRef(false);
 
   const { user, login, logout }     = useAuth();
   const { data: products, loading } = useProducts(category, search);
@@ -40,35 +46,48 @@ export default function App() {
     setPage('home');
   };
 
-  // После обычного login/register
-  const handleLogin = (u) => {
-    login(u);
-    setPage('home');
-  };
-
-  // После OAuth — если нет роли, показываем выбор роли
   const handleOAuthSuccess = (u) => {
-    if (!u?.role) {
-      setOauthUser(u);
-      setPage('role-select');
-    } else {
-      login(u);
-      setPage('home');
-    }
-  };
-
-  // После выбора роли
-  const handleRoleSelected = (u) => {
     login(u);
-    setOauthUser(null);
     setPage('home');
   };
+
+  // ── OAuth callback handling ────────────────────────────
+  useEffect(() => {
+    if (page !== 'oauth-callback') return;
+    if (oauthDone.current) return;
+    oauthDone.current = true;
+
+    const callback = parseOAuthCallback();
+
+    if (!callback || callback.error) {
+      setOauthError(callback?.error || 'OAuth failed');
+      setPage('login');
+      return;
+    }
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    const exchange = callback.provider === 'google'
+      ? loginWithGoogle({ code: callback.code })
+      : loginWithApple({ identityToken: callback.identityToken, authorizationCode: callback.authorizationCode });
+
+    exchange
+      .then(data => handleOAuthSuccess(data.user))
+      .catch(err  => {
+        setOauthError(err.message || 'OAuth failed');
+        setPage('login');
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Route ─────────────────────────────────────────────
-  if (page === 'login')       return <LoginPage    onNavigate={setPage} onLogin={handleLogin} />;
-  if (page === 'register')    return <RegisterPage onNavigate={setPage} onLogin={handleLogin} />;
-  if (page === 'forgot')      return <ForgotPasswordPage onNavigate={setPage} />;
-  if (page === 'role-select') return <RoleSelectPage user={oauthUser} onComplete={handleRoleSelected} />;
+  if (page === 'oauth-callback') return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', flexDirection: 'column', gap: 16 }}>
+      <span style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,0.15)', borderTopColor: 'var(--cyan)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+      <span style={{ color: 'var(--text2)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem' }}>Signing in...</span>
+    </div>
+  );
+  if (page === 'login')       return <LoginPage onNavigate={setPage} initialError={oauthError} />;
 
   // ── Main marketplace ───────────────────────────────────
   return (

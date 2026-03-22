@@ -73,25 +73,6 @@ export default function Hero({ search, onSearch, onUploadClick }) {
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
         {/* Eyebrow badge */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 10,
-          padding: '6px 16px',
-          background: 'var(--cyan-dim)',
-          border: '1px solid var(--line-hot)',
-          borderRadius: 30,
-          marginBottom: '2rem',
-        }}>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-            letterSpacing: '0.2em', color: 'var(--cyan)', fontWeight: 600,
-          }}>◈ MARKETPLACE FOR STREAMERS</span>
-          <span style={{
-            background: 'var(--cyan)', color: '#000',
-            borderRadius: 10, padding: '1px 8px',
-            fontSize: '0.6rem', fontWeight: 800,
-            fontFamily: 'var(--font-mono)',
-          }}>BETA</span>
-        </div>
 
         {/* Headline */}
         <h1 style={{
@@ -112,18 +93,6 @@ export default function Hero({ search, onSearch, onUploadClick }) {
             display: 'block',
           }}>Zero Compromise.</span>
         </h1>
-
-        <p style={{
-          fontSize: '1.1rem',
-          color: 'var(--text2)',
-          lineHeight: 1.75,
-          marginBottom: '3rem',
-          fontWeight: 300,
-          maxWidth: 560, margin: '0 auto 3rem',
-        }}>
-          Hand-crafted alerts, transitions & stingers from elite sound designers.
-          <br />Make your stream impossible to scroll past.
-        </p>
 
         {/* Search */}
         <div style={{ position: 'relative', maxWidth: 580, margin: '0 auto 3rem' }}>
@@ -190,23 +159,6 @@ export default function Hero({ search, onSearch, onUploadClick }) {
           </button>
         </div>
 
-        {/* Social proof */}
-        <div style={{
-          marginTop: '3rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem',
-          flexWrap: 'wrap',
-        }}>
-          {[['45K+', 'Happy Streamers'], ['12K+', 'Sound Effects'], ['$250K', 'Paid to Artists']].map(([v, l]) => (
-            <div key={l} style={{ textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'var(--font-mono)', fontWeight: 700,
-                fontSize: '1.4rem', color: 'var(--cyan)',
-                letterSpacing: '-0.03em',
-              }}>{v}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text3)', letterSpacing: '0.1em', fontWeight: 500 }}>{l}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
