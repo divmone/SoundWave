@@ -1,6 +1,7 @@
 #include "ProductsController.h"
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
+#include <exceptions/ValidationException.h>
 
 soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<SoundDataService> soundDataService,
                                                         std::unique_ptr<ProductService> productService, 
@@ -172,8 +173,10 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        std::string metadataJson = req->getParameter("metadata");
-        if (metadataJson.empty())
+        // Получаем метаданные из параметров
+        auto& params = parser.getParameters();
+        auto it = params.find("metadata");
+        if (it == params.end() || it->second.empty())
         {
             responseJson["message"] = "Metadata is required";
             httpResponse->setBody(Json::FastWriter().write(responseJson));
@@ -183,6 +186,7 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
+        std::string metadataJson = it->second;
         Json::Value metadata;
         Json::Reader reader;
         if (!reader.parse(metadataJson, metadata))
@@ -195,17 +199,54 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        HttpFile audioFile = parser.getFiles()[0];
+        // Проверяем обязательные поля
+        if (!metadata.isMember("title") || metadata["title"].asString().empty())
+        {
+            responseJson["message"] = "Title is required";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
 
+        if (!metadata.isMember("price") || metadata["price"].asString().empty())
+        {
+            responseJson["message"] = "Price is required";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
+
+        HttpFile audioFile = parser.getFiles()[0];
+        std::string extension(audioFile.getFileExtension());
+
+        // Проверяем расширение
+        if (extension.empty())
+        {
+            responseJson["message"] = "File has no extension";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
+
+        // Создаем Sound
         dto::SoundRequestTo soundRequest;
         soundRequest.userId = std::to_string(userId);
+        soundRequest.filename = ""; // будет заполнено после создания
         soundRequest.originalName = metadata.get("originalName", audioFile.getFileName()).asString();
+        soundRequest.filePath = ""; // будет заполнено после создания
         soundRequest.fileSize = audioFile.fileLength();
         soundRequest.mimeType = metadata.get("mimeType", "audio/mpeg").asString();
         soundRequest.durationSeconds = metadata.get("durationSeconds", 0).asInt();
 
         dto::SoundResponseTo soundResponse = m_soundService->Create(soundRequest);
 
+        // Сохраняем файл
         if (!m_soundDataService->SaveSoundFile(audioFile, std::stoull(soundResponse.id), userId))
         {
             responseJson["message"] = "Failed to save audio file";
@@ -216,6 +257,20 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
+        // Обновляем Sound с правильными filename и filePath
+        dto::SoundRequestTo updateRequest;
+        updateRequest.id = soundResponse.id;
+        updateRequest.userId = std::to_string(userId);
+        updateRequest.filename = soundResponse.id + "." + extension;
+        updateRequest.originalName = soundRequest.originalName;
+        updateRequest.filePath = "storage/sounds/user_" + std::to_string(userId) + "/" + updateRequest.filename;
+        updateRequest.fileSize = soundRequest.fileSize;
+        updateRequest.mimeType = soundRequest.mimeType;
+        updateRequest.durationSeconds = soundRequest.durationSeconds;
+
+        m_soundService->Update(updateRequest, soundResponse.id);
+
+        // Создаем Product
         dto::ProductRequestTo productRequest;
         productRequest.soundId = soundResponse.id;
         productRequest.authorId = std::to_string(userId);
@@ -223,12 +278,24 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         productRequest.description = metadata.get("description", "").asString();
         productRequest.price = metadata["price"].asString();
 
+        // Обрабатываем теги
         if (metadata.isMember("tags") && metadata["tags"].isArray())
         {
             for (const auto& tagName : metadata["tags"])
             {
-                auto tagResult = m_tagService->GetByName(tagName.asString());
-                productRequest.tagIds.push_back(tagResult.id);
+                try
+                {
+                    auto tagResult = m_tagService->GetByName(tagName.asString());
+                    productRequest.tagIds.push_back(tagResult.id);
+                }
+                catch (const NotFoundException&)
+                {
+                    // Тег не найден, создаем новый
+                    dto::TagRequestTo tagRequest;
+                    tagRequest.name = tagName.asString();
+                    auto newTag = m_tagService->Create(tagRequest);
+                    productRequest.tagIds.push_back(newTag.id);
+                }
             }
         }
 
@@ -236,6 +303,7 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
 
         responseJson["message"] = "Sound uploaded successfully";
         responseJson["productId"] = product.id;
+        responseJson["soundId"] = soundResponse.id;
 
         httpResponse->setBody(Json::FastWriter().write(responseJson));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
@@ -281,7 +349,6 @@ void soundwaveSounds::ProductsController::EditSound(const HttpRequestPtr& req, s
 void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
-    std::cout << "[INFO] DeleteEditor called for id: " << id << std::endl;
 
     try
     {           

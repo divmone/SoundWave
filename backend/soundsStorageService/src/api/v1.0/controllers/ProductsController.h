@@ -57,7 +57,7 @@ public:
         ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get);
         ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get);
         ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get);
-        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload");
+        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post);
         ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put);
         ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete);
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get);
