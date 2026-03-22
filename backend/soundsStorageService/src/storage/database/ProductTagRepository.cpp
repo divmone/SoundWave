@@ -1,3 +1,4 @@
+// ProductTagRepository.cpp
 #include "ProductTagRepository.h"
 
 namespace soundwaveSounds
@@ -5,7 +6,7 @@ namespace soundwaveSounds
 
 using namespace drogon::orm;
 
-std::variant<bool, DatabaseError> ProductTagRepository::AddTagToProduct(const std::string& productId, const std::string& tagId)
+std::variant<bool, DatabaseError> ProductTagRepository::AddTagToProduct(uint64_t productId, uint64_t tagId)
 {
     try
     {
@@ -24,7 +25,7 @@ std::variant<bool, DatabaseError> ProductTagRepository::AddTagToProduct(const st
     }
 }
 
-std::variant<bool, DatabaseError> ProductTagRepository::RemoveTagFromProduct(const std::string& productId, const std::string& tagId)
+std::variant<bool, DatabaseError> ProductTagRepository::RemoveTagFromProduct(uint64_t productId, uint64_t tagId)
 {
     try
     {
@@ -39,18 +40,18 @@ std::variant<bool, DatabaseError> ProductTagRepository::RemoveTagFromProduct(con
     }
 }
 
-std::variant<std::vector<std::string>, DatabaseError> ProductTagRepository::GetTagsByProductId(const std::string& productId)
+std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetTagsByProductId(uint64_t productId)
 {
     try
     {
         auto sql = "SELECT tag_id FROM product_tags WHERE product_id = $1";
         auto db = GetDbClient();
         auto result = db->execSqlSync(sql, productId);
-        std::vector<std::string> tagIds;
+        std::vector<uint64_t> tagIds;
         tagIds.reserve(result.size());
         for (const auto& row : result)
         {
-            tagIds.push_back(row["tag_id"].as<std::string>());
+            tagIds.push_back(row["tag_id"].as<uint64_t>());
         }
         return tagIds;
     }
@@ -60,18 +61,18 @@ std::variant<std::vector<std::string>, DatabaseError> ProductTagRepository::GetT
     }
 }
 
-std::variant<std::vector<std::string>, DatabaseError> ProductTagRepository::GetProductsByTagId(const std::string& tagId)
+std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetProductsByTagId(uint64_t tagId)
 {
     try
     {
         auto sql = "SELECT product_id FROM product_tags WHERE tag_id = $1";
         auto db = GetDbClient();
         auto result = db->execSqlSync(sql, tagId);
-        std::vector<std::string> productIds;
+        std::vector<uint64_t> productIds;
         productIds.reserve(result.size());
         for (const auto& row : result)
         {
-            productIds.push_back(row["product_id"].as<std::string>());
+            productIds.push_back(row["product_id"].as<uint64_t>());
         }
         return productIds;
     }
@@ -81,7 +82,7 @@ std::variant<std::vector<std::string>, DatabaseError> ProductTagRepository::GetP
     }
 }
 
-std::variant<bool, DatabaseError> ProductTagRepository::Exists(const std::string& productId, const std::string& tagId)
+std::variant<bool, DatabaseError> ProductTagRepository::Exists(uint64_t productId, uint64_t tagId)
 {
     try
     {

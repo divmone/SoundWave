@@ -7,34 +7,6 @@
 #include <services/SoundService.h>
 #include <services/TagService.h>
 
-/*
-    JSON UPLOADING FORMAT
-
-    {
-        "title": "Epic Battle Theme",
-        "description": "Intense orchestral track for boss fights and dramatic moments",
-        "price": "4.99",
-        "tags": ["epic", "cinematic", "battle", "orchestral"],
-        "originalName": "epic_battle_theme.mp3",
-        "mimeType": "audio/mpeg",
-        "durationSeconds": 180
-    }
-
-*/
-
-/*/
- * SOUNDS SERVICE
- * ─────────────────────────────────────────────
- * GET    /sounds/amount               → общее количкство доступных звуков
- * GET    /sounds/pages/:pageNum       → Sound[] (все звуки по времени добавления, 1 страница - 9 звуков)
- * GET    /sounds/:id                  → Sound
- * GET    /sounds/user/:userId         → Sound[]
- * POST   /sounds/user/:userId/upload  → { id, message } (multipart)
- * PUT    /sounds/:id                  → Sound
- * DELETE /sounds/:id                  → null
- * GET    /sounds/:id/data             → ну типо сам файл
-/*/
-
 namespace soundwaveSounds
 {
 

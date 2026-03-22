@@ -1,7 +1,9 @@
+// ProductResponseTo.h
 #pragma once
 
 #include <string>
 #include <vector>
+#include <cstdint>
 #include <json/json.h>
 
 namespace soundwaveSounds::dto
@@ -10,16 +12,16 @@ namespace soundwaveSounds::dto
 class ProductResponseTo
 {
 public:
-    std::string id;
-    std::string soundId;
-    std::string authorId;
+    uint64_t id;
+    uint64_t soundId;
+    uint64_t authorId;
     std::string title;
     std::string description;
     std::string price;
     double rating;
     int64_t downloadCount;
     bool isPublished;
-    std::vector<std::string> tagIds;
+    std::vector<uint64_t> tagIds;
     std::vector<std::string> tagNames;
     std::string createdAt;
     std::string updatedAt;

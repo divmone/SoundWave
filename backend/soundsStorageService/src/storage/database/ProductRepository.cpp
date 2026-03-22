@@ -1,3 +1,4 @@
+// ProductRepository.cpp
 #include "ProductRepository.h"
 
 namespace soundwaveSounds
@@ -5,11 +6,12 @@ namespace soundwaveSounds
 
 using namespace drogon::orm;
 
-std::variant<std::string, DatabaseError> ProductRepository::Create(const Products& entity)
+std::variant<uint64_t, DatabaseError> ProductRepository::Create(const Products& entity)
 {
     try
     {
-        return Mapper().insertFuture(entity).get().getValueOfId();
+        auto id = Mapper().insertFuture(entity).get().getValueOfId();
+        return static_cast<uint64_t>(id);
     }
     catch(const std::exception& e)
     {
@@ -17,7 +19,7 @@ std::variant<std::string, DatabaseError> ProductRepository::Create(const Product
     }
 }
 
-std::variant<Products, DatabaseError> ProductRepository::GetByID(std::string id)
+std::variant<Products, DatabaseError> ProductRepository::GetByID(uint64_t id)
 {
     try
     {
@@ -33,7 +35,7 @@ std::variant<Products, DatabaseError> ProductRepository::GetByID(std::string id)
     }
 }
 
-std::variant<bool, DatabaseError> ProductRepository::Update(std::string id, const Products& entity)
+std::variant<bool, DatabaseError> ProductRepository::Update(uint64_t id, const Products& entity)
 {
     try
     {
@@ -50,7 +52,7 @@ std::variant<bool, DatabaseError> ProductRepository::Update(std::string id, cons
     }
 }
 
-std::variant<bool, DatabaseError> ProductRepository::Delete(std::string id)
+std::variant<bool, DatabaseError> ProductRepository::Delete(uint64_t id)
 {
     try
     {
@@ -103,7 +105,7 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::ReadAll()
     }
 }
 
-std::variant<bool, DatabaseError> ProductRepository::Exists(std::string id)
+std::variant<bool, DatabaseError> ProductRepository::Exists(uint64_t id)
 {
     try
     {
@@ -133,7 +135,7 @@ std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
     }
 }
 
-std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuthorId(const std::string& authorId)
+std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuthorId(uint64_t authorId)
 {
     try
     {
@@ -145,7 +147,7 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuth
     }
 }
 
-std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindBySoundId(const std::string& soundId)
+std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindBySoundId(uint64_t soundId)
 {
     try
     {

@@ -86,7 +86,7 @@ void soundwaveSounds::ProductsController::GetSound(const HttpRequestPtr& req, st
 
     try
     {
-        auto dto = m_productService->Read(std::to_string(id));
+        auto dto = m_productService->Read(id);
         Json::Value jsonResponse = dto.toJson();
 
         std::string responseBody = Json::FastWriter().write(jsonResponse); 
@@ -120,7 +120,7 @@ void soundwaveSounds::ProductsController::GetUserSounds(const HttpRequestPtr& re
 
     try
     {
-        auto dtos = m_productService->GetByAuthorId(std::to_string(userId));
+        auto dtos = m_productService->GetByAuthorId(userId);
         Json::Value jsonResponse(Json::arrayValue); 
 
         for (auto& dto: dtos)
@@ -173,7 +173,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        // Получаем метаданные из параметров
         auto& params = parser.getParameters();
         auto it = params.find("metadata");
         if (it == params.end() || it->second.empty())
@@ -199,7 +198,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        // Проверяем обязательные поля
         if (!metadata.isMember("title") || metadata["title"].asString().empty())
         {
             responseJson["message"] = "Title is required";
@@ -223,7 +221,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         HttpFile audioFile = parser.getFiles()[0];
         std::string extension(audioFile.getFileExtension());
 
-        // Проверяем расширение
         if (extension.empty())
         {
             responseJson["message"] = "File has no extension";
@@ -234,20 +231,18 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        // Создаем Sound
         dto::SoundRequestTo soundRequest;
-        soundRequest.userId = std::to_string(userId);
-        soundRequest.filename = ""; // будет заполнено после создания
+        soundRequest.userId = userId;
+        soundRequest.filename = "";
         soundRequest.originalName = metadata.get("originalName", audioFile.getFileName()).asString();
-        soundRequest.filePath = ""; // будет заполнено после создания
+        soundRequest.filePath = "";
         soundRequest.fileSize = audioFile.fileLength();
         soundRequest.mimeType = metadata.get("mimeType", "audio/mpeg").asString();
         soundRequest.durationSeconds = metadata.get("durationSeconds", 0).asInt();
 
         dto::SoundResponseTo soundResponse = m_soundService->Create(soundRequest);
 
-        // Сохраняем файл
-        if (!m_soundDataService->SaveSoundFile(audioFile, std::stoull(soundResponse.id), userId))
+        if (!m_soundDataService->SaveSoundFile(audioFile, soundResponse.id, userId))
         {
             responseJson["message"] = "Failed to save audio file";
             httpResponse->setBody(Json::FastWriter().write(responseJson));
@@ -257,11 +252,10 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
-        // Обновляем Sound с правильными filename и filePath
         dto::SoundRequestTo updateRequest;
         updateRequest.id = soundResponse.id;
-        updateRequest.userId = std::to_string(userId);
-        updateRequest.filename = soundResponse.id + "." + extension;
+        updateRequest.userId = userId;
+        updateRequest.filename = std::to_string(soundResponse.id) + "." + extension;
         updateRequest.originalName = soundRequest.originalName;
         updateRequest.filePath = "storage/sounds/user_" + std::to_string(userId) + "/" + updateRequest.filename;
         updateRequest.fileSize = soundRequest.fileSize;
@@ -270,15 +264,13 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
 
         m_soundService->Update(updateRequest, soundResponse.id);
 
-        // Создаем Product
         dto::ProductRequestTo productRequest;
         productRequest.soundId = soundResponse.id;
-        productRequest.authorId = std::to_string(userId);
+        productRequest.authorId = userId;
         productRequest.title = metadata["title"].asString();
         productRequest.description = metadata.get("description", "").asString();
         productRequest.price = metadata["price"].asString();
 
-        // Обрабатываем теги
         if (metadata.isMember("tags") && metadata["tags"].isArray())
         {
             for (const auto& tagName : metadata["tags"])
@@ -290,7 +282,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
                 }
                 catch (const NotFoundException&)
                 {
-                    // Тег не найден, создаем новый
                     dto::TagRequestTo tagRequest;
                     tagRequest.name = tagName.asString();
                     auto newTag = m_tagService->Create(tagRequest);
@@ -343,7 +334,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
 
 void soundwaveSounds::ProductsController::EditSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
-    // Не надо пока
 }
 
 void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
@@ -352,7 +342,7 @@ void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req,
 
     try
     {           
-        if (m_soundService->Delete(std::to_string(id)))
+        if (m_soundService->Delete(id))
         {
             httpResponse->setStatusCode(HttpStatusCode::k204NoContent);
         }
@@ -407,13 +397,13 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
 
     try
     {
-        auto product = m_productService->Read(std::to_string(id));
+        auto product = m_productService->Read(id);
         auto sound = m_soundService->Read(product.soundId);
 
         std::vector<char> fileData;
         std::string extension = sound.filename.substr(sound.filename.find_last_of('.') + 1);
 
-        if (!m_soundDataService->GetSoundFile(fileData, std::stoull(sound.id), std::stoull(sound.userId), extension))
+        if (!m_soundDataService->GetSoundFile(fileData, sound.id, sound.userId, extension))
         {
             Json::Value errorResponse;
             errorResponse["message"] = "Audio file not found";

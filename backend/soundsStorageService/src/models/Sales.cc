@@ -25,9 +25,9 @@ const bool Sales::hasPrimaryKey = true;
 const std::string Sales::tableName = "sales";
 
 const std::vector<typename Sales::MetaData> Sales::metaData_={
-{"id","std::string","uuid",0,0,1,1},
-{"product_id","std::string","uuid",0,0,0,1},
-{"buyer_id","std::string","uuid",0,0,0,1},
+{"id","int64_t","bigint",8,1,1,1},
+{"product_id","int64_t","bigint",8,0,0,1},
+{"buyer_id","int64_t","bigint",8,0,0,1},
 {"amount","std::string","numeric",0,0,0,1},
 {"payment_method","std::string","character varying",50,0,0,0},
 {"status","std::string","character varying",50,0,0,0},
@@ -44,15 +44,15 @@ Sales::Sales(const Row &r, const ssize_t indexOffset) noexcept
     {
         if(!r["id"].isNull())
         {
-            id_=std::make_shared<std::string>(r["id"].as<std::string>());
+            id_=std::make_shared<int64_t>(r["id"].as<int64_t>());
         }
         if(!r["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(r["product_id"].as<std::string>());
+            productId_=std::make_shared<int64_t>(r["product_id"].as<int64_t>());
         }
         if(!r["buyer_id"].isNull())
         {
-            buyerId_=std::make_shared<std::string>(r["buyer_id"].as<std::string>());
+            buyerId_=std::make_shared<int64_t>(r["buyer_id"].as<int64_t>());
         }
         if(!r["amount"].isNull())
         {
@@ -101,17 +101,17 @@ Sales::Sales(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 0;
         if(!r[index].isNull())
         {
-            id_=std::make_shared<std::string>(r[index].as<std::string>());
+            id_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 1;
         if(!r[index].isNull())
         {
-            productId_=std::make_shared<std::string>(r[index].as<std::string>());
+            productId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 2;
         if(!r[index].isNull())
         {
-            buyerId_=std::make_shared<std::string>(r[index].as<std::string>());
+            buyerId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 3;
         if(!r[index].isNull())
@@ -167,7 +167,7 @@ Sales::Sales(const Json::Value &pJson, const std::vector<std::string> &pMasquera
         dirtyFlag_[0] = true;
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -175,7 +175,7 @@ Sales::Sales(const Json::Value &pJson, const std::vector<std::string> &pMasquera
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -183,7 +183,7 @@ Sales::Sales(const Json::Value &pJson, const std::vector<std::string> &pMasquera
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            buyerId_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            buyerId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -245,7 +245,7 @@ Sales::Sales(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[0]=true;
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("product_id"))
@@ -253,7 +253,7 @@ Sales::Sales(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1]=true;
         if(!pJson["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson["product_id"].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
     if(pJson.isMember("buyer_id"))
@@ -261,7 +261,7 @@ Sales::Sales(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2]=true;
         if(!pJson["buyer_id"].isNull())
         {
-            buyerId_=std::make_shared<std::string>(pJson["buyer_id"].asString());
+            buyerId_=std::make_shared<int64_t>((int64_t)pJson["buyer_id"].asInt64());
         }
     }
     if(pJson.isMember("amount"))
@@ -328,7 +328,7 @@ void Sales::updateByMasqueradedJson(const Json::Value &pJson,
     {
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -336,7 +336,7 @@ void Sales::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -344,7 +344,7 @@ void Sales::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            buyerId_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            buyerId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -405,7 +405,7 @@ void Sales::updateByJson(const Json::Value &pJson) noexcept(false)
     {
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("product_id"))
@@ -413,7 +413,7 @@ void Sales::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1] = true;
         if(!pJson["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson["product_id"].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
     if(pJson.isMember("buyer_id"))
@@ -421,7 +421,7 @@ void Sales::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2] = true;
         if(!pJson["buyer_id"].isNull())
         {
-            buyerId_=std::make_shared<std::string>(pJson["buyer_id"].asString());
+            buyerId_=std::make_shared<int64_t>((int64_t)pJson["buyer_id"].asInt64());
         }
     }
     if(pJson.isMember("amount"))
@@ -476,25 +476,20 @@ void Sales::updateByJson(const Json::Value &pJson) noexcept(false)
     }
 }
 
-const std::string &Sales::getValueOfId() const noexcept
+const int64_t &Sales::getValueOfId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(id_)
         return *id_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Sales::getId() const noexcept
+const std::shared_ptr<int64_t> &Sales::getId() const noexcept
 {
     return id_;
 }
-void Sales::setId(const std::string &pId) noexcept
+void Sales::setId(const int64_t &pId) noexcept
 {
-    id_ = std::make_shared<std::string>(pId);
-    dirtyFlag_[0] = true;
-}
-void Sales::setId(std::string &&pId) noexcept
-{
-    id_ = std::make_shared<std::string>(std::move(pId));
+    id_ = std::make_shared<int64_t>(pId);
     dirtyFlag_[0] = true;
 }
 const typename Sales::PrimaryKeyType & Sales::getPrimaryKey() const
@@ -503,47 +498,37 @@ const typename Sales::PrimaryKeyType & Sales::getPrimaryKey() const
     return *id_;
 }
 
-const std::string &Sales::getValueOfProductId() const noexcept
+const int64_t &Sales::getValueOfProductId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(productId_)
         return *productId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Sales::getProductId() const noexcept
+const std::shared_ptr<int64_t> &Sales::getProductId() const noexcept
 {
     return productId_;
 }
-void Sales::setProductId(const std::string &pProductId) noexcept
+void Sales::setProductId(const int64_t &pProductId) noexcept
 {
-    productId_ = std::make_shared<std::string>(pProductId);
-    dirtyFlag_[1] = true;
-}
-void Sales::setProductId(std::string &&pProductId) noexcept
-{
-    productId_ = std::make_shared<std::string>(std::move(pProductId));
+    productId_ = std::make_shared<int64_t>(pProductId);
     dirtyFlag_[1] = true;
 }
 
-const std::string &Sales::getValueOfBuyerId() const noexcept
+const int64_t &Sales::getValueOfBuyerId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(buyerId_)
         return *buyerId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Sales::getBuyerId() const noexcept
+const std::shared_ptr<int64_t> &Sales::getBuyerId() const noexcept
 {
     return buyerId_;
 }
-void Sales::setBuyerId(const std::string &pBuyerId) noexcept
+void Sales::setBuyerId(const int64_t &pBuyerId) noexcept
 {
-    buyerId_ = std::make_shared<std::string>(pBuyerId);
-    dirtyFlag_[2] = true;
-}
-void Sales::setBuyerId(std::string &&pBuyerId) noexcept
-{
-    buyerId_ = std::make_shared<std::string>(std::move(pBuyerId));
+    buyerId_ = std::make_shared<int64_t>(pBuyerId);
     dirtyFlag_[2] = true;
 }
 
@@ -647,7 +632,6 @@ void Sales::updateId(const uint64_t id)
 const std::vector<std::string> &Sales::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
-        "id",
         "product_id",
         "buyer_id",
         "amount",
@@ -660,17 +644,6 @@ const std::vector<std::string> &Sales::insertColumns() noexcept
 
 void Sales::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getProductId())
@@ -742,10 +715,6 @@ void Sales::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 const std::vector<std::string> Sales::updateColumns() const
 {
     std::vector<std::string> ret;
-    if(dirtyFlag_[0])
-    {
-        ret.push_back(getColumnName(0));
-    }
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
@@ -775,17 +744,6 @@ const std::vector<std::string> Sales::updateColumns() const
 
 void Sales::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getProductId())
@@ -858,7 +816,7 @@ Json::Value Sales::toJson() const
     Json::Value ret;
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -866,7 +824,7 @@ Json::Value Sales::toJson() const
     }
     if(getProductId())
     {
-        ret["product_id"]=getValueOfProductId();
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
     else
     {
@@ -874,7 +832,7 @@ Json::Value Sales::toJson() const
     }
     if(getBuyerId())
     {
-        ret["buyer_id"]=getValueOfBuyerId();
+        ret["buyer_id"]=(Json::Int64)getValueOfBuyerId();
     }
     else
     {
@@ -925,7 +883,7 @@ Json::Value Sales::toMasqueradedJson(
         {
             if(getId())
             {
-                ret[pMasqueradingVector[0]]=getValueOfId();
+                ret[pMasqueradingVector[0]]=(Json::Int64)getValueOfId();
             }
             else
             {
@@ -936,7 +894,7 @@ Json::Value Sales::toMasqueradedJson(
         {
             if(getProductId())
             {
-                ret[pMasqueradingVector[1]]=getValueOfProductId();
+                ret[pMasqueradingVector[1]]=(Json::Int64)getValueOfProductId();
             }
             else
             {
@@ -947,7 +905,7 @@ Json::Value Sales::toMasqueradedJson(
         {
             if(getBuyerId())
             {
-                ret[pMasqueradingVector[2]]=getValueOfBuyerId();
+                ret[pMasqueradingVector[2]]=(Json::Int64)getValueOfBuyerId();
             }
             else
             {
@@ -1003,7 +961,7 @@ Json::Value Sales::toMasqueradedJson(
     LOG_ERROR << "Masquerade failed";
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -1011,7 +969,7 @@ Json::Value Sales::toMasqueradedJson(
     }
     if(getProductId())
     {
-        ret["product_id"]=getValueOfProductId();
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
     else
     {
@@ -1019,7 +977,7 @@ Json::Value Sales::toMasqueradedJson(
     }
     if(getBuyerId())
     {
-        ret["buyer_id"]=getValueOfBuyerId();
+        ret["buyer_id"]=(Json::Int64)getValueOfBuyerId();
     }
     else
     {
@@ -1066,11 +1024,6 @@ bool Sales::validateJsonForCreation(const Json::Value &pJson, std::string &err)
     {
         if(!validJsonOfField(0, "id", pJson["id"], err, true))
             return false;
-    }
-    else
-    {
-        err="The id column cannot be null";
-        return false;
     }
     if(pJson.isMember("product_id"))
     {
@@ -1136,11 +1089,6 @@ bool Sales::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
                   return false;
           }
-        else
-        {
-            err="The " + pMasqueradingVector[0] + " column cannot be null";
-            return false;
-        }
       }
       if(!pMasqueradingVector[1].empty())
       {
@@ -1329,7 +1277,12 @@ bool Sales::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(isForCreation)
+            {
+                err="The automatic primary key cannot be set";
+                return false;
+            }
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1341,7 +1294,7 @@ bool Sales::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1353,7 +1306,7 @@ bool Sales::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

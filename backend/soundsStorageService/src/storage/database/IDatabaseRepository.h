@@ -1,3 +1,4 @@
+// IDatabaseRepository.h
 #pragma once
 
 #include <drogon/orm/Mapper.h>
@@ -14,4 +15,4 @@ protected:
     drogon::orm::Mapper<T> Mapper() { return drogon::orm::Mapper<T>(GetDbClient()); };
 };
 
-};
+}

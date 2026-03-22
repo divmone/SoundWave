@@ -1,3 +1,4 @@
+// TagRepository.cpp
 #include "TagRepository.h"
 
 namespace soundwaveSounds
@@ -5,7 +6,7 @@ namespace soundwaveSounds
 
 using namespace drogon::orm;
 
-std::variant<std::string, DatabaseError> TagRepository::Create(const Tags& entity)
+std::variant<uint64_t, DatabaseError> TagRepository::Create(const Tags& entity)
 {
     try
     {
@@ -14,7 +15,8 @@ std::variant<std::string, DatabaseError> TagRepository::Create(const Tags& entit
         {
             return DatabaseError::AlreadyExists;
         }
-        return Mapper().insertFuture(entity).get().getValueOfId();
+        auto id = Mapper().insertFuture(entity).get().getValueOfId();
+        return static_cast<uint64_t>(id);
     }
     catch(const std::exception& e)
     {
@@ -22,7 +24,7 @@ std::variant<std::string, DatabaseError> TagRepository::Create(const Tags& entit
     }
 }
 
-std::variant<Tags, DatabaseError> TagRepository::GetByID(std::string id)
+std::variant<Tags, DatabaseError> TagRepository::GetByID(uint64_t id)
 {
     try
     {
@@ -38,7 +40,7 @@ std::variant<Tags, DatabaseError> TagRepository::GetByID(std::string id)
     }
 }
 
-std::variant<bool, DatabaseError> TagRepository::Update(std::string id, const Tags& entity)
+std::variant<bool, DatabaseError> TagRepository::Update(uint64_t id, const Tags& entity)
 {
     try
     {
@@ -55,7 +57,7 @@ std::variant<bool, DatabaseError> TagRepository::Update(std::string id, const Ta
     }
 }
 
-std::variant<bool, DatabaseError> TagRepository::Delete(std::string id)
+std::variant<bool, DatabaseError> TagRepository::Delete(uint64_t id)
 {
     try
     {
@@ -83,7 +85,7 @@ std::variant<std::vector<Tags>, DatabaseError> TagRepository::ReadAll()
     }
 }
 
-std::variant<bool, DatabaseError> TagRepository::Exists(std::string id)
+std::variant<bool, DatabaseError> TagRepository::Exists(uint64_t id)
 {
     try
     {

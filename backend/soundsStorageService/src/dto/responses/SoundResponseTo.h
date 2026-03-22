@@ -1,6 +1,8 @@
+// SoundResponseTo.h
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <json/json.h>
 
 namespace soundwaveSounds::dto
@@ -9,8 +11,8 @@ namespace soundwaveSounds::dto
 class SoundResponseTo
 {
 public:
-    std::string id;
-    std::string userId;
+    uint64_t id;
+    uint64_t userId;
     std::string filename;
     std::string originalName;
     std::string filePath;

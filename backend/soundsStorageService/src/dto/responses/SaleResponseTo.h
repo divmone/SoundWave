@@ -1,6 +1,8 @@
+// SaleResponseTo.h
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <json/json.h>
 
 namespace soundwaveSounds::dto
@@ -9,9 +11,9 @@ namespace soundwaveSounds::dto
 class SaleResponseTo
 {
 public:
-    std::string id;
-    std::string productId;
-    std::string buyerId;
+    uint64_t id;
+    uint64_t productId;
+    uint64_t buyerId;
     std::string amount;
     std::string paymentMethod;
     std::string status;

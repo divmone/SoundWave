@@ -1,3 +1,4 @@
+// SoundService.cpp
 #include <services/SoundService.h>
 #include <storage/database/SoundRepository.h>
 #include <mapping/SoundMapper.h>
@@ -26,7 +27,7 @@ SoundResponseTo SoundService::Create(const SoundRequestTo& request)
         throw DatabaseException("Failed to create sound");
     }
 
-    auto id = std::get<std::string>(result);
+    auto id = std::get<uint64_t>(result);
     auto getResult = m_dao->GetByID(id);
 
     if (std::holds_alternative<DatabaseError>(getResult))
@@ -37,7 +38,7 @@ SoundResponseTo SoundService::Create(const SoundRequestTo& request)
     return SoundMapper::ToResponse(std::get<Sounds>(getResult));
 }
 
-SoundResponseTo SoundService::Read(const std::string& id)
+SoundResponseTo SoundService::Read(uint64_t id)
 {
     auto result = m_dao->GetByID(id);
 
@@ -54,7 +55,7 @@ SoundResponseTo SoundService::Read(const std::string& id)
     return SoundMapper::ToResponse(std::get<Sounds>(result));
 }
 
-SoundResponseTo SoundService::Update(const SoundRequestTo& request, const std::string& id)
+SoundResponseTo SoundService::Update(const SoundRequestTo& request, uint64_t id)
 {
     request.validate();
 
@@ -81,7 +82,7 @@ SoundResponseTo SoundService::Update(const SoundRequestTo& request, const std::s
     return SoundMapper::ToResponse(std::get<Sounds>(getResult));
 }
 
-bool SoundService::Delete(const std::string& id)
+bool SoundService::Delete(uint64_t id)
 {
     auto result = m_dao->Delete(id);
 
@@ -110,7 +111,7 @@ std::vector<SoundResponseTo> SoundService::GetAll()
     return SoundMapper::ToResponseList(std::get<std::vector<Sounds>>(result));
 }
 
-std::vector<SoundResponseTo> SoundService::GetByUserId(const std::string& userId)
+std::vector<SoundResponseTo> SoundService::GetByUserId(uint64_t userId)
 {
     auto result = m_dao->FindByUserId(userId);
 

@@ -1,8 +1,10 @@
+// ProductService.h
 #pragma once
 
 #include <memory>
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <dto/requests/ProductRequestTo.h>
 #include <dto/responses/ProductResponseTo.h>
 #include <models/Products.h>
@@ -25,16 +27,16 @@ public:
         std::shared_ptr<ProductTagRepository> productTagRepository);
 
     dto::ProductResponseTo Create(const dto::ProductRequestTo& request);
-    dto::ProductResponseTo Read(const std::string& id);
-    dto::ProductResponseTo Update(const dto::ProductRequestTo& request, const std::string& id);
-    bool Delete(const std::string& id);
+    dto::ProductResponseTo Read(uint64_t id);
+    dto::ProductResponseTo Update(const dto::ProductRequestTo& request, uint64_t id);
+    bool Delete(uint64_t id);
     uint64_t GetAmount();
     std::vector<dto::ProductResponseTo> GetAll();
-    std::vector<dto::ProductResponseTo> GetSoundsPage(const uint64_t pageNum);
-    std::vector<dto::ProductResponseTo> GetByAuthorId(const std::string& authorId);
+    std::vector<dto::ProductResponseTo> GetSoundsPage(uint64_t pageNum);
+    std::vector<dto::ProductResponseTo> GetByAuthorId(uint64_t authorId);
     std::vector<dto::ProductResponseTo> GetPublished();
     std::vector<dto::ProductResponseTo> GetByPriceRange(const std::string& minPrice, const std::string& maxPrice);
-    std::vector<dto::ProductResponseTo> GetByTags(const std::vector<std::string>& tagIds);
+    std::vector<dto::ProductResponseTo> GetByTags(const std::vector<uint64_t>& tagIds);
 
 private:
     dto::ProductResponseTo EnrichWithTags(const Products& product);

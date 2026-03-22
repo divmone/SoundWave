@@ -1,7 +1,9 @@
+// SoundRequestTo.h
 #pragma once
 
 #include <string>
 #include <optional>
+#include <cstdint>
 #include <json/json.h>
 #include <exceptions/ValidationException.h>
 
@@ -11,8 +13,8 @@ namespace soundwaveSounds::dto
 class SoundRequestTo
 {
 public:
-    std::optional<std::string> id;
-    std::string userId;
+    std::optional<uint64_t> id;
+    uint64_t userId;
     std::string filename;
     std::string originalName;
     std::string filePath;
@@ -39,8 +41,8 @@ public:
     static SoundRequestTo fromJson(const Json::Value& json)
     {
         SoundRequestTo dto;
-        if (json.isMember("id")) dto.id = json["id"].asString();
-        if (json.isMember("userId")) dto.userId = json["userId"].asString();
+        if (json.isMember("id")) dto.id = json["id"].asUInt64();
+        if (json.isMember("userId")) dto.userId = json["userId"].asUInt64();
         if (json.isMember("filename")) dto.filename = json["filename"].asString();
         if (json.isMember("originalName")) dto.originalName = json["originalName"].asString();
         if (json.isMember("filePath")) dto.filePath = json["filePath"].asString();

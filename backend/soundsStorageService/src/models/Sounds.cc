@@ -28,8 +28,8 @@ const bool Sounds::hasPrimaryKey = true;
 const std::string Sounds::tableName = "sounds";
 
 const std::vector<typename Sounds::MetaData> Sounds::metaData_={
-{"id","std::string","uuid",0,0,1,1},
-{"user_id","std::string","uuid",0,0,0,1},
+{"id","int64_t","bigint",8,1,1,1},
+{"user_id","int64_t","bigint",8,0,0,1},
 {"filename","std::string","character varying",512,0,0,1},
 {"original_name","std::string","character varying",512,0,0,1},
 {"file_path","std::string","character varying",1024,0,0,1},
@@ -50,11 +50,11 @@ Sounds::Sounds(const Row &r, const ssize_t indexOffset) noexcept
     {
         if(!r["id"].isNull())
         {
-            id_=std::make_shared<std::string>(r["id"].as<std::string>());
+            id_=std::make_shared<int64_t>(r["id"].as<int64_t>());
         }
         if(!r["user_id"].isNull())
         {
-            userId_=std::make_shared<std::string>(r["user_id"].as<std::string>());
+            userId_=std::make_shared<int64_t>(r["user_id"].as<int64_t>());
         }
         if(!r["filename"].isNull())
         {
@@ -137,12 +137,12 @@ Sounds::Sounds(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 0;
         if(!r[index].isNull())
         {
-            id_=std::make_shared<std::string>(r[index].as<std::string>());
+            id_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 1;
         if(!r[index].isNull())
         {
-            userId_=std::make_shared<std::string>(r[index].as<std::string>());
+            userId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 2;
         if(!r[index].isNull())
@@ -236,7 +236,7 @@ Sounds::Sounds(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[0] = true;
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -244,7 +244,7 @@ Sounds::Sounds(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            userId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            userId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -356,7 +356,7 @@ Sounds::Sounds(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[0]=true;
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("user_id"))
@@ -364,7 +364,7 @@ Sounds::Sounds(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1]=true;
         if(!pJson["user_id"].isNull())
         {
-            userId_=std::make_shared<std::string>(pJson["user_id"].asString());
+            userId_=std::make_shared<int64_t>((int64_t)pJson["user_id"].asInt64());
         }
     }
     if(pJson.isMember("filename"))
@@ -481,7 +481,7 @@ void Sounds::updateByMasqueradedJson(const Json::Value &pJson,
     {
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -489,7 +489,7 @@ void Sounds::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            userId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            userId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -600,7 +600,7 @@ void Sounds::updateByJson(const Json::Value &pJson) noexcept(false)
     {
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("user_id"))
@@ -608,7 +608,7 @@ void Sounds::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1] = true;
         if(!pJson["user_id"].isNull())
         {
-            userId_=std::make_shared<std::string>(pJson["user_id"].asString());
+            userId_=std::make_shared<int64_t>((int64_t)pJson["user_id"].asInt64());
         }
     }
     if(pJson.isMember("filename"))
@@ -713,25 +713,20 @@ void Sounds::updateByJson(const Json::Value &pJson) noexcept(false)
     }
 }
 
-const std::string &Sounds::getValueOfId() const noexcept
+const int64_t &Sounds::getValueOfId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(id_)
         return *id_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Sounds::getId() const noexcept
+const std::shared_ptr<int64_t> &Sounds::getId() const noexcept
 {
     return id_;
 }
-void Sounds::setId(const std::string &pId) noexcept
+void Sounds::setId(const int64_t &pId) noexcept
 {
-    id_ = std::make_shared<std::string>(pId);
-    dirtyFlag_[0] = true;
-}
-void Sounds::setId(std::string &&pId) noexcept
-{
-    id_ = std::make_shared<std::string>(std::move(pId));
+    id_ = std::make_shared<int64_t>(pId);
     dirtyFlag_[0] = true;
 }
 const typename Sounds::PrimaryKeyType & Sounds::getPrimaryKey() const
@@ -740,25 +735,20 @@ const typename Sounds::PrimaryKeyType & Sounds::getPrimaryKey() const
     return *id_;
 }
 
-const std::string &Sounds::getValueOfUserId() const noexcept
+const int64_t &Sounds::getValueOfUserId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(userId_)
         return *userId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Sounds::getUserId() const noexcept
+const std::shared_ptr<int64_t> &Sounds::getUserId() const noexcept
 {
     return userId_;
 }
-void Sounds::setUserId(const std::string &pUserId) noexcept
+void Sounds::setUserId(const int64_t &pUserId) noexcept
 {
-    userId_ = std::make_shared<std::string>(pUserId);
-    dirtyFlag_[1] = true;
-}
-void Sounds::setUserId(std::string &&pUserId) noexcept
-{
-    userId_ = std::make_shared<std::string>(std::move(pUserId));
+    userId_ = std::make_shared<int64_t>(pUserId);
     dirtyFlag_[1] = true;
 }
 
@@ -925,7 +915,6 @@ void Sounds::updateId(const uint64_t id)
 const std::vector<std::string> &Sounds::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
-        "id",
         "user_id",
         "filename",
         "original_name",
@@ -941,17 +930,6 @@ const std::vector<std::string> &Sounds::insertColumns() noexcept
 
 void Sounds::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getUserId())
@@ -1056,10 +1034,6 @@ void Sounds::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 const std::vector<std::string> Sounds::updateColumns() const
 {
     std::vector<std::string> ret;
-    if(dirtyFlag_[0])
-    {
-        ret.push_back(getColumnName(0));
-    }
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
@@ -1101,17 +1075,6 @@ const std::vector<std::string> Sounds::updateColumns() const
 
 void Sounds::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getUserId())
@@ -1217,7 +1180,7 @@ Json::Value Sounds::toJson() const
     Json::Value ret;
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -1225,7 +1188,7 @@ Json::Value Sounds::toJson() const
     }
     if(getUserId())
     {
-        ret["user_id"]=getValueOfUserId();
+        ret["user_id"]=(Json::Int64)getValueOfUserId();
     }
     else
     {
@@ -1308,7 +1271,7 @@ Json::Value Sounds::toMasqueradedJson(
         {
             if(getId())
             {
-                ret[pMasqueradingVector[0]]=getValueOfId();
+                ret[pMasqueradingVector[0]]=(Json::Int64)getValueOfId();
             }
             else
             {
@@ -1319,7 +1282,7 @@ Json::Value Sounds::toMasqueradedJson(
         {
             if(getUserId())
             {
-                ret[pMasqueradingVector[1]]=getValueOfUserId();
+                ret[pMasqueradingVector[1]]=(Json::Int64)getValueOfUserId();
             }
             else
             {
@@ -1419,7 +1382,7 @@ Json::Value Sounds::toMasqueradedJson(
     LOG_ERROR << "Masquerade failed";
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -1427,7 +1390,7 @@ Json::Value Sounds::toMasqueradedJson(
     }
     if(getUserId())
     {
-        ret["user_id"]=getValueOfUserId();
+        ret["user_id"]=(Json::Int64)getValueOfUserId();
     }
     else
     {
@@ -1506,11 +1469,6 @@ bool Sounds::validateJsonForCreation(const Json::Value &pJson, std::string &err)
     {
         if(!validJsonOfField(0, "id", pJson["id"], err, true))
             return false;
-    }
-    else
-    {
-        err="The id column cannot be null";
-        return false;
     }
     if(pJson.isMember("user_id"))
     {
@@ -1611,11 +1569,6 @@ bool Sounds::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
                   return false;
           }
-        else
-        {
-            err="The " + pMasqueradingVector[0] + " column cannot be null";
-            return false;
-        }
       }
       if(!pMasqueradingVector[1].empty())
       {
@@ -1878,7 +1831,12 @@ bool Sounds::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(isForCreation)
+            {
+                err="The automatic primary key cannot be set";
+                return false;
+            }
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1890,7 +1848,7 @@ bool Sounds::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

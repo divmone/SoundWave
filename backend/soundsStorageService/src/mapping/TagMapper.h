@@ -1,6 +1,8 @@
+// TagMapper.h
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include <models/Tags.h>
 #include <dto/requests/TagRequestTo.h>
 #include <dto/responses/TagResponseTo.h>
@@ -25,7 +27,7 @@ public:
         return entity;
     }
 
-    static Tags ToEntityForUpdate(const TagRequestTo& dto, const std::string& id)
+    static Tags ToEntityForUpdate(const TagRequestTo& dto, uint64_t id)
     {
         Tags entity;
         entity.setId(id);

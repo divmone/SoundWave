@@ -1,3 +1,4 @@
+// ProductService.cpp
 #include <services/ProductService.h>
 #include <storage/database/ProductRepository.h>
 #include <storage/database/TagRepository.h>
@@ -7,7 +8,6 @@
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
 #include <exceptions/ValidationException.h>
-#include "ProductService.h"
 
 namespace soundwaveSounds
 {
@@ -36,7 +36,7 @@ ProductResponseTo ProductService::Create(const ProductRequestTo& request)
         throw DatabaseException("Failed to create product");
     }
 
-    auto id = std::get<std::string>(result);
+    auto id = std::get<uint64_t>(result);
 
     for (const auto& tagId : request.tagIds)
     {
@@ -57,7 +57,7 @@ ProductResponseTo ProductService::Create(const ProductRequestTo& request)
     return EnrichWithTags(std::get<Products>(getResult));
 }
 
-ProductResponseTo ProductService::Read(const std::string& id)
+ProductResponseTo ProductService::Read(uint64_t id)
 {
     auto result = m_productDao->GetByID(id);
 
@@ -74,7 +74,7 @@ ProductResponseTo ProductService::Read(const std::string& id)
     return EnrichWithTags(std::get<Products>(result));
 }
 
-ProductResponseTo ProductService::Update(const ProductRequestTo& request, const std::string& id)
+ProductResponseTo ProductService::Update(const ProductRequestTo& request, uint64_t id)
 {
     request.validate();
 
@@ -101,7 +101,7 @@ ProductResponseTo ProductService::Update(const ProductRequestTo& request, const 
     return EnrichWithTags(std::get<Products>(getResult));
 }
 
-bool ProductService::Delete(const std::string& id)
+bool ProductService::Delete(uint64_t id)
 {
     auto result = m_productDao->Delete(id);
 
@@ -117,7 +117,6 @@ bool ProductService::Delete(const std::string& id)
 
     return std::get<bool>(result);
 }
-
 
 uint64_t ProductService::GetAmount()
 {
@@ -144,7 +143,7 @@ std::vector<ProductResponseTo> ProductService::GetAll()
     return EnrichListWithTags(std::get<std::vector<Products>>(result));
 }
 
-std::vector<dto::ProductResponseTo> ProductService::GetSoundsPage(const uint64_t pageNum)
+std::vector<ProductResponseTo> ProductService::GetSoundsPage(uint64_t pageNum)
 {
     auto result = m_productDao->GetPage(pageNum);
 
@@ -161,7 +160,7 @@ std::vector<dto::ProductResponseTo> ProductService::GetSoundsPage(const uint64_t
     return EnrichListWithTags(std::get<std::vector<Products>>(result));
 }
 
-std::vector<ProductResponseTo> ProductService::GetByAuthorId(const std::string& authorId)
+std::vector<ProductResponseTo> ProductService::GetByAuthorId(uint64_t authorId)
 {
     auto result = m_productDao->FindByAuthorId(authorId);
 
@@ -197,9 +196,9 @@ std::vector<ProductResponseTo> ProductService::GetByPriceRange(const std::string
     return EnrichListWithTags(std::get<std::vector<Products>>(result));
 }
 
-std::vector<ProductResponseTo> ProductService::GetByTags(const std::vector<std::string>& tagIds)
+std::vector<ProductResponseTo> ProductService::GetByTags(const std::vector<uint64_t>& tagIds)
 {
-    std::unordered_set<std::string> productIds;
+    std::unordered_set<uint64_t> productIds;
 
     for (const auto& tagId : tagIds)
     {
@@ -208,7 +207,7 @@ std::vector<ProductResponseTo> ProductService::GetByTags(const std::vector<std::
         {
             throw DatabaseException("Failed to retrieve products by tag");
         }
-        auto ids = std::get<std::vector<std::string>>(result);
+        auto ids = std::get<std::vector<uint64_t>>(result);
         for (const auto& id : ids)
         {
             productIds.insert(id);
@@ -231,12 +230,12 @@ std::vector<ProductResponseTo> ProductService::GetByTags(const std::vector<std::
 ProductResponseTo ProductService::EnrichWithTags(const Products& product)
 {
     auto tagIdsResult = m_productTagDao->GetTagsByProductId(product.getValueOfId());
-    std::vector<std::string> tagIds;
+    std::vector<uint64_t> tagIds;
     std::vector<std::string> tagNames;
 
-    if (std::holds_alternative<std::vector<std::string>>(tagIdsResult))
+    if (std::holds_alternative<std::vector<uint64_t>>(tagIdsResult))
     {
-        tagIds = std::get<std::vector<std::string>>(tagIdsResult);
+        tagIds = std::get<std::vector<uint64_t>>(tagIdsResult);
         for (const auto& tagId : tagIds)
         {
             auto tagResult = m_tagDao->GetByID(tagId);

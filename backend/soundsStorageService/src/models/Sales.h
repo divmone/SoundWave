@@ -57,7 +57,7 @@ class Sales
     const static std::string tableName;
     const static bool hasPrimaryKey;
     const static std::string primaryKeyName;
-    using PrimaryKeyType = std::string;
+    using PrimaryKeyType = int64_t;
     const PrimaryKeyType &getPrimaryKey() const;
 
     /**
@@ -104,30 +104,27 @@ class Sales
 
     /**  For column id  */
     ///Get the value of the column id, returns the default value if the column is null
-    const std::string &getValueOfId() const noexcept;
+    const int64_t &getValueOfId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getId() const noexcept;
+    const std::shared_ptr<int64_t> &getId() const noexcept;
     ///Set the value of the column id
-    void setId(const std::string &pId) noexcept;
-    void setId(std::string &&pId) noexcept;
+    void setId(const int64_t &pId) noexcept;
 
     /**  For column product_id  */
     ///Get the value of the column product_id, returns the default value if the column is null
-    const std::string &getValueOfProductId() const noexcept;
+    const int64_t &getValueOfProductId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getProductId() const noexcept;
+    const std::shared_ptr<int64_t> &getProductId() const noexcept;
     ///Set the value of the column product_id
-    void setProductId(const std::string &pProductId) noexcept;
-    void setProductId(std::string &&pProductId) noexcept;
+    void setProductId(const int64_t &pProductId) noexcept;
 
     /**  For column buyer_id  */
     ///Get the value of the column buyer_id, returns the default value if the column is null
-    const std::string &getValueOfBuyerId() const noexcept;
+    const int64_t &getValueOfBuyerId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getBuyerId() const noexcept;
+    const std::shared_ptr<int64_t> &getBuyerId() const noexcept;
     ///Set the value of the column buyer_id
-    void setBuyerId(const std::string &pBuyerId) noexcept;
-    void setBuyerId(std::string &&pBuyerId) noexcept;
+    void setBuyerId(const int64_t &pBuyerId) noexcept;
 
     /**  For column amount  */
     ///Get the value of the column amount, returns the default value if the column is null
@@ -188,9 +185,9 @@ class Sales
     void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
     ///For mysql or sqlite3
     void updateId(const uint64_t id);
-    std::shared_ptr<std::string> id_;
-    std::shared_ptr<std::string> productId_;
-    std::shared_ptr<std::string> buyerId_;
+    std::shared_ptr<int64_t> id_;
+    std::shared_ptr<int64_t> productId_;
+    std::shared_ptr<int64_t> buyerId_;
     std::shared_ptr<std::string> amount_;
     std::shared_ptr<std::string> paymentMethod_;
     std::shared_ptr<std::string> status_;
@@ -224,11 +221,8 @@ class Sales
         std::string sql="insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
-        if(dirtyFlag_[0])
-        {
             sql += "id,";
             ++parametersCount;
-        }
         if(dirtyFlag_[1])
         {
             sql += "product_id,";
@@ -261,6 +255,7 @@ class Sales
         {
             needSelection=true;
         }
+        needSelection=true;
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -272,11 +267,7 @@ class Sales
         int placeholder=1;
         char placeholderStr[64];
         size_t n=0;
-        if(dirtyFlag_[0])
-        {
-            n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
-            sql.append(placeholderStr, n);
-        }
+        sql +="default,";
         if(dirtyFlag_[1])
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);

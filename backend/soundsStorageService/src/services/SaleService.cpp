@@ -1,3 +1,4 @@
+// SaleService.cpp
 #include <services/SaleService.h>
 #include <storage/database/SaleRepository.h>
 #include <storage/database/ProductRepository.h>
@@ -18,7 +19,7 @@ SaleService::SaleService(
 {
 }
 
-void SaleService::IncrementProductDownloadCount(const std::string& productId)
+void SaleService::IncrementProductDownloadCount(uint64_t productId)
 {
     auto productResult = m_productDao->GetByID(productId);
     if (std::holds_alternative<Products>(productResult))
@@ -42,7 +43,7 @@ SaleResponseTo SaleService::Create(const SaleRequestTo& request)
         throw DatabaseException("Failed to create sale");
     }
 
-    auto id = std::get<std::string>(result);
+    auto id = std::get<uint64_t>(result);
 
     IncrementProductDownloadCount(request.productId);
 
@@ -56,7 +57,7 @@ SaleResponseTo SaleService::Create(const SaleRequestTo& request)
     return SaleMapper::ToResponse(std::get<Sales>(getResult));
 }
 
-SaleResponseTo SaleService::Read(const std::string& id)
+SaleResponseTo SaleService::Read(uint64_t id)
 {
     auto result = m_saleDao->GetByID(id);
 
@@ -73,7 +74,7 @@ SaleResponseTo SaleService::Read(const std::string& id)
     return SaleMapper::ToResponse(std::get<Sales>(result));
 }
 
-SaleResponseTo SaleService::Update(const SaleRequestTo& request, const std::string& id)
+SaleResponseTo SaleService::Update(const SaleRequestTo& request, uint64_t id)
 {
     request.validate();
 
@@ -100,7 +101,7 @@ SaleResponseTo SaleService::Update(const SaleRequestTo& request, const std::stri
     return SaleMapper::ToResponse(std::get<Sales>(getResult));
 }
 
-bool SaleService::Delete(const std::string& id)
+bool SaleService::Delete(uint64_t id)
 {
     auto result = m_saleDao->Delete(id);
 
@@ -129,7 +130,7 @@ std::vector<SaleResponseTo> SaleService::GetAll()
     return SaleMapper::ToResponseList(std::get<std::vector<Sales>>(result));
 }
 
-std::vector<SaleResponseTo> SaleService::GetByProductId(const std::string& productId)
+std::vector<SaleResponseTo> SaleService::GetByProductId(uint64_t productId)
 {
     auto result = m_saleDao->FindByProductId(productId);
 
@@ -141,7 +142,7 @@ std::vector<SaleResponseTo> SaleService::GetByProductId(const std::string& produ
     return SaleMapper::ToResponseList(std::get<std::vector<Sales>>(result));
 }
 
-std::vector<SaleResponseTo> SaleService::GetByBuyerId(const std::string& buyerId)
+std::vector<SaleResponseTo> SaleService::GetByBuyerId(uint64_t buyerId)
 {
     auto result = m_saleDao->FindByBuyerId(buyerId);
 
@@ -180,7 +181,7 @@ std::vector<SaleResponseTo> SaleService::GetByDateRange(const std::string& start
     return SaleMapper::ToResponseList(std::get<std::vector<Sales>>(result));
 }
 
-std::string SaleService::GetTotalRevenueByProduct(const std::string& productId)
+std::string SaleService::GetTotalRevenueByProduct(uint64_t productId)
 {
     try
     {
@@ -199,7 +200,7 @@ std::string SaleService::GetTotalRevenueByProduct(const std::string& productId)
     }
 }
 
-std::string SaleService::GetTotalRevenueByAuthor(const std::string& authorId)
+std::string SaleService::GetTotalRevenueByAuthor(uint64_t authorId)
 {
     try
     {

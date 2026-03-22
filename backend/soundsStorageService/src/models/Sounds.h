@@ -60,7 +60,7 @@ class Sounds
     const static std::string tableName;
     const static bool hasPrimaryKey;
     const static std::string primaryKeyName;
-    using PrimaryKeyType = std::string;
+    using PrimaryKeyType = int64_t;
     const PrimaryKeyType &getPrimaryKey() const;
 
     /**
@@ -107,21 +107,19 @@ class Sounds
 
     /**  For column id  */
     ///Get the value of the column id, returns the default value if the column is null
-    const std::string &getValueOfId() const noexcept;
+    const int64_t &getValueOfId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getId() const noexcept;
+    const std::shared_ptr<int64_t> &getId() const noexcept;
     ///Set the value of the column id
-    void setId(const std::string &pId) noexcept;
-    void setId(std::string &&pId) noexcept;
+    void setId(const int64_t &pId) noexcept;
 
     /**  For column user_id  */
     ///Get the value of the column user_id, returns the default value if the column is null
-    const std::string &getValueOfUserId() const noexcept;
+    const int64_t &getValueOfUserId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getUserId() const noexcept;
+    const std::shared_ptr<int64_t> &getUserId() const noexcept;
     ///Set the value of the column user_id
-    void setUserId(const std::string &pUserId) noexcept;
-    void setUserId(std::string &&pUserId) noexcept;
+    void setUserId(const int64_t &pUserId) noexcept;
 
     /**  For column filename  */
     ///Get the value of the column filename, returns the default value if the column is null
@@ -213,8 +211,8 @@ class Sounds
     void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
     ///For mysql or sqlite3
     void updateId(const uint64_t id);
-    std::shared_ptr<std::string> id_;
-    std::shared_ptr<std::string> userId_;
+    std::shared_ptr<int64_t> id_;
+    std::shared_ptr<int64_t> userId_;
     std::shared_ptr<std::string> filename_;
     std::shared_ptr<std::string> originalName_;
     std::shared_ptr<std::string> filePath_;
@@ -252,11 +250,8 @@ class Sounds
         std::string sql="insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
-        if(dirtyFlag_[0])
-        {
             sql += "id,";
             ++parametersCount;
-        }
         if(dirtyFlag_[1])
         {
             sql += "user_id,";
@@ -304,6 +299,7 @@ class Sounds
         {
             needSelection=true;
         }
+        needSelection=true;
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -315,11 +311,7 @@ class Sounds
         int placeholder=1;
         char placeholderStr[64];
         size_t n=0;
-        if(dirtyFlag_[0])
-        {
-            n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
-            sql.append(placeholderStr, n);
-        }
+        sql +="default,";
         if(dirtyFlag_[1])
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);

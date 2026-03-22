@@ -1,6 +1,8 @@
+// ProductMapper.h
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include <models/Products.h>
 #include <models/Tags.h>
 #include <dto/requests/ProductRequestTo.h>
@@ -42,7 +44,7 @@ public:
         return entity;
     }
 
-    static Products ToEntityForUpdate(const ProductRequestTo& dto, const std::string& id)
+    static Products ToEntityForUpdate(const ProductRequestTo& dto, uint64_t id)
     {
         Products entity;
         entity.setId(id);
@@ -66,7 +68,7 @@ public:
         return entity;
     }
 
-    static ProductResponseTo ToResponse(const Products& entity, const std::vector<std::string>& tagIds = {}, const std::vector<std::string>& tagNames = {})
+    static ProductResponseTo ToResponse(const Products& entity, const std::vector<uint64_t>& tagIds = {}, const std::vector<std::string>& tagNames = {})
     {
         ProductResponseTo dto;
         dto.id = entity.getValueOfId();

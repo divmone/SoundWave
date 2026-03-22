@@ -1,6 +1,8 @@
+// TagResponseTo.h
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <json/json.h>
 
 namespace soundwaveSounds::dto
@@ -9,7 +11,7 @@ namespace soundwaveSounds::dto
 class TagResponseTo
 {
 public:
-    std::string id;
+    uint64_t id;
     std::string name;
     std::string createdAt;
 

@@ -53,7 +53,7 @@ class ProductTags
     const static std::string tableName;
     const static bool hasPrimaryKey;
     const static std::vector<std::string> primaryKeyName;
-    using PrimaryKeyType = std::tuple<std::string,std::string>;//product_id,tag_id
+    using PrimaryKeyType = std::tuple<int64_t,int64_t>;//product_id,tag_id
     PrimaryKeyType getPrimaryKey() const;
 
     /**
@@ -100,21 +100,19 @@ class ProductTags
 
     /**  For column product_id  */
     ///Get the value of the column product_id, returns the default value if the column is null
-    const std::string &getValueOfProductId() const noexcept;
+    const int64_t &getValueOfProductId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getProductId() const noexcept;
+    const std::shared_ptr<int64_t> &getProductId() const noexcept;
     ///Set the value of the column product_id
-    void setProductId(const std::string &pProductId) noexcept;
-    void setProductId(std::string &&pProductId) noexcept;
+    void setProductId(const int64_t &pProductId) noexcept;
 
     /**  For column tag_id  */
     ///Get the value of the column tag_id, returns the default value if the column is null
-    const std::string &getValueOfTagId() const noexcept;
+    const int64_t &getValueOfTagId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getTagId() const noexcept;
+    const std::shared_ptr<int64_t> &getTagId() const noexcept;
     ///Set the value of the column tag_id
-    void setTagId(const std::string &pTagId) noexcept;
-    void setTagId(std::string &&pTagId) noexcept;
+    void setTagId(const int64_t &pTagId) noexcept;
 
     /**  For column created_at  */
     ///Get the value of the column created_at, returns the default value if the column is null
@@ -147,8 +145,8 @@ class ProductTags
     void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
     ///For mysql or sqlite3
     void updateId(const uint64_t id);
-    std::shared_ptr<std::string> productId_;
-    std::shared_ptr<std::string> tagId_;
+    std::shared_ptr<int64_t> productId_;
+    std::shared_ptr<int64_t> tagId_;
     std::shared_ptr<::trantor::Date> createdAt_;
     struct MetaData
     {

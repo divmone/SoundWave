@@ -1,3 +1,4 @@
+// SaleRepository.cpp
 #include "SaleRepository.h"
 
 namespace soundwaveSounds
@@ -5,11 +6,12 @@ namespace soundwaveSounds
 
 using namespace drogon::orm;
 
-std::variant<std::string, DatabaseError> SaleRepository::Create(const Sales& entity)
+std::variant<uint64_t, DatabaseError> SaleRepository::Create(const Sales& entity)
 {
     try
     {
-        return Mapper().insertFuture(entity).get().getValueOfId();
+        auto id = Mapper().insertFuture(entity).get().getValueOfId();
+        return static_cast<uint64_t>(id);
     }
     catch(const std::exception& e)
     {
@@ -17,7 +19,7 @@ std::variant<std::string, DatabaseError> SaleRepository::Create(const Sales& ent
     }
 }
 
-std::variant<Sales, DatabaseError> SaleRepository::GetByID(std::string id)
+std::variant<Sales, DatabaseError> SaleRepository::GetByID(uint64_t id)
 {
     try
     {
@@ -33,7 +35,7 @@ std::variant<Sales, DatabaseError> SaleRepository::GetByID(std::string id)
     }
 }
 
-std::variant<bool, DatabaseError> SaleRepository::Update(std::string id, const Sales& entity)
+std::variant<bool, DatabaseError> SaleRepository::Update(uint64_t id, const Sales& entity)
 {
     try
     {
@@ -50,7 +52,7 @@ std::variant<bool, DatabaseError> SaleRepository::Update(std::string id, const S
     }
 }
 
-std::variant<bool, DatabaseError> SaleRepository::Delete(std::string id)
+std::variant<bool, DatabaseError> SaleRepository::Delete(uint64_t id)
 {
     try
     {
@@ -78,7 +80,7 @@ std::variant<std::vector<Sales>, DatabaseError> SaleRepository::ReadAll()
     }
 }
 
-std::variant<bool, DatabaseError> SaleRepository::Exists(std::string id)
+std::variant<bool, DatabaseError> SaleRepository::Exists(uint64_t id)
 {
     try
     {
@@ -95,7 +97,7 @@ std::variant<bool, DatabaseError> SaleRepository::Exists(std::string id)
     }
 }
 
-std::variant<std::vector<Sales>, DatabaseError> SaleRepository::FindByProductId(const std::string& productId)
+std::variant<std::vector<Sales>, DatabaseError> SaleRepository::FindByProductId(uint64_t productId)
 {
     try
     {
@@ -107,7 +109,7 @@ std::variant<std::vector<Sales>, DatabaseError> SaleRepository::FindByProductId(
     }
 }
 
-std::variant<std::vector<Sales>, DatabaseError> SaleRepository::FindByBuyerId(const std::string& buyerId)
+std::variant<std::vector<Sales>, DatabaseError> SaleRepository::FindByBuyerId(uint64_t buyerId)
 {
     try
     {

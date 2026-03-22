@@ -53,7 +53,7 @@ class Tags
     const static std::string tableName;
     const static bool hasPrimaryKey;
     const static std::string primaryKeyName;
-    using PrimaryKeyType = std::string;
+    using PrimaryKeyType = int64_t;
     const PrimaryKeyType &getPrimaryKey() const;
 
     /**
@@ -100,12 +100,11 @@ class Tags
 
     /**  For column id  */
     ///Get the value of the column id, returns the default value if the column is null
-    const std::string &getValueOfId() const noexcept;
+    const int64_t &getValueOfId() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getId() const noexcept;
+    const std::shared_ptr<int64_t> &getId() const noexcept;
     ///Set the value of the column id
-    void setId(const std::string &pId) noexcept;
-    void setId(std::string &&pId) noexcept;
+    void setId(const int64_t &pId) noexcept;
 
     /**  For column name  */
     ///Get the value of the column name, returns the default value if the column is null
@@ -147,7 +146,7 @@ class Tags
     void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
     ///For mysql or sqlite3
     void updateId(const uint64_t id);
-    std::shared_ptr<std::string> id_;
+    std::shared_ptr<int64_t> id_;
     std::shared_ptr<std::string> name_;
     std::shared_ptr<::trantor::Date> createdAt_;
     struct MetaData
@@ -179,11 +178,8 @@ class Tags
         std::string sql="insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
-        if(dirtyFlag_[0])
-        {
             sql += "id,";
             ++parametersCount;
-        }
         if(dirtyFlag_[1])
         {
             sql += "name,";
@@ -195,6 +191,7 @@ class Tags
         {
             needSelection=true;
         }
+        needSelection=true;
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -206,11 +203,7 @@ class Tags
         int placeholder=1;
         char placeholderStr[64];
         size_t n=0;
-        if(dirtyFlag_[0])
-        {
-            n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
-            sql.append(placeholderStr, n);
-        }
+        sql +="default,";
         if(dirtyFlag_[1])
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);

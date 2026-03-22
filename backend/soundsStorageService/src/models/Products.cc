@@ -29,9 +29,9 @@ const bool Products::hasPrimaryKey = true;
 const std::string Products::tableName = "products";
 
 const std::vector<typename Products::MetaData> Products::metaData_={
-{"id","std::string","uuid",0,0,1,1},
-{"sound_id","std::string","uuid",0,0,0,1},
-{"author_id","std::string","uuid",0,0,0,1},
+{"id","int64_t","bigint",8,1,1,1},
+{"sound_id","int64_t","bigint",8,0,0,1},
+{"author_id","int64_t","bigint",8,0,0,1},
 {"title","std::string","character varying",255,0,0,1},
 {"description","std::string","text",0,0,0,0},
 {"price","std::string","numeric",0,0,0,1},
@@ -52,15 +52,15 @@ Products::Products(const Row &r, const ssize_t indexOffset) noexcept
     {
         if(!r["id"].isNull())
         {
-            id_=std::make_shared<std::string>(r["id"].as<std::string>());
+            id_=std::make_shared<int64_t>(r["id"].as<int64_t>());
         }
         if(!r["sound_id"].isNull())
         {
-            soundId_=std::make_shared<std::string>(r["sound_id"].as<std::string>());
+            soundId_=std::make_shared<int64_t>(r["sound_id"].as<int64_t>());
         }
         if(!r["author_id"].isNull())
         {
-            authorId_=std::make_shared<std::string>(r["author_id"].as<std::string>());
+            authorId_=std::make_shared<int64_t>(r["author_id"].as<int64_t>());
         }
         if(!r["title"].isNull())
         {
@@ -143,17 +143,17 @@ Products::Products(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 0;
         if(!r[index].isNull())
         {
-            id_=std::make_shared<std::string>(r[index].as<std::string>());
+            id_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 1;
         if(!r[index].isNull())
         {
-            soundId_=std::make_shared<std::string>(r[index].as<std::string>());
+            soundId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 2;
         if(!r[index].isNull())
         {
-            authorId_=std::make_shared<std::string>(r[index].as<std::string>());
+            authorId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 3;
         if(!r[index].isNull())
@@ -247,7 +247,7 @@ Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMa
         dirtyFlag_[0] = true;
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -255,7 +255,7 @@ Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMa
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            soundId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            soundId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -263,7 +263,7 @@ Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMa
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            authorId_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            authorId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -375,7 +375,7 @@ Products::Products(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[0]=true;
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("sound_id"))
@@ -383,7 +383,7 @@ Products::Products(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1]=true;
         if(!pJson["sound_id"].isNull())
         {
-            soundId_=std::make_shared<std::string>(pJson["sound_id"].asString());
+            soundId_=std::make_shared<int64_t>((int64_t)pJson["sound_id"].asInt64());
         }
     }
     if(pJson.isMember("author_id"))
@@ -391,7 +391,7 @@ Products::Products(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2]=true;
         if(!pJson["author_id"].isNull())
         {
-            authorId_=std::make_shared<std::string>(pJson["author_id"].asString());
+            authorId_=std::make_shared<int64_t>((int64_t)pJson["author_id"].asInt64());
         }
     }
     if(pJson.isMember("title"))
@@ -508,7 +508,7 @@ void Products::updateByMasqueradedJson(const Json::Value &pJson,
     {
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            id_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -516,7 +516,7 @@ void Products::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            soundId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            soundId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -524,7 +524,7 @@ void Products::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            authorId_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            authorId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -635,7 +635,7 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
     {
         if(!pJson["id"].isNull())
         {
-            id_=std::make_shared<std::string>(pJson["id"].asString());
+            id_=std::make_shared<int64_t>((int64_t)pJson["id"].asInt64());
         }
     }
     if(pJson.isMember("sound_id"))
@@ -643,7 +643,7 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1] = true;
         if(!pJson["sound_id"].isNull())
         {
-            soundId_=std::make_shared<std::string>(pJson["sound_id"].asString());
+            soundId_=std::make_shared<int64_t>((int64_t)pJson["sound_id"].asInt64());
         }
     }
     if(pJson.isMember("author_id"))
@@ -651,7 +651,7 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2] = true;
         if(!pJson["author_id"].isNull())
         {
-            authorId_=std::make_shared<std::string>(pJson["author_id"].asString());
+            authorId_=std::make_shared<int64_t>((int64_t)pJson["author_id"].asInt64());
         }
     }
     if(pJson.isMember("title"))
@@ -756,25 +756,20 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
     }
 }
 
-const std::string &Products::getValueOfId() const noexcept
+const int64_t &Products::getValueOfId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(id_)
         return *id_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Products::getId() const noexcept
+const std::shared_ptr<int64_t> &Products::getId() const noexcept
 {
     return id_;
 }
-void Products::setId(const std::string &pId) noexcept
+void Products::setId(const int64_t &pId) noexcept
 {
-    id_ = std::make_shared<std::string>(pId);
-    dirtyFlag_[0] = true;
-}
-void Products::setId(std::string &&pId) noexcept
-{
-    id_ = std::make_shared<std::string>(std::move(pId));
+    id_ = std::make_shared<int64_t>(pId);
     dirtyFlag_[0] = true;
 }
 const typename Products::PrimaryKeyType & Products::getPrimaryKey() const
@@ -783,47 +778,37 @@ const typename Products::PrimaryKeyType & Products::getPrimaryKey() const
     return *id_;
 }
 
-const std::string &Products::getValueOfSoundId() const noexcept
+const int64_t &Products::getValueOfSoundId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(soundId_)
         return *soundId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Products::getSoundId() const noexcept
+const std::shared_ptr<int64_t> &Products::getSoundId() const noexcept
 {
     return soundId_;
 }
-void Products::setSoundId(const std::string &pSoundId) noexcept
+void Products::setSoundId(const int64_t &pSoundId) noexcept
 {
-    soundId_ = std::make_shared<std::string>(pSoundId);
-    dirtyFlag_[1] = true;
-}
-void Products::setSoundId(std::string &&pSoundId) noexcept
-{
-    soundId_ = std::make_shared<std::string>(std::move(pSoundId));
+    soundId_ = std::make_shared<int64_t>(pSoundId);
     dirtyFlag_[1] = true;
 }
 
-const std::string &Products::getValueOfAuthorId() const noexcept
+const int64_t &Products::getValueOfAuthorId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(authorId_)
         return *authorId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Products::getAuthorId() const noexcept
+const std::shared_ptr<int64_t> &Products::getAuthorId() const noexcept
 {
     return authorId_;
 }
-void Products::setAuthorId(const std::string &pAuthorId) noexcept
+void Products::setAuthorId(const int64_t &pAuthorId) noexcept
 {
-    authorId_ = std::make_shared<std::string>(pAuthorId);
-    dirtyFlag_[2] = true;
-}
-void Products::setAuthorId(std::string &&pAuthorId) noexcept
-{
-    authorId_ = std::make_shared<std::string>(std::move(pAuthorId));
+    authorId_ = std::make_shared<int64_t>(pAuthorId);
     dirtyFlag_[2] = true;
 }
 
@@ -1010,7 +995,6 @@ void Products::updateId(const uint64_t id)
 const std::vector<std::string> &Products::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
-        "id",
         "sound_id",
         "author_id",
         "title",
@@ -1027,17 +1011,6 @@ const std::vector<std::string> &Products::insertColumns() noexcept
 
 void Products::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getSoundId())
@@ -1153,10 +1126,6 @@ void Products::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 const std::vector<std::string> Products::updateColumns() const
 {
     std::vector<std::string> ret;
-    if(dirtyFlag_[0])
-    {
-        ret.push_back(getColumnName(0));
-    }
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
@@ -1202,17 +1171,6 @@ const std::vector<std::string> Products::updateColumns() const
 
 void Products::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
-    if(dirtyFlag_[0])
-    {
-        if(getId())
-        {
-            binder << getValueOfId();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
     if(dirtyFlag_[1])
     {
         if(getSoundId())
@@ -1329,7 +1287,7 @@ Json::Value Products::toJson() const
     Json::Value ret;
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -1337,7 +1295,7 @@ Json::Value Products::toJson() const
     }
     if(getSoundId())
     {
-        ret["sound_id"]=getValueOfSoundId();
+        ret["sound_id"]=(Json::Int64)getValueOfSoundId();
     }
     else
     {
@@ -1345,7 +1303,7 @@ Json::Value Products::toJson() const
     }
     if(getAuthorId())
     {
-        ret["author_id"]=getValueOfAuthorId();
+        ret["author_id"]=(Json::Int64)getValueOfAuthorId();
     }
     else
     {
@@ -1428,7 +1386,7 @@ Json::Value Products::toMasqueradedJson(
         {
             if(getId())
             {
-                ret[pMasqueradingVector[0]]=getValueOfId();
+                ret[pMasqueradingVector[0]]=(Json::Int64)getValueOfId();
             }
             else
             {
@@ -1439,7 +1397,7 @@ Json::Value Products::toMasqueradedJson(
         {
             if(getSoundId())
             {
-                ret[pMasqueradingVector[1]]=getValueOfSoundId();
+                ret[pMasqueradingVector[1]]=(Json::Int64)getValueOfSoundId();
             }
             else
             {
@@ -1450,7 +1408,7 @@ Json::Value Products::toMasqueradedJson(
         {
             if(getAuthorId())
             {
-                ret[pMasqueradingVector[2]]=getValueOfAuthorId();
+                ret[pMasqueradingVector[2]]=(Json::Int64)getValueOfAuthorId();
             }
             else
             {
@@ -1550,7 +1508,7 @@ Json::Value Products::toMasqueradedJson(
     LOG_ERROR << "Masquerade failed";
     if(getId())
     {
-        ret["id"]=getValueOfId();
+        ret["id"]=(Json::Int64)getValueOfId();
     }
     else
     {
@@ -1558,7 +1516,7 @@ Json::Value Products::toMasqueradedJson(
     }
     if(getSoundId())
     {
-        ret["sound_id"]=getValueOfSoundId();
+        ret["sound_id"]=(Json::Int64)getValueOfSoundId();
     }
     else
     {
@@ -1566,7 +1524,7 @@ Json::Value Products::toMasqueradedJson(
     }
     if(getAuthorId())
     {
-        ret["author_id"]=getValueOfAuthorId();
+        ret["author_id"]=(Json::Int64)getValueOfAuthorId();
     }
     else
     {
@@ -1645,11 +1603,6 @@ bool Products::validateJsonForCreation(const Json::Value &pJson, std::string &er
     {
         if(!validJsonOfField(0, "id", pJson["id"], err, true))
             return false;
-    }
-    else
-    {
-        err="The id column cannot be null";
-        return false;
     }
     if(pJson.isMember("sound_id"))
     {
@@ -1740,11 +1693,6 @@ bool Products::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
                   return false;
           }
-        else
-        {
-            err="The " + pMasqueradingVector[0] + " column cannot be null";
-            return false;
-        }
       }
       if(!pMasqueradingVector[1].empty())
       {
@@ -2010,7 +1958,12 @@ bool Products::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(isForCreation)
+            {
+                err="The automatic primary key cannot be set";
+                return false;
+            }
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -2022,7 +1975,7 @@ bool Products::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -2034,7 +1987,7 @@ bool Products::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

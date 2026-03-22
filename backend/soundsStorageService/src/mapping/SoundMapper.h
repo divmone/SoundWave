@@ -1,6 +1,8 @@
+// SoundMapper.h
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include <models/Sounds.h>
 #include <dto/requests/SoundRequestTo.h>
 #include <dto/responses/SoundResponseTo.h>
@@ -31,7 +33,7 @@ public:
         return entity;
     }
 
-    static Sounds ToEntityForUpdate(const SoundRequestTo& dto, const std::string& id)
+    static Sounds ToEntityForUpdate(const SoundRequestTo& dto, uint64_t id)
     {
         Sounds entity;
         entity.setId(id);

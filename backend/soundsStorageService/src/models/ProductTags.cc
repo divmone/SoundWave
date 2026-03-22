@@ -21,8 +21,8 @@ const bool ProductTags::hasPrimaryKey = true;
 const std::string ProductTags::tableName = "product_tags";
 
 const std::vector<typename ProductTags::MetaData> ProductTags::metaData_={
-{"product_id","std::string","uuid",0,0,1,1},
-{"tag_id","std::string","uuid",0,0,1,1},
+{"product_id","int64_t","bigint",8,0,1,1},
+{"tag_id","int64_t","bigint",8,0,1,1},
 {"created_at","::trantor::Date","timestamp without time zone",0,0,0,0}
 };
 const std::string &ProductTags::getColumnName(size_t index) noexcept(false)
@@ -36,11 +36,11 @@ ProductTags::ProductTags(const Row &r, const ssize_t indexOffset) noexcept
     {
         if(!r["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(r["product_id"].as<std::string>());
+            productId_=std::make_shared<int64_t>(r["product_id"].as<int64_t>());
         }
         if(!r["tag_id"].isNull())
         {
-            tagId_=std::make_shared<std::string>(r["tag_id"].as<std::string>());
+            tagId_=std::make_shared<int64_t>(r["tag_id"].as<int64_t>());
         }
         if(!r["created_at"].isNull())
         {
@@ -77,12 +77,12 @@ ProductTags::ProductTags(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 0;
         if(!r[index].isNull())
         {
-            productId_=std::make_shared<std::string>(r[index].as<std::string>());
+            productId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 1;
         if(!r[index].isNull())
         {
-            tagId_=std::make_shared<std::string>(r[index].as<std::string>());
+            tagId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 2;
         if(!r[index].isNull())
@@ -123,7 +123,7 @@ ProductTags::ProductTags(const Json::Value &pJson, const std::vector<std::string
         dirtyFlag_[0] = true;
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
@@ -131,7 +131,7 @@ ProductTags::ProductTags(const Json::Value &pJson, const std::vector<std::string
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            tagId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            tagId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -169,7 +169,7 @@ ProductTags::ProductTags(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[0]=true;
         if(!pJson["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson["product_id"].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
     if(pJson.isMember("tag_id"))
@@ -177,7 +177,7 @@ ProductTags::ProductTags(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[1]=true;
         if(!pJson["tag_id"].isNull())
         {
-            tagId_=std::make_shared<std::string>(pJson["tag_id"].asString());
+            tagId_=std::make_shared<int64_t>((int64_t)pJson["tag_id"].asInt64());
         }
     }
     if(pJson.isMember("created_at"))
@@ -220,14 +220,14 @@ void ProductTags::updateByMasqueradedJson(const Json::Value &pJson,
     {
         if(!pJson[pMasqueradingVector[0]].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson[pMasqueradingVector[0]].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
     if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
     {
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            tagId_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            tagId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -264,14 +264,14 @@ void ProductTags::updateByJson(const Json::Value &pJson) noexcept(false)
     {
         if(!pJson["product_id"].isNull())
         {
-            productId_=std::make_shared<std::string>(pJson["product_id"].asString());
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
     if(pJson.isMember("tag_id"))
     {
         if(!pJson["tag_id"].isNull())
         {
-            tagId_=std::make_shared<std::string>(pJson["tag_id"].asString());
+            tagId_=std::make_shared<int64_t>((int64_t)pJson["tag_id"].asInt64());
         }
     }
     if(pJson.isMember("created_at"))
@@ -302,47 +302,37 @@ void ProductTags::updateByJson(const Json::Value &pJson) noexcept(false)
     }
 }
 
-const std::string &ProductTags::getValueOfProductId() const noexcept
+const int64_t &ProductTags::getValueOfProductId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(productId_)
         return *productId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &ProductTags::getProductId() const noexcept
+const std::shared_ptr<int64_t> &ProductTags::getProductId() const noexcept
 {
     return productId_;
 }
-void ProductTags::setProductId(const std::string &pProductId) noexcept
+void ProductTags::setProductId(const int64_t &pProductId) noexcept
 {
-    productId_ = std::make_shared<std::string>(pProductId);
-    dirtyFlag_[0] = true;
-}
-void ProductTags::setProductId(std::string &&pProductId) noexcept
-{
-    productId_ = std::make_shared<std::string>(std::move(pProductId));
+    productId_ = std::make_shared<int64_t>(pProductId);
     dirtyFlag_[0] = true;
 }
 
-const std::string &ProductTags::getValueOfTagId() const noexcept
+const int64_t &ProductTags::getValueOfTagId() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    const static int64_t defaultValue = int64_t();
     if(tagId_)
         return *tagId_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &ProductTags::getTagId() const noexcept
+const std::shared_ptr<int64_t> &ProductTags::getTagId() const noexcept
 {
     return tagId_;
 }
-void ProductTags::setTagId(const std::string &pTagId) noexcept
+void ProductTags::setTagId(const int64_t &pTagId) noexcept
 {
-    tagId_ = std::make_shared<std::string>(pTagId);
-    dirtyFlag_[1] = true;
-}
-void ProductTags::setTagId(std::string &&pTagId) noexcept
-{
-    tagId_ = std::make_shared<std::string>(std::move(pTagId));
+    tagId_ = std::make_shared<int64_t>(pTagId);
     dirtyFlag_[1] = true;
 }
 
@@ -482,7 +472,7 @@ Json::Value ProductTags::toJson() const
     Json::Value ret;
     if(getProductId())
     {
-        ret["product_id"]=getValueOfProductId();
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
     else
     {
@@ -490,7 +480,7 @@ Json::Value ProductTags::toJson() const
     }
     if(getTagId())
     {
-        ret["tag_id"]=getValueOfTagId();
+        ret["tag_id"]=(Json::Int64)getValueOfTagId();
     }
     else
     {
@@ -517,7 +507,7 @@ Json::Value ProductTags::toMasqueradedJson(
         {
             if(getProductId())
             {
-                ret[pMasqueradingVector[0]]=getValueOfProductId();
+                ret[pMasqueradingVector[0]]=(Json::Int64)getValueOfProductId();
             }
             else
             {
@@ -528,7 +518,7 @@ Json::Value ProductTags::toMasqueradedJson(
         {
             if(getTagId())
             {
-                ret[pMasqueradingVector[1]]=getValueOfTagId();
+                ret[pMasqueradingVector[1]]=(Json::Int64)getValueOfTagId();
             }
             else
             {
@@ -551,7 +541,7 @@ Json::Value ProductTags::toMasqueradedJson(
     LOG_ERROR << "Masquerade failed";
     if(getProductId())
     {
-        ret["product_id"]=getValueOfProductId();
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
     else
     {
@@ -559,7 +549,7 @@ Json::Value ProductTags::toMasqueradedJson(
     }
     if(getTagId())
     {
-        ret["tag_id"]=getValueOfTagId();
+        ret["tag_id"]=(Json::Int64)getValueOfTagId();
     }
     else
     {
@@ -743,7 +733,7 @@ bool ProductTags::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -755,7 +745,7 @@ bool ProductTags::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

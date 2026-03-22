@@ -1,3 +1,4 @@
+// TagService.cpp
 #include <services/TagService.h>
 #include <mapping/TagMapper.h>
 #include <exceptions/DatabaseException.h>
@@ -25,7 +26,7 @@ TagResponseTo TagService::Create(const TagRequestTo& request)
         throw DatabaseException("Failed to create tag");
     }
 
-    auto id = std::get<std::string>(result);
+    auto id = std::get<uint64_t>(result);
     auto getResult = m_dao->GetByID(id);
 
     if (std::holds_alternative<DatabaseError>(getResult))
@@ -36,7 +37,7 @@ TagResponseTo TagService::Create(const TagRequestTo& request)
     return TagMapper::ToResponse(std::get<Tags>(getResult));
 }
 
-TagResponseTo TagService::Read(const std::string& id)
+TagResponseTo TagService::Read(uint64_t id)
 {
     auto result = m_dao->GetByID(id);
 
@@ -53,7 +54,7 @@ TagResponseTo TagService::Read(const std::string& id)
     return TagMapper::ToResponse(std::get<Tags>(result));
 }
 
-TagResponseTo TagService::Update(const TagRequestTo& request, const std::string& id)
+TagResponseTo TagService::Update(const TagRequestTo& request, uint64_t id)
 {
     request.validate();
 
@@ -80,7 +81,7 @@ TagResponseTo TagService::Update(const TagRequestTo& request, const std::string&
     return TagMapper::ToResponse(std::get<Tags>(getResult));
 }
 
-bool TagService::Delete(const std::string& id)
+bool TagService::Delete(uint64_t id)
 {
     auto result = m_dao->Delete(id);
 

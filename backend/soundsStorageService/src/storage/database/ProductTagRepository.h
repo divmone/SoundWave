@@ -1,7 +1,9 @@
+// ProductTagRepository.h
 #pragma once
 
 #include <vector>
 #include <variant>
+#include <cstdint>
 #include <drogon/orm/DbClient.h>
 #include <drogon/HttpAppFramework.h>
 #include <models/ProductTags.h>
@@ -18,11 +20,11 @@ public:
     ProductTagRepository() = default;
     ~ProductTagRepository() = default;
 
-    std::variant<bool, DatabaseError> AddTagToProduct(const std::string& productId, const std::string& tagId);
-    std::variant<bool, DatabaseError> RemoveTagFromProduct(const std::string& productId, const std::string& tagId);
-    std::variant<std::vector<std::string>, DatabaseError> GetTagsByProductId(const std::string& productId);
-    std::variant<std::vector<std::string>, DatabaseError> GetProductsByTagId(const std::string& tagId);
-    std::variant<bool, DatabaseError> Exists(const std::string& productId, const std::string& tagId);
+    std::variant<bool, DatabaseError> AddTagToProduct(uint64_t productId, uint64_t tagId);
+    std::variant<bool, DatabaseError> RemoveTagFromProduct(uint64_t productId, uint64_t tagId);
+    std::variant<std::vector<uint64_t>, DatabaseError> GetTagsByProductId(uint64_t productId);
+    std::variant<std::vector<uint64_t>, DatabaseError> GetProductsByTagId(uint64_t tagId);
+    std::variant<bool, DatabaseError> Exists(uint64_t productId, uint64_t tagId);
 
 private:
     drogon::orm::DbClientPtr GetDbClient() const

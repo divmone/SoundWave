@@ -1,6 +1,8 @@
+// SaleMapper.h
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include <models/Sales.h>
 #include <dto/requests/SaleRequestTo.h>
 #include <dto/responses/SaleResponseTo.h>
@@ -32,7 +34,7 @@ public:
         return entity;
     }
 
-    static Sales ToEntityForUpdate(const SaleRequestTo& dto, const std::string& id)
+    static Sales ToEntityForUpdate(const SaleRequestTo& dto, uint64_t id)
     {
         Sales entity;
         entity.setId(id);

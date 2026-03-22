@@ -1,3 +1,4 @@
+// SoundRepository.cpp
 #include "SoundRepository.h"
 
 namespace soundwaveSounds
@@ -5,7 +6,7 @@ namespace soundwaveSounds
 
 using namespace drogon::orm;
 
-std::variant<std::string, DatabaseError> SoundRepository::Create(const Sounds& entity)
+std::variant<uint64_t, DatabaseError> SoundRepository::Create(const Sounds& entity)
 {
     try
     {
@@ -14,7 +15,8 @@ std::variant<std::string, DatabaseError> SoundRepository::Create(const Sounds& e
         {
             return DatabaseError::AlreadyExists;
         }
-        return Mapper().insertFuture(entity).get().getValueOfId();
+       auto id = Mapper().insertFuture(entity).get().getValueOfId();
+       return static_cast<uint64_t>(id);
     }
     catch(const std::exception& e)
     {
@@ -22,7 +24,7 @@ std::variant<std::string, DatabaseError> SoundRepository::Create(const Sounds& e
     }
 }
 
-std::variant<Sounds, DatabaseError> SoundRepository::GetByID(std::string id)
+std::variant<Sounds, DatabaseError> SoundRepository::GetByID(uint64_t id)
 {
     try
     {
@@ -38,7 +40,7 @@ std::variant<Sounds, DatabaseError> SoundRepository::GetByID(std::string id)
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Update(std::string id, const Sounds& entity)
+std::variant<bool, DatabaseError> SoundRepository::Update(uint64_t id, const Sounds& entity)
 {
     try
     {
@@ -55,7 +57,7 @@ std::variant<bool, DatabaseError> SoundRepository::Update(std::string id, const 
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Delete(std::string id)
+std::variant<bool, DatabaseError> SoundRepository::Delete(uint64_t id)
 {
     try
     {
@@ -83,7 +85,7 @@ std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::ReadAll()
     }
 }
 
-std::variant<bool, DatabaseError> SoundRepository::Exists(std::string id)
+std::variant<bool, DatabaseError> SoundRepository::Exists(uint64_t id)
 {
     try
     {
@@ -100,7 +102,7 @@ std::variant<bool, DatabaseError> SoundRepository::Exists(std::string id)
     }
 }
 
-std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByUserId(const std::string& userId)
+std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByUserId(uint64_t userId)
 {
     try
     {
