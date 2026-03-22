@@ -2,10 +2,12 @@
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
 
-soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<ProductService> productService, 
+soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<SoundDataService> soundDataService,
+                                                        std::unique_ptr<ProductService> productService, 
                                                         std::unique_ptr<SoundService> soundService, 
                                                         std::unique_ptr<TagService> tagService)
 {
+    m_soundDataService = std::move(soundDataService);
     m_productService = std::move(productService);
     m_soundService = std::move(soundService);
     m_tagService = std::move(tagService);
@@ -160,7 +162,7 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         MultiPartParser parser;
         parser.parse(req);
 
-        if (parser.getFiles().empty()) 
+        if (parser.getFiles().empty())
         {
             responseJson["message"] = "No audio file provided";
             httpResponse->setBody(Json::FastWriter().write(responseJson));
@@ -169,8 +171,6 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             callback(httpResponse);
             return;
         }
-
-        HttpFile audioFile = parser.getFiles()[0];
 
         std::string metadataJson = req->getParameter("metadata");
         if (metadataJson.empty())
@@ -195,6 +195,8 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             return;
         }
 
+        HttpFile audioFile = parser.getFiles()[0];
+
         dto::SoundRequestTo soundRequest;
         soundRequest.userId = std::to_string(userId);
         soundRequest.originalName = metadata.get("originalName", audioFile.getFileName()).asString();
@@ -202,16 +204,25 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         soundRequest.mimeType = metadata.get("mimeType", "audio/mpeg").asString();
         soundRequest.durationSeconds = metadata.get("durationSeconds", 0).asInt();
 
-        auto soundResult = m_soundService->Create(soundRequest);
+        dto::SoundResponseTo soundResponse = m_soundService->Create(soundRequest);
+
+        if (!m_soundDataService->SaveSoundFile(audioFile, std::stoull(soundResponse.id), userId))
+        {
+            responseJson["message"] = "Failed to save audio file";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+            callback(httpResponse);
+            return;
+        }
 
         dto::ProductRequestTo productRequest;
-        productRequest.soundId = soundResult.id;
+        productRequest.soundId = soundResponse.id;
         productRequest.authorId = std::to_string(userId);
         productRequest.title = metadata["title"].asString();
         productRequest.description = metadata.get("description", "").asString();
         productRequest.price = metadata["price"].asString();
-        
-        // Обрабатываем теги
+
         if (metadata.isMember("tags") && metadata["tags"].isArray())
         {
             for (const auto& tagName : metadata["tags"])
@@ -221,13 +232,11 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
             }
         }
 
-        auto product = m_productService->Create(productRequest);
+        dto::ProductResponseTo product = m_productService->Create(productRequest);
 
         responseJson["message"] = "Sound uploaded successfully";
         responseJson["productId"] = product.id;
-        responseJson["title"] = product.title;
-        responseJson["price"] = product.price;
-        
+
         httpResponse->setBody(Json::FastWriter().write(responseJson));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k200OK);
@@ -327,5 +336,58 @@ void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req,
 
 void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
-    
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        auto product = m_productService->Read(std::to_string(id));
+        auto sound = m_soundService->Read(product.soundId);
+
+        std::vector<char> fileData;
+        std::string extension = sound.filename.substr(sound.filename.find_last_of('.') + 1);
+
+        if (!m_soundDataService->GetSoundFile(fileData, std::stoull(sound.id), std::stoull(sound.userId), extension))
+        {
+            Json::Value errorResponse;
+            errorResponse["message"] = "Audio file not found";
+            httpResponse->setBody(Json::FastWriter().write(errorResponse));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+            callback(httpResponse);
+            return;
+        }
+
+        httpResponse->setBody(std::string(fileData.begin(), fileData.end()));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_OCTET_STREAM);
+        httpResponse->addHeader("Content-Type", sound.mimeType);
+        httpResponse->addHeader("Content-Length", std::to_string(fileData.size()));
+        httpResponse->addHeader("Accept-Ranges", "bytes");
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch (const NotFoundException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    catch (const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+    }
+    catch (const std::exception& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+    }
+
+    callback(httpResponse);
 }

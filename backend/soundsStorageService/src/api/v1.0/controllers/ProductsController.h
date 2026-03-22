@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <drogon/HttpController.h>
+#include <services/SoundDataService.h>
 #include <services/ProductService.h>
 #include <services/SoundService.h>
 #include <services/TagService.h>
@@ -42,11 +43,15 @@ using namespace drogon;
 class ProductsController : public drogon::HttpController<ProductsController, false>
 {
 private:
+    std::unique_ptr<SoundDataService> m_soundDataService = nullptr;
     std::unique_ptr<ProductService> m_productService = nullptr;
     std::unique_ptr<SoundService> m_soundService = nullptr;
     std::unique_ptr<TagService> m_tagService = nullptr;
 public:
-    explicit ProductsController(std::unique_ptr<ProductService> productService, std::unique_ptr<SoundService> soundService, std::unique_ptr<TagService> tagService);
+    explicit ProductsController(std::unique_ptr<SoundDataService> soundDataService,
+                                std::unique_ptr<ProductService> productService, 
+                                std::unique_ptr<SoundService> soundService, 
+                                std::unique_ptr<TagService> tagService);
     METHOD_LIST_BEGIN
         ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get);
         ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get);
@@ -69,28 +74,3 @@ private:
 };
 
 }
-
-/*
-private:
-    std::unique_ptr<EditorService> m_service = nullptr;
-public:
-    explicit EditorController(std::unique_ptr<EditorService> service);
-    
-    METHOD_LIST_BEGIN
-        ADD_METHOD_TO(EditorController::CreateEditor, "/api/v1.0/editors", drogon::Post);
-        ADD_METHOD_TO(EditorController::ReadEditor, "/api/v1.0/editors/{id}", drogon::Get);
-        ADD_METHOD_TO(EditorController::UpdateEditorIdFromRoute, "/api/v1.0/editors/{id}", drogon::Put);
-        ADD_METHOD_TO(EditorController::UpdateEditorIdFromBody, "/api/v1.0/editors", drogon::Put);
-        ADD_METHOD_TO(EditorController::DeleteEditor, "/api/v1.0/editors/{id}", drogon::Delete);
-        ADD_METHOD_TO(EditorController::GetAllEditors, "/api/v1.0/editors", drogon::Get);
-    METHOD_LIST_END
-
-private:
-    void CreateEditor(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
-    void ReadEditor(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
-    void UpdateEditorIdFromRoute(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
-    void UpdateEditorIdFromBody(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
-    void DeleteEditor(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
-    void GetAllEditors(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
-
-*/
