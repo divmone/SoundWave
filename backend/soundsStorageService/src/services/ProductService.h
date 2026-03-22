@@ -28,7 +28,9 @@ public:
     dto::ProductResponseTo Read(const std::string& id);
     dto::ProductResponseTo Update(const dto::ProductRequestTo& request, const std::string& id);
     bool Delete(const std::string& id);
+    uint64_t GetAmount();
     std::vector<dto::ProductResponseTo> GetAll();
+    std::vector<dto::ProductResponseTo> GetSoundsPage(const uint64_t pageNum);
     std::vector<dto::ProductResponseTo> GetByAuthorId(const std::string& authorId);
     std::vector<dto::ProductResponseTo> GetPublished();
     std::vector<dto::ProductResponseTo> GetByPriceRange(const std::string& minPrice, const std::string& maxPrice);

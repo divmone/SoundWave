@@ -1,0 +1,28 @@
+{
+    "listeners": [
+        {
+            "address": "0.0.0.0",
+            "port": 6666,
+            "https": false
+        }
+    ],
+    "app": {
+        "threads_num": 4,
+        "document_root": "http",
+        "implicit_page": "index.html"
+    },
+    "db_clients": [
+        {
+            "name": "default",
+            "rdbms": "postgresql",
+            "host": "127.0.0.1",
+            "port": 5432,
+            "dbname": "soundwaveSounds",
+            "user": "postgres",
+            "passwd": "postgres",
+            "is_fast": false,
+            "connection_number": 1,
+            "auto_batch": false        
+        }
+    ]
+}

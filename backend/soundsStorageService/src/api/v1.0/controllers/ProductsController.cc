@@ -1,2 +1,331 @@
 #include "ProductsController.h"
+#include <exceptions/DatabaseException.h>
+#include <exceptions/NotFoundException.h>
 
+soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<ProductService> productService, 
+                                                        std::unique_ptr<SoundService> soundService, 
+                                                        std::unique_ptr<TagService> tagService)
+{
+    m_productService = std::move(productService);
+    m_soundService = std::move(soundService);
+    m_tagService = std::move(tagService);
+}
+
+void soundwaveSounds::ProductsController::GetSoundsAmount(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) 
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        auto amount = m_productService->GetAmount();
+        Json::Value jsonResponse;
+        jsonResponse["amount"] = amount;
+        
+        std::string responseBody = Json::FastWriter().write(jsonResponse); 
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setBody(responseBody);
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch(const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
+    }
+    
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::GetPageOfSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t pageNum)
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        auto dtos = m_productService->GetSoundsPage(pageNum);
+        Json::Value jsonResponse(Json::arrayValue); 
+
+        for (auto& dto: dtos)
+        {
+            jsonResponse.append(dto.toJson());
+        }
+        
+        std::string responseBody = Json::FastWriter().write(jsonResponse);  
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setBody(responseBody);
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch(const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
+    }
+    catch(const NotFoundException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::GetSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        auto dto = m_productService->Read(std::to_string(id));
+        Json::Value jsonResponse = dto.toJson();
+
+        std::string responseBody = Json::FastWriter().write(jsonResponse); 
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setBody(responseBody);
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch(const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
+    }
+    catch(const NotFoundException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::GetUserSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        auto dtos = m_productService->GetByAuthorId(std::to_string(userId));
+        Json::Value jsonResponse(Json::arrayValue); 
+
+        for (auto& dto: dtos)
+        {
+            jsonResponse.append(dto.toJson());
+        }
+        
+        std::string responseBody = Json::FastWriter().write(jsonResponse);  
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setBody(responseBody);
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch(const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
+    }
+    catch(const NotFoundException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
+{
+    Json::Value responseJson;
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        MultiPartParser parser;
+        parser.parse(req);
+
+        if (parser.getFiles().empty()) 
+        {
+            responseJson["message"] = "No audio file provided";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
+
+        HttpFile audioFile = parser.getFiles()[0];
+
+        std::string metadataJson = req->getParameter("metadata");
+        if (metadataJson.empty())
+        {
+            responseJson["message"] = "Metadata is required";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
+
+        Json::Value metadata;
+        Json::Reader reader;
+        if (!reader.parse(metadataJson, metadata))
+        {
+            responseJson["message"] = "Invalid metadata JSON format";
+            httpResponse->setBody(Json::FastWriter().write(responseJson));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+            callback(httpResponse);
+            return;
+        }
+
+        dto::SoundRequestTo soundRequest;
+        soundRequest.userId = std::to_string(userId);
+        soundRequest.originalName = metadata.get("originalName", audioFile.getFileName()).asString();
+        soundRequest.fileSize = audioFile.fileLength();
+        soundRequest.mimeType = metadata.get("mimeType", "audio/mpeg").asString();
+        soundRequest.durationSeconds = metadata.get("durationSeconds", 0).asInt();
+
+        auto soundResult = m_soundService->Create(soundRequest);
+
+        dto::ProductRequestTo productRequest;
+        productRequest.soundId = soundResult.id;
+        productRequest.authorId = std::to_string(userId);
+        productRequest.title = metadata["title"].asString();
+        productRequest.description = metadata.get("description", "").asString();
+        productRequest.price = metadata["price"].asString();
+        
+        // Обрабатываем теги
+        if (metadata.isMember("tags") && metadata["tags"].isArray())
+        {
+            for (const auto& tagName : metadata["tags"])
+            {
+                auto tagResult = m_tagService->GetByName(tagName.asString());
+                productRequest.tagIds.push_back(tagResult.id);
+            }
+        }
+
+        auto product = m_productService->Create(productRequest);
+
+        responseJson["message"] = "Sound uploaded successfully";
+        responseJson["productId"] = product.id;
+        responseJson["title"] = product.title;
+        responseJson["price"] = product.price;
+        
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch (const ValidationException& e)
+    {
+        responseJson["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+    }
+    catch (const NotFoundException& e)
+    {
+        responseJson["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    catch (const DatabaseException& e)
+    {
+        responseJson["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+    }
+    catch (const std::exception& e)
+    {
+        responseJson["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+    }
+
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::EditSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+{
+    // Не надо пока
+}
+
+void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+    std::cout << "[INFO] DeleteEditor called for id: " << id << std::endl;
+
+    try
+    {           
+        if (m_soundService->Delete(std::to_string(id)))
+        {
+            httpResponse->setStatusCode(HttpStatusCode::k204NoContent);
+        }
+        else
+        {
+            Json::Value errorResponse;
+            errorResponse["message"] = "Sound not found";
+            httpResponse->setBody(Json::FastWriter().write(errorResponse));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+        }
+    }
+    catch(const ValidationException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+    }
+    catch(const NotFoundException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = e.what();
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+    }
+    catch(const DatabaseException& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Database error occurred";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+    }
+    catch(const std::exception& e)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Internal server error";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);    
+    }
+    
+    callback(httpResponse);
+}
+
+void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+{
+    
+}

@@ -66,6 +66,31 @@ std::variant<bool, DatabaseError> ProductRepository::Delete(std::string id)
     }
 }
 
+std::variant<std::vector<Products>, DatabaseError> ProductRepository::GetPage(uint64_t pageNum)
+{
+    try
+    {
+        size_t offset = (pageNum - 1) * PAGE_SIZE;
+        
+        auto results = Mapper()
+            .orderBy(Products::Cols::_created_at, SortOrder::DESC)
+            .offset(offset)
+            .limit(PAGE_SIZE)
+            .findAll();
+        
+        if (results.empty())
+        {
+            return DatabaseError::NotFound;
+        }
+        
+        return results;
+    }
+    catch(const std::exception& e)
+    {
+        return DatabaseError::DatabaseError;
+    }
+}
+
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::ReadAll()
 {
     try
@@ -88,6 +113,19 @@ std::variant<bool, DatabaseError> ProductRepository::Exists(std::string id)
     catch (const UnexpectedRows& e)
     {
         return false;
+    }
+    catch(const std::exception& e)
+    {
+        return DatabaseError::DatabaseError;
+    }
+}
+
+std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
+{
+    try
+    {
+        auto result = Mapper().count();
+        return result;
     }
     catch(const std::exception& e)
     {

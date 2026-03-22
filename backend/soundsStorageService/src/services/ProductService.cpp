@@ -7,6 +7,7 @@
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
 #include <exceptions/ValidationException.h>
+#include "ProductService.h"
 
 namespace soundwaveSounds
 {
@@ -117,6 +118,20 @@ bool ProductService::Delete(const std::string& id)
     return std::get<bool>(result);
 }
 
+
+uint64_t ProductService::GetAmount()
+{
+    auto result = m_productDao->GetAmount();
+
+    if (std::holds_alternative<DatabaseError>(result))
+    {
+        auto error = std::get<DatabaseError>(result);
+        throw DatabaseException("Failed to retrieve amount of sounds");
+    }
+
+    return std::get<uint64_t>(result);
+}
+
 std::vector<ProductResponseTo> ProductService::GetAll()
 {
     auto result = m_productDao->ReadAll();
@@ -124,6 +139,23 @@ std::vector<ProductResponseTo> ProductService::GetAll()
     if (std::holds_alternative<DatabaseError>(result))
     {
         throw DatabaseException("Failed to retrieve all products");
+    }
+
+    return EnrichListWithTags(std::get<std::vector<Products>>(result));
+}
+
+std::vector<dto::ProductResponseTo> ProductService::GetSoundsPage(const uint64_t pageNum)
+{
+    auto result = m_productDao->GetPage(pageNum);
+
+    if (std::holds_alternative<DatabaseError>(result))
+    {
+        auto error = std::get<DatabaseError>(result);
+        if (error == DatabaseError::NotFound)
+        {
+            throw NotFoundException("Page contains zero products");
+        }
+        throw DatabaseException("Failed to retrieve page");
     }
 
     return EnrichListWithTags(std::get<std::vector<Products>>(result));
