@@ -7,10 +7,10 @@
 
     <changeSet id="1" author="soundwave">
         <createTable tableName="sounds">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="UUID">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="filename" type="VARCHAR(512)">
@@ -51,13 +51,13 @@
 
     <changeSet id="3" author="soundwave">
         <createTable tableName="products">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="sound_id" type="UUID">
+            <column name="sound_id" type="BIGINT">
                 <constraints nullable="false" references="sounds(id)" foreignKeyName="fk_products_sound"/>
             </column>
-            <column name="author_id" type="UUID">
+            <column name="author_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="title" type="VARCHAR(255)">
@@ -92,11 +92,14 @@
         <createIndex tableName="products" indexName="idx_products_rating">
             <column name="rating"/>
         </createIndex>
+        <createIndex tableName="products" indexName="idx_products_sound_id">
+            <column name="sound_id"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="5" author="soundwave">
         <createTable tableName="tags">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(100)">
@@ -108,10 +111,10 @@
 
     <changeSet id="6" author="soundwave">
         <createTable tableName="product_tags">
-            <column name="product_id" type="UUID">
+            <column name="product_id" type="BIGINT">
                 <constraints nullable="false" references="products(id)" foreignKeyName="fk_product_tags_product"/>
             </column>
-            <column name="tag_id" type="UUID">
+            <column name="tag_id" type="BIGINT">
                 <constraints nullable="false" references="tags(id)" foreignKeyName="fk_product_tags_tag"/>
             </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
@@ -121,13 +124,13 @@
 
     <changeSet id="7" author="soundwave">
         <createTable tableName="sales">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="product_id" type="UUID">
+            <column name="product_id" type="BIGINT">
                 <constraints nullable="false" references="products(id)" foreignKeyName="fk_sales_product"/>
             </column>
-            <column name="buyer_id" type="UUID">
+            <column name="buyer_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="amount" type="DECIMAL(10,2)">

@@ -22,21 +22,9 @@ public:
 
     void validate() const
     {
-        if (userId.empty())
-        {
-            throw ValidationException("User ID is required");
-        }
-        if (filename.empty())
-        {
-            throw ValidationException("Filename is required");
-        }
         if (originalName.empty())
         {
             throw ValidationException("Original name is required");
-        }
-        if (filePath.empty())
-        {
-            throw ValidationException("File path is required");
         }
         if (fileSize <= 0)
         {
@@ -45,10 +33,6 @@ public:
         if (mimeType.empty())
         {
             throw ValidationException("MIME type is required");
-        }
-        if (durationSeconds <= 0)
-        {
-            throw ValidationException("Duration must be greater than 0");
         }
     }
 
