@@ -83,7 +83,7 @@ export default function Hero({ search, onSearch, onUploadClick }) {
           letterSpacing: '-0.02em',
           marginBottom: '1.5rem',
         }}>
-          <span style={{ display: 'block' }}>Premium Audio.</span>
+          <span style={{ display: 'block' }}>Premiiiiium Audio.</span>
           <span style={{
             background: 'linear-gradient(90deg, var(--cyan-dark) 0%, var(--cyan) 35%, var(--violet) 70%, var(--cyan) 100%)',
             backgroundSize: '300% 100%',
