@@ -95,7 +95,7 @@ export default function App() {
       {modal && <UploadModal onClose={() => setModal(false)} user={user} />}
 
       <Header
-        onUploadClick={() => setModal(true)}
+        onUploadClick={() => user ? setModal(true) : setPage('login')}
         onNavigate={setPage}
         user={user}
         onLogout={handleLogout}
@@ -105,7 +105,7 @@ export default function App() {
         flex: 1, maxWidth: 1360, width: '100%',
         margin: '0 auto', padding: '0 2rem', boxSizing: 'border-box',
       }}>
-        <Hero search={search} onSearch={setSearch} onUploadClick={() => setModal(true)} />
+        <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : setPage('login')} />
 
         <section>
           <FilterTabs
@@ -128,7 +128,7 @@ export default function App() {
         </section>
 
         <StatsBar stats={stats} />
-        <CTASection onUploadClick={() => setModal(true)} />
+        <CTASection onUploadClick={() => user ? setModal(true) : setPage('login')} />
       </main>
 
       <Footer />
