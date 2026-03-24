@@ -65,7 +65,7 @@ export default function App() {
       return;
     }
 
-    window.history.replaceState({}, '', window.location.pathname);
+    window.history.replaceState({}, '', '/');
 
     const exchange = callback.provider === 'google'
       ? loginWithGoogle({ code: callback.code })
