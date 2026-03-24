@@ -6,7 +6,6 @@ services:
       - "80:80"
     depends_on:
       - backend
-      - sounds-service
     restart: unless-stopped
 
   backend:
