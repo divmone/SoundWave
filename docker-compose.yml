@@ -6,7 +6,6 @@ services:
       - "80:80"
     depends_on:
       - backend
-      - sounds-service
     restart: unless-stopped
 
   backend:
@@ -17,23 +16,6 @@ services:
     environment:
       - DB_CONNECTION=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - CPU_LIMIT=4c
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  sounds-service:
-    build:
-      context: ./backend/soundsStorageService
-    ports:
-      - "6666:6666"
-    environment:
-      - DB_HOST=postgres
-      - DB_USER=${POSTGRES_USER:-postgres}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DB_NAME=soundwaveSounds
-    volumes:
-      - sounds_storage:/app/storage
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,4 +41,3 @@ services:
 
 volumes:
   postgres_data:
-  sounds_storage:
