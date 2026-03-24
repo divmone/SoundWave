@@ -1,48 +1,59 @@
-import { get, post, put, del, upload } from '../httpClient';
+import { get, del, upload } from '../httpClient';
 
-/**
- * PRODUCTS SERVICE
- * ─────────────────────────────────────────────
- * GET    /products               → { items, total, page, pages }
- * GET    /products/:id           → Product
- * POST   /products               → { id, status, message }  (multipart)
- * PUT    /products/:id           → Product
- * DELETE /products/:id           → null
- * POST   /products/:id/purchase  → { downloadUrl, receipt }
- */
+const BASE = '/api/v1.0/sounds';
 
-// ── List ───────────────────────────────────────────────────
-export async function getProducts({ category = 'all', search = '', page = 1, limit = 20 } = {}) {
-  const params = new URLSearchParams({ page, limit });
-  if (category !== 'all') params.set('category', category);
-  if (search)             params.set('search', search);
-  return get(`/products?${params}`);
+// ── List (страница звуков) ──────────────────────────────────
+export async function getProducts({ page = 1 } = {}) {
+  const [items, amountRes] = await Promise.all([
+    get(`${BASE}/pages/${page}`),
+    get(`${BASE}/amount`),
+  ]);
+  return {
+    items: items ?? [],
+    total: amountRes?.amount ?? 0,
+    page,
+  };
 }
 
 // ── Single ─────────────────────────────────────────────────
 export async function getProduct(id) {
-  return get(`/products/${id}`);
+  return get(`${BASE}/${id}`);
 }
 
-// ── Create (with audio file) ───────────────────────────────
-export async function createProduct({ audioFile, title, creator, price, category, tags }) {
+// ── Звуки конкретного пользователя ─────────────────────────
+export async function getUserProducts(userId) {
+  return get(`${BASE}/user/${userId}`);
+}
+
+// ── Загрузить звук ─────────────────────────────────────────
+// audioFile   — File object
+// metadata    — { title, price, description?, originalName?, mimeType?, durationSeconds?, tags? }
+export async function createProduct(userId, audioFile, metadata) {
   const fd = new FormData();
-  if (audioFile) fd.append('audio', audioFile);
-  fd.append('data', JSON.stringify({ title, creator, price, category, tags }));
-  return upload('/products', fd);
+  fd.append('audio', audioFile);
+  fd.append('metadata', JSON.stringify({
+    title:           metadata.title,
+    price:           String(metadata.price),
+    description:     metadata.description     ?? '',
+    originalName:    metadata.originalName    ?? audioFile.name,
+    mimeType:        metadata.mimeType        ?? audioFile.type,
+    durationSeconds: metadata.durationSeconds ?? 0,
+    tags:            metadata.tags            ?? [],
+  }));
+  return upload(`${BASE}/user/${userId}/upload`, fd);
 }
 
-// ── Update ─────────────────────────────────────────────────
-export async function updateProduct(id, fields) {
-  return put(`/products/${id}`, fields);
-}
-
-// ── Delete ─────────────────────────────────────────────────
+// ── Удалить ────────────────────────────────────────────────
 export async function deleteProduct(id) {
-  return del(`/products/${id}`);
+  return del(`${BASE}/${id}`);
 }
 
-// ── Purchase ───────────────────────────────────────────────
-export async function purchaseProduct(id, { email, paymentMethodId }) {
-  return post(`/products/${id}/purchase`, { email, paymentMethodId });
+// ── Покупка (не реализована на бэкенде) ────────────────────
+export async function purchaseProduct(_id, _params) {
+  throw new Error('Purchase is not implemented yet');
+}
+
+// ── Получить аудиофайл (binary) ────────────────────────────
+export function getProductAudioUrl(id) {
+  return `${BASE}/${id}/data`;
 }
