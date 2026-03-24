@@ -17,7 +17,7 @@ namespace shop::services {
         explicit AuthService(const userver::components::ComponentConfig& config,
             const userver::components::ComponentContext& context);
 
-        User loginWithGoogle(const std::string&);
+        User loginWithGoogle(const std::string& code, const std::string& redirect_uri);
 
         static userver::yaml_config::Schema GetStaticConfigSchema();
 

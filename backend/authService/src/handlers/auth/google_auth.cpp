@@ -24,6 +24,7 @@ namespace shop::handlers {
         const auto body = userver::formats::json::FromString(
             request.RequestBody());
         const auto token = body["code"].As<std::string>("");
+        const auto redirect_uri = body["redirect_uri"].As<std::string>("");
 
         if (token.empty()) {
             throw userver::server::handlers::ClientError(
@@ -32,7 +33,14 @@ namespace shop::handlers {
                 });
         }
 
-        const auto &response = auth_service_.loginWithGoogle(token);
+        if (redirect_uri.empty()) {
+            throw userver::server::handlers::ClientError(
+                userver::server::handlers::ExternalBody{
+                    "redirect_uri is required"
+                });
+        }
+
+        const auto &response = auth_service_.loginWithGoogle(token, redirect_uri);
 
         const auto authToken = user_repository_.createSession(response.id);
 

@@ -65,7 +65,8 @@ export async function forgotPassword({ email }) {
 // ── OAuth: Google ──────────────────────────────────────────
 // code — OAuth2 authorization code из Google redirect
 export async function loginWithGoogle({ code }) {
-  const data = await post('/auth/google', { code });
+  const redirect_uri = `${window.location.origin}/auth/callback`;
+  const data = await post('/auth/google', { code, redirect_uri });
   const user = data.user ?? data;
   saveSession({ ...data, user });
   return { user };

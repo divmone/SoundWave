@@ -36,14 +36,14 @@ properties:
           , google_client_secret_(config["google-client-secret"].As<std::string>()) {
     }
 
-    User AuthService::loginWithGoogle(const std::string &code) {
+    User AuthService::loginWithGoogle(const std::string &code, const std::string &redirect_uri) {
         const auto token_response = client_.CreateRequest()
             .post(
                 "https://oauth2.googleapis.com/token",
                 "code=" + code +
                 "&client_id=" + google_client_id_ +
                 "&client_secret=" + google_client_secret_ +
-                "&redirect_uri=http://localhost:3000/auth/callback"
+                "&redirect_uri=" + redirect_uri +
                 "&grant_type=authorization_code"
             )
             .headers({{"Content-Type", "application/x-www-form-urlencoded"}})

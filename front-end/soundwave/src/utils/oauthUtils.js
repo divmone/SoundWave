@@ -19,7 +19,7 @@
 // Замени на свои credentials из Google Cloud Console / Apple Developer
 const GOOGLE_CLIENT_ID  = "251762912684-hsofsg384fmjmlahr560c953i1ejqj7i.apps.googleusercontent.com"
 const APPLE_CLIENT_ID   = process.env.REACT_APP_APPLE_CLIENT_ID   || 'YOUR_APPLE_SERVICE_ID';
-const REDIRECT_URI      = "http://localhost:3000/auth/callback"
+const REDIRECT_URI      = `${window.location.origin}/auth/callback`
 
 // ── Google ────────────────────────────────────────────────
 /**
