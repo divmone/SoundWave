@@ -6,6 +6,7 @@ services:
       - "80:80"
     depends_on:
       - backend
+      - sounds-service
     restart: unless-stopped
 
   backend:
@@ -21,6 +22,14 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  sounds-service:
+    image: nginx:alpine
+    ports:
+      - "6666:6666"
+    volumes:
+      - ./backend/soundsStorageService/stub/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
   postgres:
     image: postgres:15
     environment:
@@ -31,6 +40,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql
+      - ./backend/soundsStorageService/database/init.sh:/docker-entrypoint-initdb.d/03_sounds_init.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
