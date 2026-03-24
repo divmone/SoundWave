@@ -92,7 +92,7 @@ export default function App() {
   // ── Main marketplace ───────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-      {modal && <UploadModal onClose={() => setModal(false)} />}
+      {modal && <UploadModal onClose={() => setModal(false)} user={user} />}
 
       <Header
         onUploadClick={() => setModal(true)}

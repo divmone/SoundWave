@@ -176,7 +176,7 @@ function SuccessScreen({ onClose }) {
   );
 }
 
-export default function UploadModal({ onClose }) {
+export default function UploadModal({ onClose, user }) {
   const [form, setForm]         = useState({ title: '', creator: '', price: '', category: 'alerts', tags: '' });
   const [file, setFile]         = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -199,12 +199,10 @@ export default function UploadModal({ onClose }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      await createProduct({
-        audioFile: file,
+      await createProduct(user?.id, file, {
         title: form.title,
-        creator: form.creator,
         price: parseFloat(form.price),
-        category: form.category,
+        description: form.category,
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
       });
       setDone(true);
