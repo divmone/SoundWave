@@ -41,9 +41,6 @@ const manager = {
   },
 };
 
-import { useState, useEffect } from 'react';
-import { getProductAudioUrl } from '../api/services/productsService';
-
 export function useAudioPlayer(productId) {
   const [playing, setPlaying] = useState(false);
 
