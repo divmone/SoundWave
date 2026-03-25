@@ -6,7 +6,7 @@
 
 ### **Базовый URL**
 ```
-http://localhost:6666/api/v1.0
+http://localhost:8080/api/v1.0
 ```
 
 ---
@@ -18,7 +18,7 @@ GET /sounds/amount
 
 **Пример запроса:**
 ```bash
-curl http://localhost:6666/api/v1.0/sounds/amount
+curl http://localhost:8080/api/v1.0/sounds/amount
 ```
 
 **Ответ:**
@@ -45,7 +45,7 @@ GET /sounds/pages/{pageNum}
 
 **Пример запроса:**
 ```bash
-curl http://localhost:6666/api/v1.0/sounds/pages/1
+curl http://localhost:8080/api/v1.0/sounds/pages/1
 ```
 
 **Ответ:**
@@ -87,7 +87,7 @@ GET /sounds/{id}
 
 **Пример запроса:**
 ```bash
-curl http://localhost:6666/api/v1.0/sounds/1
+curl http://localhost:8080/api/v1.0/sounds/1
 ```
 
 **Ответ:**
@@ -127,7 +127,7 @@ GET /sounds/user/{userId}
 
 **Пример запроса:**
 ```bash
-curl http://localhost:6666/api/v1.0/sounds/user/123
+curl http://localhost:8080/api/v1.0/sounds/user/123
 ```
 
 **Ответ:** массив звуков (формат как в п.2)
@@ -166,7 +166,7 @@ Content-Type: multipart/form-data
 
 **Пример curl запроса:**
 ```bash
-curl -X POST http://localhost:6666/api/v1.0/sounds/user/123/upload \
+curl -X POST http://localhost:8080/api/v1.0/sounds/user/123/upload \
   -F "metadata={\"title\":\"Epic Battle Theme\",\"description\":\"Intense orchestral track\",\"price\":\"4.99\",\"tags\":[\"epic\",\"cinematic\"],\"originalName\":\"epic_battle.mp3\",\"mimeType\":\"audio/mpeg\",\"durationSeconds\":180}" \
   -F "audio=@/path/to/epic_battle.mp3"
 ```
@@ -202,7 +202,7 @@ DELETE /sounds/{id}
 
 **Пример запроса:**
 ```bash
-curl -X DELETE http://localhost:6666/api/v1.0/sounds/1
+curl -X DELETE http://localhost:8080/api/v1.0/sounds/1
 ```
 
 **Ответ:**
@@ -224,7 +224,7 @@ GET /sounds/{id}/data
 
 **Пример запроса:**
 ```bash
-curl http://localhost:6666/api/v1.0/sounds/1/data --output sound.mp3
+curl http://localhost:8080/api/v1.0/sounds/1/data --output sound.mp3
 ```
 
 **Ответ:**

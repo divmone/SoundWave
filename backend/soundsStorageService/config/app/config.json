@@ -2,7 +2,7 @@
     "listeners": [
         {
             "address": "0.0.0.0",
-            "port": 6666,
+            "port": 8080,
             "https": false
         }
     ],
