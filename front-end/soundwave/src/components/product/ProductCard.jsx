@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import Waveform from './Waveform';
-import { purchaseProduct, getProductAudioUrl } from '../../api/services/productsService';
+import { purchaseProduct } from '../../api/services/productsService';
+import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 
 function StarRating({ rating }) {
   return (
@@ -21,34 +22,11 @@ function StarRating({ rating }) {
 
 export default function ProductCard({ product, delay = 0 }) {
   const [hovered, setHovered] = useState(false);
-  const [playing, setPlaying] = useState(false);
   const [buying, setBuying]   = useState(false);
   const [bought, setBought]   = useState(false);
-  const audioRef = useRef(null);
+  const { playing, toggle }   = useAudioPlayer(product.id);
 
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  const handlePlay = (e) => {
-    e.stopPropagation();
-    if (!audioRef.current) {
-      audioRef.current = new Audio(getProductAudioUrl(product.id));
-      audioRef.current.onended = () => setPlaying(false);
-    }
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
-    } else {
-      audioRef.current.play();
-      setPlaying(true);
-    }
-  };
+  const handlePlay = (e) => { e.stopPropagation(); toggle(); };
 
   const handleBuy = async (e) => {
     e.stopPropagation();
