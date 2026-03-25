@@ -15,7 +15,7 @@
         {
             "name": "default",
             "rdbms": "postgresql",
-            "host": "postgres",
+            "host": "sounds-postgres",
             "port": 5432,
             "dbname": "soundwaveSounds",
             "user": "postgres",
