@@ -9,32 +9,18 @@ const manager = {
   currentId: null,
 
   play(id, url, onStop, onAnalyser, onDuration) {
-    // Останавливаем текущий
     if (this.stopCurrent) this.stopCurrent();
     if (this.audio) { this.audio.pause(); this.audio = null; }
     if (this.audioCtx) { this.audioCtx.close(); this.audioCtx = null; this.analyser = null; }
 
     this.currentId = id;
-    const audio = new Audio(url);
+
+    // crossOrigin must be set before src for WebAudio API to work
+    const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.src = url;
     this.audio = audio;
     this.stopCurrent = onStop;
-
-    // Web Audio API — реальная частотная визуализация
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 128;
-      analyser.smoothingTimeConstant = 0.8;
-      const source = ctx.createMediaElementSource(audio);
-      source.connect(analyser);
-      analyser.connect(ctx.destination);
-      this.audioCtx = ctx;
-      this.analyser = analyser;
-      // iOS Safari: AudioContext starts suspended even in click handlers
-      ctx.resume().then(() => onAnalyser(analyser));
-    } catch {
-      onAnalyser(null);
-    }
 
     audio.addEventListener('loadedmetadata', () => {
       if (isFinite(audio.duration)) onDuration(audio.duration);
@@ -49,19 +35,32 @@ const manager = {
       this.currentId = null;
     };
 
-    const tryPlay = () => audio.play().catch(() => {
-      onStop();
+    // Set up WebAudio synchronously (before play)
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
+      const source = ctx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      this.audioCtx = ctx;
+      this.analyser = analyser;
+      onAnalyser(analyser);
+    } catch {
       onAnalyser(null);
-      this.audio = null;
-      this.stopCurrent = null;
-    });
-
-    // On iOS the AudioContext may still be suspended — resume first, then play
-    if (this.audioCtx && this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().then(tryPlay);
-    } else {
-      tryPlay();
     }
+
+    // IMPORTANT: play() must be called synchronously within user gesture.
+    // resume() called AFTER play() resolves — not before (iOS requirement).
+    audio.play()
+      .then(() => { if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume(); })
+      .catch(() => {
+        onStop();
+        onAnalyser(null);
+        this.audio = null;
+        this.stopCurrent = null;
+      });
   },
 
   stop() {
