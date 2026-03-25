@@ -104,7 +104,7 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <main style={{
+      <main className="r-main-padding" style={{
         flex: 1, maxWidth: 1360, width: '100%',
         margin: '0 auto', padding: '0 2rem', boxSizing: 'border-box',
       }}>
@@ -118,13 +118,13 @@ export default function App() {
           />
 
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+            <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
               {[...Array(8)].map((_, i) => <CardSkeleton key={i} />)}
             </div>
           ) : products.length === 0 ? (
             <EmptyState search={search} onReset={() => { setCategory('all'); setSearch(''); }} />
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+            <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
               {products.map((p, i) => <ProductCard key={p.id} product={p} delay={i * 0.05} />)}
             </div>
           )}

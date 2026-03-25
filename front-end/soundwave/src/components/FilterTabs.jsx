@@ -9,7 +9,7 @@ const CATEGORIES = [
 
 export default function FilterTabs({ active, onChange, count }) {
   return (
-    <div style={{
+    <div className="r-filters" style={{
       display: 'flex', alignItems: 'center',
       gap: '0.5rem', marginBottom: '2.5rem',
       flexWrap: 'wrap',
