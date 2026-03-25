@@ -20,8 +20,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -d "soundwaveSounds" <<-EOSQ
     );
 
     CREATE TABLE IF NOT EXISTS tags (
-        id   BIGSERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL UNIQUE
+        id         BIGSERIAL PRIMARY KEY,
+        name       VARCHAR(100) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS products (
