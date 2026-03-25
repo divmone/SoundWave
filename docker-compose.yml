@@ -1,15 +1,119 @@
+version: '3.8'
+
 services:
+  # PostgreSQL для Auth Service
+  auth-postgres:
+    image: postgres:15
+    container_name: auth-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: soundwaveUsers
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+      # Схема — выполняется первой (01_)
+      - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      # Начальные данные — выполняются вторыми (02_)
+      - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
+      # Если нужны скрипты из ./database/init — монтируйте их явно с уникальными именами:
+      # - ./database/init/02_data.sql:/docker-entrypoint-initdb.d/03_extra_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveUsers"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+    
+
+  # PostgreSQL для Sounds Storage Service
+  sounds-postgres:
+    image: postgres:15
+    container_name: sounds-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: soundwaveSounds
+    ports:
+      - "5432:5432"
+    volumes:
+      - sounds_postgres_data:/var/lib/postgresql/data
+      - ./backend/soundsStorageService/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveSounds"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./backend/authService
+      dockerfile: Dockerfile
+    container_name: soundwave-auth
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=auth-postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=soundwaveUsers
+      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@auth-postgres:5432/soundwaveUsers
+      - CPU_LIMIT=4c
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  # Sounds Storage Service
+  sounds-storage:
+    build:
+      context: ./backend/soundsStorageService
+      dockerfile: Dockerfile
+    container_name: soundwave-storage
+    ports:
+      - "8081:8080"
+    environment:
+      - DB_HOST=sounds-postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=soundwaveSounds
+      - SERVER_PORT=8080
+      - STORAGE_PATH=/data/sounds
+    volumes:
+      - sounds_data:/data/sounds
+      - ./backend/soundsStorageService/config:/app/config:ro
+    depends_on:
+      sounds-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  # Frontend Builder
   frontend:
     build:
       context: ./front-end/soundwave
       dockerfile: Dockerfile
-    container_name: soundwave-frontend
+    container_name: soundwave-frontend-builder
     volumes:
       - frontend_dist:/frontend-dist
     networks:
       - soundwave-network
     restart: unless-stopped
 
+  # Nginx
   nginx:
     image: nginx:alpine
     container_name: soundwave-nginx
@@ -26,99 +130,11 @@ services:
       - soundwave-network
     restart: unless-stopped
 
-  auth-service:
-    build:
-      context: ./backend/authService
-      dockerfile: Dockerfile
-    container_name: soundwave-auth
-    expose:
-      - "8080"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=${POSTGRES_USER:-postgres}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DB_NAME=${POSTGRES_DB:-soundwaveUsers}
-      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-soundwaveUsers}
-      - CPU_LIMIT=4c
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  sounds-storage:
-    build:
-      context: ./backend/soundsStorageService
-      dockerfile: Dockerfile
-    container_name: soundwave-storage
-    expose:
-      - "8080"
-    environment:
-      - DB_HOST=sounds-postgres
-      - DB_PORT=5432
-      - DB_USER=${POSTGRES_USER:-postgres}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DB_NAME=soundwaveSounds
-      - SERVER_PORT=8080
-      - STORAGE_PATH=/data/sounds
-    volumes:
-      - sounds_data:/data/sounds
-      - ./backend/soundsStorageService/config:/app/config
-    depends_on:
-      sounds-postgres:
-        condition: service_healthy
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:15
-    container_name: soundwave-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-soundwaveUsers}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql
-      - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-soundwaveUsers}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  sounds-postgres:
-    image: postgres:15
-    container_name: soundwave-sounds-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-    volumes:
-      - sounds_postgres_data:/var/lib/postgresql/data
-      - ./backend/soundsStorageService/database/init.sh:/docker-entrypoint-initdb.d/init.sh
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
 volumes:
-  postgres_data:
-  sounds_postgres_data:
-  sounds_data:
-  frontend_dist:
+  auth_postgres_data:      # Volume для auth PostgreSQL
+  sounds_postgres_data:    # Volume для sounds PostgreSQL  
+  sounds_data:             # Volume для аудио файлов
+  frontend_dist:           # Volume для собранного фронтенда
 
 networks:
   soundwave-network:

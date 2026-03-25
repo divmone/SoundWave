@@ -9,11 +9,11 @@ services:
     ports:
       - "8081:8080"
     environment:
-      - DB_HOST=${DB_HOST:-postgres}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-soundwaveSounds}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=soundwaveSounds
       - SERVER_PORT=8080
       - STORAGE_PATH=/data/sounds
       
@@ -24,3 +24,7 @@ services:
 
 volumes:
   sounds_data:
+
+networks:
+  soundwave-network:
+    driver: bridge

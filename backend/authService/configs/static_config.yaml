@@ -48,7 +48,6 @@ components_manager:
             load-enabled: true
 
         postgres-db-1:
-            dbconnection: $pg-connection
             dbconnection#env: DB_CONNECTION
             blocking_task_processor: fs-task-processor
             dns_resolver: async

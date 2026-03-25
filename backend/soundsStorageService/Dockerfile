@@ -75,7 +75,7 @@ RUN chmod +x /app/SoundsStorageService
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "envsubst < /app/config/app/config.json.template > /app/config/app/config.json && /app/SoundsStorageService"]
+CMD ["/app/SoundsStorageService"]
 
 
 #xfsdfasdasdadssad asdasd

@@ -9,38 +9,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=auth-postgres
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=soundwaveUsers
       - DB_CONNECTION=postgresql://postgres:postgres@postgres:5432/soundwaveUsers
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:15
-    container_name: soundwave-postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=soundwaveUsers
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgresql/schemas:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - soundwave-network
     restart: unless-stopped
 
 volumes:

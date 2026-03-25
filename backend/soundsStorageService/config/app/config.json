@@ -22,7 +22,7 @@
             "passwd": "postgres",
             "is_fast": false,
             "connection_number": 1,
-            "auto_batch": false        
+            "auto_batch": false
         }
     ]
 }
