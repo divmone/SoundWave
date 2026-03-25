@@ -10,6 +10,8 @@ SoundDataRepository::SoundDataRepository(const std::string& basePath)
     : m_basePath(basePath)
 {
     std::filesystem::create_directories(m_basePath);
+    std::cout << "[Storage] Base path: "
+              << std::filesystem::absolute(m_basePath).string() << std::endl;
 }
 
 std::string SoundDataRepository::GetUserDirectory(uint64_t userId) const
@@ -40,6 +42,7 @@ bool SoundDataRepository::AddFile(const std::vector<char>& data, uint64_t fileId
         EnsureUserDirectoryExists(userId);
 
         std::string fullPath = GetFullPath(fileId, userId, extension);
+        std::cout << "[Storage] AddFile: " << std::filesystem::absolute(fullPath).string() << std::endl;
 
         if (std::filesystem::exists(fullPath))
         {
@@ -70,9 +73,11 @@ bool SoundDataRepository::GetFile(std::vector<char>& outData, uint64_t fileId, u
     try
     {
         std::string fullPath = GetFullPath(fileId, userId, extension);
+        std::cout << "[Storage] GetFile: " << std::filesystem::absolute(fullPath).string() << std::endl;
 
         if (!std::filesystem::exists(fullPath))
         {
+            std::cout << "[Storage] GetFile: NOT FOUND" << std::endl;
             return false;
         }
 
