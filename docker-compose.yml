@@ -4,22 +4,9 @@ services:
       context: ./front-end/soundwave
       dockerfile: Dockerfile
     container_name: soundwave-frontend
-    volumes:
-      - frontend_dist:/frontend-dist
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    container_name: soundwave-nginx
     ports:
-      - "80:80"
-    volumes:
-      - frontend_dist:/usr/share/nginx/html:ro
-      - ./front-end/soundwave/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - "127.0.0.1:8081:80"
     depends_on:
-      - frontend
       - auth-service
       - sounds-storage
     networks:
@@ -31,8 +18,8 @@ services:
       context: ./backend/authService
       dockerfile: Dockerfile
     container_name: soundwave-auth
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -53,8 +40,8 @@ services:
       context: ./backend/soundsStorageService
       dockerfile: Dockerfile
     container_name: soundwave-storage
-    expose:
-      - "8080"
+    ports:
+      - "8082:8080"
     environment:
       - DB_HOST=sounds-postgres
       - DB_PORT=5432
@@ -118,7 +105,6 @@ volumes:
   postgres_data:
   sounds_postgres_data:
   sounds_data:
-  frontend_dist:
 
 networks:
   soundwave-network:
