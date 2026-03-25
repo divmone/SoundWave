@@ -1,4 +1,5 @@
 #include <drogon/HttpAppFramework.h>
+#include <cstdlib>
 
 #include <storage/database/ProductRepository.h>
 #include <storage/database/SoundRepository.h>
@@ -26,7 +27,10 @@ int main()
     auto tagRepo = std::make_shared<TagRepository>();
     auto saleRepo = std::make_shared<SaleRepository>();
     auto productTagRepo = std::make_shared<ProductTagRepository>();
-    auto soundDataRepo = std::make_shared<SoundDataRepository>();
+    const char* storagePath = std::getenv("STORAGE_PATH");
+    auto soundDataRepo = std::make_shared<SoundDataRepository>(
+        storagePath ? storagePath : "./storage/sounds"
+    );
 
     auto productService = std::make_unique<ProductService>(productRepo, tagRepo, productTagRepo);
     auto soundService = std::make_unique<SoundService>(soundRepo);
