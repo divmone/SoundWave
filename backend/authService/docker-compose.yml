@@ -1,32 +1,51 @@
+version: '3.8'
+
 services:
-  app:
-    build: .
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: soundwave-auth
     ports:
       - "8080:8080"
     environment:
-      - DB_CONNECTION=postgresql://myuser:mypassword@postgres:5432/mydb
-      - CPU_LIMIT=4c
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=soundwaveUsers
+      - DB_CONNECTION=postgresql://postgres:postgres@postgres:5432/soundwaveUsers
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - soundwave-network
     restart: unless-stopped
 
   postgres:
     image: postgres:15
+    container_name: soundwave-postgres
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=soundwaveUsers
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql
-      - ./postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql
+      - ./postgresql/schemas:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - soundwave-network
     restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  soundwave-network:
+    driver: bridge

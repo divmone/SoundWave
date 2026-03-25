@@ -1,15 +1,35 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
-  // Auth service
+  // Auth service (порт 8080)
   app.use(
-    ['/auth/google', '/auth/logout'],
-    createProxyMiddleware({ target: 'http://localhost:8080', changeOrigin: true })
+    '/auth',
+    createProxyMiddleware({
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/auth': '/auth', // сохраняем путь как есть
+      },
+      onError: (err, req, res) => {
+        console.error('Proxy error for /auth:', err);
+        res.status(500).send('Proxy error');
+      },
+    })
   );
 
-  // Sounds service
+  // Sounds service (порт 8082)
   app.use(
     '/api',
-    createProxyMiddleware({ target: 'http://localhost:6666', changeOrigin: true })
+    createProxyMiddleware({
+      target: 'http://localhost:8082',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api': '/api/v1.0', // если бэкенд ожидает /api/v1.0
+      },
+      onError: (err, req, res) => {
+        console.error('Proxy error for /api:', err);
+        res.status(500).send('Proxy error');
+      },
+    })
   );
 };
