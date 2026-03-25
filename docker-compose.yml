@@ -105,10 +105,11 @@ services:
       - sounds_postgres_data:/var/lib/postgresql/data
       - ./backend/soundsStorageService/database/init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} && psql -U ${POSTGRES_USER:-postgres} -lqt | grep -q soundwaveSounds"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
     networks:
       - soundwave-network
     restart: unless-stopped
