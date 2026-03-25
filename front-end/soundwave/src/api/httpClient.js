@@ -2,48 +2,65 @@
  * ─────────────────────────────────────────────────────────────
  *  HTTP CLIENT  —  src/api/httpClient.js
  *
- *  Единый файл для всех HTTP-запросов.
+ *  Поддержка двух сервисов:
+ *    - AUTH: сервис авторизации (порт 8080)
+ *    - STORAGE: сервис хранения звуков (порт 8082)
+ *  
  *  Используй так:
  *
- *    import { get, post, put, patch, del } from '../api/httpClient';
+ *    import { auth, storage } from '../api/httpClient';
  *
- *    // GET
- *    const data = await get('/products?page=1');
+ *    // GET с авторизационного сервиса
+ *    const user = await auth.get('/auth/me');
  *
- *    // POST с телом
- *    const user = await post('/auth/login', { email, password });
- *
- *    // PUT / PATCH
- *    await put('/products/42', { title: 'New title' });
- *    await patch('/users/me', { avatar: url });
- *
- *    // DELETE
- *    await del('/products/42');
- *
- *    // С файлом (multipart)
- *    const fd = new FormData();
- *    fd.append('audio', file);
- *    await post('/products', fd);          // FormData детектится автоматически
- *
- *    // С кастомными заголовками
- *    await post('/admin/action', body, { headers: { 'X-Admin': '1' } });
+ *    // POST с сервиса хранения
+ *    const sounds = await storage.get('/api/v1.0/sounds/amount');
+ *    
+ *    // Или через прокси (если используется setupProxy.js)
+ *    import { get, post } from '../api/httpClient';
+ *    const data = await get('/api/v1.0/sounds/amount');
  * ─────────────────────────────────────────────────────────────
  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || '';
-const TIMEOUT  = 15_000; // 15 секунд
+const TIMEOUT = 15_000; // 15 секунд
+
+// Конфигурация сервисов
+const SERVICES = {
+  AUTH: {
+    name: 'auth',
+    baseURL: process.env.REACT_APP_AUTH_URL || '',
+    defaultPath: '/auth',
+  },
+  STORAGE: {
+    name: 'storage',
+    baseURL: process.env.REACT_APP_STORAGE_URL || '',
+    defaultPath: '',
+  },
+};
 
 // ── Token helpers ──────────────────────────────────────────
-export const getToken  = ()       => localStorage.getItem('sw_token');
-export const setToken  = (token)  => localStorage.setItem('sw_token', token);
-export const clearToken = ()      => { localStorage.removeItem('sw_token'); localStorage.removeItem('sw_user'); };
+export const getToken = () => localStorage.getItem('sw_token');
+export const setToken = (token) => localStorage.setItem('sw_token', token);
+export const clearToken = () => {
+  localStorage.removeItem('sw_token');
+  localStorage.removeItem('sw_user');
+  localStorage.removeItem('sw_refresh');
+};
 
 // ── Core executor ──────────────────────────────────────────
-async function execute(method, path, body = null, options = {}) {
+async function execute(serviceName, method, path, body = null, options = {}) {
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), TIMEOUT);
+  const timer = setTimeout(() => controller.abort(), TIMEOUT);
 
   const isFormData = body instanceof FormData;
+  const service = SERVICES[serviceName];
+  
+  if (!service) {
+    throw new Error(`Unknown service: ${serviceName}. Available: ${Object.keys(SERVICES).join(', ')}`);
+  }
+
+  const baseURL = service.baseURL;
+  const fullPath = `${baseURL}${path}`;
 
   const headers = {
     // Если FormData — Content-Type ставит браузер сам (с boundary)
@@ -55,7 +72,7 @@ async function execute(method, path, body = null, options = {}) {
   };
 
   try {
-    const res = await fetch(`${BASE_URL}${path}`, {
+    const res = await fetch(fullPath, {
       method,
       headers,
       signal: controller.signal,
@@ -72,32 +89,35 @@ async function execute(method, path, body = null, options = {}) {
 
     const text = await res.text().catch(() => '');
     let data = {};
-    try { data = JSON.parse(text); } catch { /* plain text response */ }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      /* plain text response */
+    }
 
     if (!res.ok) {
       const err = new Error(data.message || text || `HTTP ${res.status}`);
       err.status = res.status;
-      err.code   = data.code   || null;
+      err.code = data.code || null;
       err.fields = data.fields || null;
       throw err;
     }
 
     return data;
-
   } catch (err) {
     clearTimeout(timer);
 
     // AbortController timeout
     if (err.name === 'AbortError') {
       const timeout = new Error('Request timed out. Check your connection.');
-      timeout.code  = 'TIMEOUT';
+      timeout.code = 'TIMEOUT';
       throw timeout;
     }
 
     // Нет сети
     if (!navigator.onLine) {
       const offline = new Error('No internet connection.');
-      offline.code  = 'OFFLINE';
+      offline.code = 'OFFLINE';
       throw offline;
     }
 
@@ -105,22 +125,53 @@ async function execute(method, path, body = null, options = {}) {
   }
 }
 
-// ── Public methods ─────────────────────────────────────────
+// ── Клиент для сервиса авторизации (порт 8080) ─────────────
+export const auth = {
+  /** GET /path */
+  get: (path, options) => execute('AUTH', 'GET', path, null, options),
+  
+  /** POST /path { body } */
+  post: (path, body, options) => execute('AUTH', 'POST', path, body, options),
+  
+  /** PUT /path { body } */
+  put: (path, body, options) => execute('AUTH', 'PUT', path, body, options),
+  
+  /** PATCH /path { body } */
+  patch: (path, body, options) => execute('AUTH', 'PATCH', path, body, options),
+  
+  /** DELETE /path */
+  del: (path, options) => execute('AUTH', 'DELETE', path, null, options),
+  
+  /** POST multipart/form-data (для файлов) */
+  upload: (path, formData, options) => execute('AUTH', 'POST', path, formData, options),
+};
 
-/** GET /path */
-export const get   = (path, options)       => execute('GET',    path, null, options);
+// ── Клиент для сервиса хранения звуков (порт 8082) ─────────
+export const storage = {
+  /** GET /path */
+  get: (path, options) => execute('STORAGE', 'GET', path, null, options),
+  
+  /** POST /path { body } */
+  post: (path, body, options) => execute('STORAGE', 'POST', path, body, options),
+  
+  /** PUT /path { body } */
+  put: (path, body, options) => execute('STORAGE', 'PUT', path, body, options),
+  
+  /** PATCH /path { body } */
+  patch: (path, body, options) => execute('STORAGE', 'PATCH', path, body, options),
+  
+  /** DELETE /path */
+  del: (path, options) => execute('STORAGE', 'DELETE', path, null, options),
+  
+  /** POST multipart/form-data (для файлов) */
+  upload: (path, formData, options) => execute('STORAGE', 'POST', path, formData, options),
+};
 
-/** POST /path  { body } */
-export const post  = (path, body, options) => execute('POST',   path, body, options);
-
-/** PUT /path  { body } */
-export const put   = (path, body, options) => execute('PUT',    path, body, options);
-
-/** PATCH /path  { body } */
-export const patch = (path, body, options) => execute('PATCH',  path, body, options);
-
-/** DELETE /path */
-export const del   = (path, options)       => execute('DELETE', path, null, options);
-
-/** POST multipart/form-data (для файлов) */
-export const upload = (path, formData, options) => execute('POST', path, formData, options);
+// ── Для обратной совместимости (если код использует старые импорты) ──
+// По умолчанию используем storage сервис (звуки)
+export const get = (path, options) => storage.get(path, options);
+export const post = (path, body, options) => storage.post(path, body, options);
+export const put = (path, body, options) => storage.put(path, body, options);
+export const patch = (path, body, options) => storage.patch(path, body, options);
+export const del = (path, options) => storage.del(path, options);
+export const upload = (path, formData, options) => storage.upload(path, formData, options);
