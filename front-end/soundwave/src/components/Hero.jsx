@@ -68,7 +68,7 @@ export default function Hero({ search, onSearch, onUploadClick }) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <section style={{ position: 'relative', padding: '7rem 0 5rem', overflow: 'hidden' }}>
+    <section className="r-hero" style={{ position: 'relative', padding: '7rem 0 5rem', overflow: 'hidden' }}>
       <HeroBg />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
