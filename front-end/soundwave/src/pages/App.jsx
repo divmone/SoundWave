@@ -5,6 +5,7 @@ import { useProducts }  from '../hooks/useProducts';
 import { useStats }     from '../hooks/useStats';
 import { useAuth }      from '../hooks/useAuth';
 import { logoutUser, loginWithGoogle, loginWithApple } from '../api/services/authService';
+import { stopAll } from '../hooks/useAudioPlayer';
 import { parseOAuthCallback } from '../utils/oauthUtils';
 
 import Header       from '../components/layout/Header';
@@ -39,6 +40,8 @@ export default function App() {
   const { user, login, logout }     = useAuth();
   const { data: products, loading } = useProducts(category, search);
   const { data: stats }             = useStats();
+
+  useEffect(() => { stopAll(); }, [category, search]);
 
   const handleLogout = async () => {
     await logoutUser();
