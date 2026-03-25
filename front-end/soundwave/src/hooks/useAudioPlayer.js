@@ -1,17 +1,14 @@
+import { useState, useEffect } from 'react';
+import { getProductAudioUrl } from '../api/services/productsService';
+
 // Singleton — один инстанс на всё приложение
 const manager = {
   audio: null,
   stopCurrent: null,
 
-  play(url, onStop) {
-    // Останавливаем текущий трек
-    if (this.stopCurrent) {
-      this.stopCurrent();
-    }
-    if (this.audio) {
-      this.audio.pause();
-      this.audio = null;
-    }
+  async play(url, onStop) {
+    if (this.stopCurrent) this.stopCurrent();
+    if (this.audio) { this.audio.pause(); this.audio = null; }
 
     const audio = new Audio(url);
     this.audio = audio;
@@ -23,7 +20,7 @@ const manager = {
       this.stopCurrent = null;
     };
 
-    return audio.play().catch(() => {
+    await audio.play().catch(() => {
       onStop();
       this.audio = null;
       this.stopCurrent = null;
@@ -38,18 +35,12 @@ const manager = {
   },
 };
 
-import { useState, useEffect } from 'react';
-import { getProductAudioUrl } from '../api/services/productsService';
-
 export function useAudioPlayer(productId) {
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     return () => {
-      // При размонтировании — если этот трек играет, остановить
-      if (manager.stopCurrent === setPlaying) {
-        manager.stop();
-      }
+      if (manager.stopCurrent === setPlaying) manager.stop();
     };
   }, []);
 
