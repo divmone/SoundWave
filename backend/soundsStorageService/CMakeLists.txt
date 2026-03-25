@@ -13,15 +13,6 @@ file(GLOB_RECURSE SOURCE_FILES
 find_package(Drogon REQUIRED)
 find_package(Jsoncpp REQUIRED)
 
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
-    libavformat
-    libavcodec
-    libswscale
-    libavutil
-    libswresample
-)
 
 add_executable(${PROJECT_NAME}
     ${SOURCE_FILES}
