@@ -65,7 +65,7 @@ services:
       - STORAGE_PATH=/data/sounds
     volumes:
       - sounds_data:/data/sounds
-      - ./backend/soundsStorageService/config:/app/config:ro
+      - ./backend/soundsStorageService/config:/app/config
     depends_on:
       sounds-postgres:
         condition: service_healthy

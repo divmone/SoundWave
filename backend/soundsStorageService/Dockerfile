@@ -57,6 +57,7 @@ RUN apt-get update && apt-get install -y \
     uuid-runtime \
     zlib1g \
     libjsoncpp-dev \
+    gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/lib/libdrogon.so* /usr/local/lib/
@@ -74,7 +75,7 @@ RUN chmod +x /app/SoundsStorageService
 
 EXPOSE 8080
 
-CMD ["/app/SoundsStorageService"]
+CMD ["sh", "-c", "envsubst < /app/config/app/config.json.template > /app/config/app/config.json && /app/SoundsStorageService"]
 
 
 #xfsdfasdasdadssad asdasd
