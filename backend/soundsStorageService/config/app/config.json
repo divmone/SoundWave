@@ -18,8 +18,8 @@
             "host": "sounds-postgres",
             "port": 5432,
             "dbname": "soundwaveSounds",
-            "user": "postgres",
-            "passwd": "postgres",
+            "user": "myuser",
+            "passwd": "mypassword",
             "is_fast": false,
             "connection_number": 1,
             "auto_batch": false
