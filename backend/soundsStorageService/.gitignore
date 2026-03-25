@@ -451,8 +451,7 @@ lerna-debug.log*
 
 # Docker
 .dockerignore
-Dockerfile*
-docker-compose*
+
 *.docker
 docker-build.log
 docker-compose.override.yml
