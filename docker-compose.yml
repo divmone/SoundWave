@@ -16,8 +16,6 @@ services:
       - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       # Начальные данные — выполняются вторыми (02_)
       - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
-      # Если нужны скрипты из ./database/init — монтируйте их явно с уникальными именами:
-      # - ./database/init/02_data.sql:/docker-entrypoint-initdb.d/03_extra_data.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveUsers"]
       interval: 5s
