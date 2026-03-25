@@ -7,14 +7,8 @@ const manager = {
   stopCurrent: null,
 
   async play(url, onStop) {
-    // Останавливаем текущий трек
-    if (this.stopCurrent) {
-      this.stopCurrent();
-    }
-    if (this.audio) {
-      this.audio.pause();
-      this.audio = null;
-    }
+    if (this.stopCurrent) this.stopCurrent();
+    if (this.audio) { this.audio.pause(); this.audio = null; }
 
     const audio = new Audio(url);
     this.audio = audio;
@@ -46,10 +40,7 @@ export function useAudioPlayer(productId) {
 
   useEffect(() => {
     return () => {
-      // При размонтировании — если этот трек играет, остановить
-      if (manager.stopCurrent === setPlaying) {
-        manager.stop();
-      }
+      if (manager.stopCurrent === setPlaying) manager.stop();
     };
   }, []);
 
