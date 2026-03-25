@@ -1,6 +1,6 @@
 import { get, del, upload } from '../httpClient';
 
-const BASE = 'http://localhost:8082/api/v1.0/sounds';
+const BASE = '/api/v1.0/sounds';
 
 // ── List (страница звуков) ──────────────────────────────────
 export async function getProducts({ page = 1 } = {}) {
