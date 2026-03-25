@@ -1,9 +1,12 @@
+import { useState, useEffect } from 'react';
+import { getProductAudioUrl } from '../api/services/productsService';
+
 // Singleton — один инстанс на всё приложение
 const manager = {
   audio: null,
   stopCurrent: null,
 
-  play(url, onStop) {
+  async play(url, onStop) {
     // Останавливаем текущий трек
     if (this.stopCurrent) {
       this.stopCurrent();
@@ -23,7 +26,7 @@ const manager = {
       this.stopCurrent = null;
     };
 
-    return audio.play().catch(() => {
+    await audio.play().catch(() => {
       onStop();
       this.audio = null;
       this.stopCurrent = null;
