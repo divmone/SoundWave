@@ -415,9 +415,7 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
         }
 
         httpResponse->setBody(std::string(fileData.begin(), fileData.end()));
-        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_OCTET_STREAM);
         httpResponse->addHeader("Content-Type", sound.mimeType);
-        httpResponse->addHeader("Content-Length", std::to_string(fileData.size()));
         httpResponse->addHeader("Accept-Ranges", "bytes");
         httpResponse->setStatusCode(HttpStatusCode::k200OK);
     }
