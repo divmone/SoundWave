@@ -1,8 +1,16 @@
+function generateBars(count = 40) {
+  return Array.from({ length: count }, (_, i) => {
+    const center = Math.sin((i / count) * Math.PI);
+    return 15 + Math.round(center * 55 + Math.random() * 20);
+  });
+}
+
 export default function Waveform({ bars, playing, compact }) {
   const height = compact ? 36 : 52;
+  const resolvedBars = (bars && bars.length > 0) ? bars : generateBars();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 2 : 3, height }}>
-      {bars.map((h, i) => (
+      {resolvedBars.map((h, i) => (
         <div key={i} style={{
           flex: 1, minWidth: compact ? 2 : 3, borderRadius: 3,
           height: `${h}%`, transformOrigin: '50% 100%',
