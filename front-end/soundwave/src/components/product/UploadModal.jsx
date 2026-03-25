@@ -177,7 +177,7 @@ function SuccessScreen({ onClose }) {
 }
 
 export default function UploadModal({ onClose, user }) {
-  const [form, setForm]         = useState({ title: '', creator: '', price: '', category: 'alerts', tags: '' });
+  const [form, setForm]         = useState({ title: '', creator: user?.username ?? '', price: '', category: 'alerts', tags: '' });
   const [file, setFile]         = useState(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading]   = useState(false);
