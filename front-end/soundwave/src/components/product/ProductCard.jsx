@@ -24,7 +24,14 @@ export default function ProductCard({ product, delay = 0 }) {
   const [hovered, setHovered] = useState(false);
   const [buying, setBuying]   = useState(false);
   const [bought, setBought]   = useState(false);
-  const { playing, toggle }   = useAudioPlayer(product.id);
+  const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
+
+  const fmtDuration = (s) => {
+    if (!s) return null;
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, '0')}`;
+  };
 
   const handlePlay = (e) => { e.stopPropagation(); toggle(); };
 
@@ -136,9 +143,9 @@ export default function ProductCard({ product, delay = 0 }) {
           <span style={{
             fontFamily: 'var(--font-mono)', fontSize: '0.58rem',
             color: 'var(--text3)',
-          }}>0:{String(product.duration || 8).padStart(2,'0')}</span>
+          }}>{fmtDuration(duration) ?? fmtDuration(product.durationSeconds) ?? '--:--'}</span>
         </div>
-        <Waveform bars={product.bars} playing={playing} />
+        <Waveform analyser={analyser} playing={playing} />
       </div>
 
       {/* Meta */}
