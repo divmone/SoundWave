@@ -158,7 +158,7 @@ export default function ProductCard({ product, delay = 0 }) {
 
       {/* Tags */}
       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: '1rem' }}>
-        {product.tags.map(t => (
+        {(product.tagNames ?? product.tags ?? []).map(t => (
           <span key={t} style={{
             padding: '3px 9px',
             background: 'var(--bg4)',
