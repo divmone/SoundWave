@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Waveform from './Waveform';
-import { purchaseProduct } from '../../api/services/productsService';
+import { purchaseProduct, getProductAudioUrl } from '../../api/services/productsService';
 
 function StarRating({ rating }) {
   return (
@@ -24,6 +24,31 @@ export default function ProductCard({ product, delay = 0 }) {
   const [playing, setPlaying] = useState(false);
   const [buying, setBuying]   = useState(false);
   const [bought, setBought]   = useState(false);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const handlePlay = (e) => {
+    e.stopPropagation();
+    if (!audioRef.current) {
+      audioRef.current = new Audio(getProductAudioUrl(product.id));
+      audioRef.current.onended = () => setPlaying(false);
+    }
+    if (playing) {
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      audioRef.current.play();
+      setPlaying(true);
+    }
+  };
 
   const handleBuy = async (e) => {
     e.stopPropagation();
@@ -212,7 +237,7 @@ export default function ProductCard({ product, delay = 0 }) {
         <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
           {/* Play */}
           <button
-            onClick={e => { e.stopPropagation(); setPlaying(p => !p); }}
+            onClick={handlePlay}
             style={{
               width: 36, height: 36, borderRadius: '50%',
               background: playing ? 'var(--cyan)' : 'var(--bg4)',
