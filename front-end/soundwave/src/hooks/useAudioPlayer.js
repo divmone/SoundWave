@@ -30,7 +30,8 @@ const manager = {
       analyser.connect(ctx.destination);
       this.audioCtx = ctx;
       this.analyser = analyser;
-      onAnalyser(analyser);
+      // iOS Safari: AudioContext starts suspended even in click handlers
+      ctx.resume().then(() => onAnalyser(analyser));
     } catch {
       onAnalyser(null);
     }
@@ -48,12 +49,19 @@ const manager = {
       this.currentId = null;
     };
 
-    audio.play().catch(() => {
+    const tryPlay = () => audio.play().catch(() => {
       onStop();
       onAnalyser(null);
       this.audio = null;
       this.stopCurrent = null;
     });
+
+    // On iOS the AudioContext may still be suspended — resume first, then play
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().then(tryPlay);
+    } else {
+      tryPlay();
+    }
   },
 
   stop() {
