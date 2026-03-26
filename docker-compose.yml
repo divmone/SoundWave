@@ -123,15 +123,6 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
-
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --email admin@example.com --agree-tos --no-eff-email -d pgadmin.soundwave.divmone.ru
-
   
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -144,8 +135,6 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
-      - ./certbot/conf:/etc/ssl:ro  # Монтируем сертификаты
-      - ./certbot/www:/var/www/certbot:ro
     networks:
       - soundwave-network
     restart: unless-stopped
