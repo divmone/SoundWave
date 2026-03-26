@@ -131,7 +131,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: StrongPassword
     ports:
-      - "5050:80"  # <-- оставить
+      - "5050:80"  # <-- раскомментировать или добавить
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
