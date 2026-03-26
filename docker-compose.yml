@@ -126,7 +126,7 @@ services:
   
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: soundwave-pgadmin
+    container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: StrongPassword
