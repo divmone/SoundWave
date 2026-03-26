@@ -5,10 +5,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DownloadUserver)
 
 find_package(
-    userver
-    COMPONENTS core #
-               postgresql
-    QUIET
+        userver
+        COMPONENTS core #
+        postgresql
+        QUIET
 )
 if(NOT userver_FOUND)
     # Tries TRY_DIR first, falls back to downloading userver from GitHub using CPM.
@@ -21,16 +21,17 @@ userver_setup_environment()
 include_directories(src)
 
 add_library(
-    ${PROJECT_NAME}_objs OBJECT
-    src/handlers/auth/google_auth.cpp
-    src/repositories/user_repository.cpp
-    src/services/auth_service.cpp
+        ${PROJECT_NAME}_objs OBJECT
+        src/handlers/auth/google_auth.cpp
+        src/repositories/user_repository.cpp
+        src/services/auth_service.cpp
         src/handlers/auth/logout.cpp
+        ../../../../../devdev/SoundWave/backend/authService/src/handlers/users/users.cpp
 )
 target_link_libraries(
-    ${PROJECT_NAME}_objs
-    PUBLIC userver::core
-           userver::postgresql
+        ${PROJECT_NAME}_objs
+        PUBLIC userver::core
+        userver::postgresql
 )
 
 # The Service
@@ -52,12 +53,12 @@ endif()
 file(GLOB CONFIGS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.yaml ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.json)
 
 install(
-    TARGETS ${PROJECT_NAME}
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT ${PROJECT_NAME}
+        TARGETS ${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT ${PROJECT_NAME}
 )
 install(
-    FILES ${CONFIGS_FILES}
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
-    COMPONENT ${PROJECT_NAME}
+        FILES ${CONFIGS_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
 )

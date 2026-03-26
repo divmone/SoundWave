@@ -53,6 +53,26 @@ namespace shop::repositories {
         };
     }
 
+    std::optional<User> UserRepository::findById(int64_t id) const {
+        const auto res = pg_cluster->Execute(
+            userver::storages::postgres::ClusterHostType::kMaster,
+            "SELECT * FROM users WHERE id = $1",
+            id
+        );
+
+        if (res.IsEmpty()) {
+            return std::nullopt;
+        }
+
+        const auto row = res.Front();
+        return User(
+            row["id"].As<int>(),
+            row["google_id"].As<std::string>(),
+            row["email"].As<std::string>(),
+            row["username"].As<std::string>()
+        );
+    }
+
     std::string UserRepository::createSession(int user_id) {
         const auto result = pg_cluster->Execute(
           userver::storages::postgres::ClusterHostType::kMaster,
