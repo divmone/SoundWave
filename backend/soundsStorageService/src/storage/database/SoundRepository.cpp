@@ -10,12 +10,16 @@ std::variant<uint64_t, DatabaseError> SoundRepository::Create(const Sounds& enti
 {
     try
     {
+        /*
+            от штуки ниже нет смысла. и она еще всё сломала
+        */
+        /*
         auto existing = Mapper().findBy(Criteria(Sounds::Cols::_file_path, CompareOperator::EQ, entity.getValueOfFilename()));
         if (existing.size())
         {
             LOG_INFO << *existing[0].getFilePath() << "already exists in database";
             return DatabaseError::AlreadyExists;
-        }
+        }*/
        auto id = Mapper().insertFuture(entity).get().getValueOfId();
        return static_cast<uint64_t>(id);
     }
