@@ -177,7 +177,7 @@ function SuccessScreen({ onClose }) {
 }
 
 export default function UploadModal({ onClose, user }) {
-  const [form, setForm]         = useState({ title: '', creator: user?.username ?? '', price: '', category: 'alerts', tags: '' });
+  const [form, setForm]         = useState({ title: '', price: '', category: 'alerts', tags: '' });
   const [file, setFile]         = useState(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading]   = useState(false);
@@ -189,7 +189,6 @@ export default function UploadModal({ onClose, user }) {
   const validate = () => {
     const e = {};
     if (!form.title.trim()) e.title = true;
-    if (!form.creator.trim()) e.creator = true;
     if (!form.price || isNaN(form.price)) e.price = true;
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -325,11 +324,9 @@ export default function UploadModal({ onClose, user }) {
               </div>
 
               {/* Fields */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <Input label="Title *" placeholder="Epic Drop Alert" value={form.title} onChange={set('title')}
                   style={{ ...inp, ...errStyle('title') }} />
-                <Input label="Creator *" placeholder="@YourHandle" value={form.creator} onChange={set('creator')}
-                  style={{ ...inp, ...errStyle('creator') }} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>

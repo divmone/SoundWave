@@ -175,12 +175,12 @@ export default function ProductCard({ product, delay = 0 }) {
       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: '1rem' }}>
         {(product.tagNames ?? product.tags ?? []).map(t => (
           <span key={t} style={{
-            padding: '3px 9px',
-            background: 'var(--bg4)',
-            border: '1px solid var(--line)',
-            borderRadius: 4,
-            fontSize: '0.6rem', fontWeight: 600,
-            letterSpacing: '0.1em', color: 'var(--text3)',
+            padding: '4px 10px',
+            background: 'rgba(99,215,255,0.08)',
+            border: '1px solid rgba(99,215,255,0.25)',
+            borderRadius: 20,
+            fontSize: '0.62rem', fontWeight: 700,
+            letterSpacing: '0.08em', color: 'var(--cyan)',
             textTransform: 'uppercase',
             fontFamily: 'var(--font-mono)',
           }}>{t}</span>
