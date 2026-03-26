@@ -8,7 +8,6 @@ using namespace drogon::orm;
 
 std::variant<uint64_t, DatabaseError> TagRepository::Create(const Tags& entity)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto existing = Mapper().findBy(Criteria(Tags::Cols::_name, CompareOperator::EQ, entity.getValueOfName()));
@@ -28,7 +27,6 @@ std::variant<uint64_t, DatabaseError> TagRepository::Create(const Tags& entity)
 
 std::variant<Tags, DatabaseError> TagRepository::GetByID(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findByPrimaryKey(id);
@@ -46,7 +44,6 @@ std::variant<Tags, DatabaseError> TagRepository::GetByID(uint64_t id)
 
 std::variant<bool, DatabaseError> TagRepository::Update(uint64_t id, const Tags& entity)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto numUpdated = Mapper().update(entity);
@@ -65,7 +62,6 @@ std::variant<bool, DatabaseError> TagRepository::Update(uint64_t id, const Tags&
 
 std::variant<bool, DatabaseError> TagRepository::Delete(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         if (Mapper().deleteByPrimaryKey(id))
@@ -83,7 +79,6 @@ std::variant<bool, DatabaseError> TagRepository::Delete(uint64_t id)
 
 std::variant<std::vector<Tags>, DatabaseError> TagRepository::ReadAll()
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findAll();
@@ -97,7 +92,6 @@ std::variant<std::vector<Tags>, DatabaseError> TagRepository::ReadAll()
 
 std::variant<bool, DatabaseError> TagRepository::Exists(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         Mapper().findByPrimaryKey(id);
@@ -116,7 +110,6 @@ std::variant<bool, DatabaseError> TagRepository::Exists(uint64_t id)
 
 std::variant<Tags, DatabaseError> TagRepository::FindByName(const std::string& name)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto results = Mapper().findBy(Criteria(Tags::Cols::_name, CompareOperator::EQ, name));
@@ -135,7 +128,6 @@ std::variant<Tags, DatabaseError> TagRepository::FindByName(const std::string& n
 
 std::variant<std::vector<Tags>, DatabaseError> TagRepository::FindByNames(const std::vector<std::string>& names)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto criteria = Criteria(Tags::Cols::_name, CompareOperator::In, names);

@@ -8,7 +8,6 @@ using namespace drogon::orm;
 
 std::variant<bool, DatabaseError> ProductTagRepository::AddTagToProduct(uint64_t productId, uint64_t tagId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         ProductTags entity;
@@ -29,7 +28,6 @@ std::variant<bool, DatabaseError> ProductTagRepository::AddTagToProduct(uint64_t
 
 std::variant<bool, DatabaseError> ProductTagRepository::RemoveTagFromProduct(uint64_t productId, uint64_t tagId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto sql = ProductTags::sqlForDeletingByPrimaryKey();
@@ -46,7 +44,6 @@ std::variant<bool, DatabaseError> ProductTagRepository::RemoveTagFromProduct(uin
 
 std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetTagsByProductId(uint64_t productId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto sql = "SELECT tag_id FROM product_tags WHERE product_id = $1";
@@ -69,7 +66,6 @@ std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetTags
 
 std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetProductsByTagId(uint64_t tagId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto sql = "SELECT product_id FROM product_tags WHERE tag_id = $1";
@@ -92,7 +88,6 @@ std::variant<std::vector<uint64_t>, DatabaseError> ProductTagRepository::GetProd
 
 std::variant<bool, DatabaseError> ProductTagRepository::Exists(uint64_t productId, uint64_t tagId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto sql = "SELECT 1 FROM product_tags WHERE product_id = $1 AND tag_id = $2 LIMIT 1";

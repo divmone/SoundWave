@@ -8,7 +8,6 @@ using namespace drogon::orm;
 
 std::variant<uint64_t, DatabaseError> ProductRepository::Create(const Products& entity)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto id = Mapper().insertFuture(entity).get().getValueOfId();
@@ -23,7 +22,6 @@ std::variant<uint64_t, DatabaseError> ProductRepository::Create(const Products& 
 
 std::variant<Products, DatabaseError> ProductRepository::GetByID(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findByPrimaryKey(id);
@@ -41,7 +39,6 @@ std::variant<Products, DatabaseError> ProductRepository::GetByID(uint64_t id)
 
 std::variant<bool, DatabaseError> ProductRepository::Update(uint64_t id, const Products& entity)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto numUpdated = Mapper().update(entity);
@@ -60,7 +57,6 @@ std::variant<bool, DatabaseError> ProductRepository::Update(uint64_t id, const P
 
 std::variant<bool, DatabaseError> ProductRepository::Delete(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         if (Mapper().deleteByPrimaryKey(id))
@@ -78,7 +74,6 @@ std::variant<bool, DatabaseError> ProductRepository::Delete(uint64_t id)
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::GetPage(uint64_t pageNum)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         size_t offset = (pageNum - 1) * PAGE_SIZE;
@@ -105,7 +100,6 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::GetPage(ui
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::ReadAll()
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findAll();
@@ -119,7 +113,6 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::ReadAll()
 
 std::variant<bool, DatabaseError> ProductRepository::Exists(uint64_t id)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         Mapper().findByPrimaryKey(id);
@@ -138,7 +131,6 @@ std::variant<bool, DatabaseError> ProductRepository::Exists(uint64_t id)
 
 std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto result = Mapper().count();
@@ -153,7 +145,6 @@ std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuthorId(uint64_t authorId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_author_id, CompareOperator::EQ, authorId));
@@ -167,7 +158,6 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuth
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindBySoundId(uint64_t soundId)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_sound_id, CompareOperator::EQ, soundId));
@@ -181,7 +171,6 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindBySoun
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindPublished()
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_is_published, CompareOperator::EQ, true));
@@ -195,7 +184,6 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindPublis
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByPriceRange(const std::string& minPrice, const std::string& maxPrice)
 {
-    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto criteria = Criteria(Products::Cols::_price, CompareOperator::GE, minPrice) &&
