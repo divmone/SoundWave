@@ -24,7 +24,7 @@ SoundResponseTo SoundService::Create(const SoundRequestTo& request)
 
     if (std::holds_alternative<DatabaseError>(result))
     {
-        throw DatabaseException("Failed to create sound");
+        throw DatabaseException("Sound already exists");
     }
 
     auto id = std::get<uint64_t>(result);

@@ -75,7 +75,7 @@ bool SoundDataRepository::GetFile(std::vector<char>& outData, uint64_t fileId, u
     try
     {
         std::string fullPath = GetFullPath(fileId, userId, extension);
-        LOG_INFO << __FILE__ << "GetFile: " << std::filesystem::absolute(fullPath).string();
+        LOG_INFO << __FILE__ << " GetFile: " << std::filesystem::absolute(fullPath).string();
 
         if (!std::filesystem::exists(fullPath))
         {
@@ -117,7 +117,7 @@ bool SoundDataRepository::RemoveFile(uint64_t fileId, uint64_t userId, const std
 
         if (!std::filesystem::exists(fullPath))
         {
-             LOG_INFO << __FILE__ << __LINE__ << "File not exists " << fullPath;
+             LOG_INFO << __FILE__ << __LINE__ << " File not exists " << fullPath;
             return false;
         }
 

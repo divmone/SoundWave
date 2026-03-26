@@ -11,9 +11,10 @@ std::variant<uint64_t, DatabaseError> SoundRepository::Create(const Sounds& enti
     LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
-        auto existing = Mapper().findBy(Criteria(Sounds::Cols::_filename, CompareOperator::EQ, entity.getValueOfFilename()));
+        auto existing = Mapper().findBy(Criteria(Sounds::Cols::_file_path, CompareOperator::EQ, entity.getValueOfFilename()));
         if (existing.size())
         {
+            LOG_INFO << *existing[0].getFilePath() << "already exists in database";
             return DatabaseError::AlreadyExists;
         }
        auto id = Mapper().insertFuture(entity).get().getValueOfId();
