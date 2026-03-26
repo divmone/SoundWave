@@ -7,6 +7,7 @@
 #include <mutex>
 #include <cstdint>
 #include <filesystem>
+#include <drogon/HttpAppFramework.h>
 
 namespace soundwaveSounds
 {

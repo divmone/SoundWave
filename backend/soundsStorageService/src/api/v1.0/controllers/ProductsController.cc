@@ -32,7 +32,7 @@ void soundwaveSounds::ProductsController::GetSoundsAmount(const HttpRequestPtr &
     catch(const DatabaseException& e)
     {
         Json::Value errorResponse;
-        errorResponse["message"] = "Internal server error";
+        errorResponse["message"] = "Internal server error: " + std::string(e.what());
         httpResponse->setBody(Json::FastWriter().write(errorResponse));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
@@ -63,7 +63,7 @@ void soundwaveSounds::ProductsController::GetPageOfSounds(const HttpRequestPtr& 
     catch(const DatabaseException& e)
     {
         Json::Value errorResponse;
-        errorResponse["message"] = "Internal server error";
+        errorResponse["message"] = "Internal server error: " + std::string(e.what());
         httpResponse->setBody(Json::FastWriter().write(errorResponse));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
@@ -97,7 +97,7 @@ void soundwaveSounds::ProductsController::GetSound(const HttpRequestPtr& req, st
     catch(const DatabaseException& e)
     {
         Json::Value errorResponse;
-        errorResponse["message"] = "Internal server error";
+        errorResponse["message"] = "Internal server error: " + std::string(e.what());
         httpResponse->setBody(Json::FastWriter().write(errorResponse));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
@@ -136,7 +136,7 @@ void soundwaveSounds::ProductsController::GetUserSounds(const HttpRequestPtr& re
     catch(const DatabaseException& e)
     {
         Json::Value errorResponse;
-        errorResponse["message"] = "Internal server error";
+        errorResponse["message"] = "Internal server error: " + std::string(e.what());
         httpResponse->setBody(Json::FastWriter().write(errorResponse));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);   
@@ -242,7 +242,9 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
 
         dto::SoundResponseTo soundResponse = m_soundService->Create(soundRequest);
 
-        if (!m_soundDataService->SaveSoundFile(audioFile, soundResponse.id, userId))
+        auto& fileId = soundResponse.id;
+
+        if (!m_soundDataService->SaveSoundFile(audioFile, fileId, userId))
         {
             responseJson["message"] = "Failed to save audio file";
             httpResponse->setBody(Json::FastWriter().write(responseJson));
@@ -257,15 +259,15 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         updateRequest.userId = userId;
         updateRequest.filename = std::to_string(soundResponse.id) + "." + extension;
         updateRequest.originalName = soundRequest.originalName;
-        updateRequest.filePath = "storage/sounds/user_" + std::to_string(userId) + "/" + updateRequest.filename;
+        updateRequest.filePath = m_soundDataService->GetSoundFilePath(fileId, userId, extension);
         updateRequest.fileSize = soundRequest.fileSize;
         updateRequest.mimeType = soundRequest.mimeType;
         updateRequest.durationSeconds = soundRequest.durationSeconds;
 
-        m_soundService->Update(updateRequest, soundResponse.id);
+        m_soundService->Update(updateRequest, fileId);
 
         dto::ProductRequestTo productRequest;
-        productRequest.soundId = soundResponse.id;
+        productRequest.soundId = fileId;
         productRequest.authorId = userId;
         productRequest.title = metadata["title"].asString();
         productRequest.description = metadata.get("description", "").asString();
@@ -316,7 +318,7 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
     }
     catch (const DatabaseException& e)
     {
-        responseJson["message"] = "Internal server error";
+        responseJson["message"] = "Internal server error: " + std::string(e.what());
         httpResponse->setBody(Json::FastWriter().write(responseJson));
         httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -416,6 +418,7 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
 
         httpResponse->setBody(std::string(fileData.begin(), fileData.end()));
         httpResponse->addHeader("Content-Type", sound.mimeType);
+        httpResponse->addHeader("Access-Control-Allow-Origin", "*");
         httpResponse->addHeader("Accept-Ranges", "bytes");
         httpResponse->setStatusCode(HttpStatusCode::k200OK);
     }

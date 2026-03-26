@@ -10,8 +10,7 @@ SoundDataRepository::SoundDataRepository(const std::string& basePath)
     : m_basePath(basePath)
 {
     std::filesystem::create_directories(m_basePath);
-    std::cout << "[Storage] Base path: "
-              << std::filesystem::absolute(m_basePath).string() << std::endl;
+    LOG_INFO << "SoundDataRepo storage path: " << std::filesystem::absolute(m_basePath).string();
 }
 
 std::string SoundDataRepository::GetUserDirectory(uint64_t userId) const
@@ -30,6 +29,7 @@ void SoundDataRepository::EnsureUserDirectoryExists(uint64_t userId)
     if (!std::filesystem::exists(userDir))
     {
         std::filesystem::create_directories(userDir);
+        LOG_DEBUG << "Created new directory: " << userDir;
     }
 }
 
@@ -42,7 +42,7 @@ bool SoundDataRepository::AddFile(const std::vector<char>& data, uint64_t fileId
         EnsureUserDirectoryExists(userId);
 
         std::string fullPath = GetFullPath(fileId, userId, extension);
-        std::cout << "[Storage] AddFile: " << std::filesystem::absolute(fullPath).string() << std::endl;
+        LOG_INFO << "[Storage] AddFile: " << std::filesystem::absolute(fullPath).string();
 
         if (std::filesystem::exists(fullPath))
         {
@@ -52,6 +52,7 @@ bool SoundDataRepository::AddFile(const std::vector<char>& data, uint64_t fileId
         std::ofstream file(fullPath, std::ios::binary);
         if (!file.is_open())
         {
+            LOG_INFO << __FILE__ << __LINE__<< "Failed to open file " << fullPath;
             return false;
         }
 
@@ -62,6 +63,7 @@ bool SoundDataRepository::AddFile(const std::vector<char>& data, uint64_t fileId
     }
     catch (const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return false;
     }
 }
@@ -73,17 +75,18 @@ bool SoundDataRepository::GetFile(std::vector<char>& outData, uint64_t fileId, u
     try
     {
         std::string fullPath = GetFullPath(fileId, userId, extension);
-        std::cout << "[Storage] GetFile: " << std::filesystem::absolute(fullPath).string() << std::endl;
+        LOG_INFO << __FILE__ << "GetFile: " << std::filesystem::absolute(fullPath).string();
 
         if (!std::filesystem::exists(fullPath))
         {
-            std::cout << "[Storage] GetFile: NOT FOUND" << std::endl;
+            LOG_INFO << __FILE__ << "GetFile: NOT FOUND";
             return false;
         }
 
         std::ifstream file(fullPath, std::ios::binary);
         if (!file.is_open())
         {
+            LOG_INFO << __FILE__ << __LINE__ << "Failed to open file " << fullPath;
             return false;
         }
 
@@ -99,6 +102,7 @@ bool SoundDataRepository::GetFile(std::vector<char>& outData, uint64_t fileId, u
     }
     catch (const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return false;
     }
 }
@@ -113,6 +117,7 @@ bool SoundDataRepository::RemoveFile(uint64_t fileId, uint64_t userId, const std
 
         if (!std::filesystem::exists(fullPath))
         {
+             LOG_INFO << __FILE__ << __LINE__ << "File not exists " << fullPath;
             return false;
         }
 
@@ -120,6 +125,7 @@ bool SoundDataRepository::RemoveFile(uint64_t fileId, uint64_t userId, const std
     }
     catch (const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return false;
     }
 }
@@ -135,6 +141,7 @@ bool SoundDataRepository::FileExists(uint64_t fileId, uint64_t userId, const std
     }
     catch (const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return false;
     }
 }

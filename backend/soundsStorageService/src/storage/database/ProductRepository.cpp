@@ -8,6 +8,7 @@ using namespace drogon::orm;
 
 std::variant<uint64_t, DatabaseError> ProductRepository::Create(const Products& entity)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto id = Mapper().insertFuture(entity).get().getValueOfId();
@@ -15,12 +16,14 @@ std::variant<uint64_t, DatabaseError> ProductRepository::Create(const Products& 
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<Products, DatabaseError> ProductRepository::GetByID(uint64_t id)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findByPrimaryKey(id);
@@ -31,12 +34,14 @@ std::variant<Products, DatabaseError> ProductRepository::GetByID(uint64_t id)
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<bool, DatabaseError> ProductRepository::Update(uint64_t id, const Products& entity)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto numUpdated = Mapper().update(entity);
@@ -48,12 +53,14 @@ std::variant<bool, DatabaseError> ProductRepository::Update(uint64_t id, const P
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<bool, DatabaseError> ProductRepository::Delete(uint64_t id)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         if (Mapper().deleteByPrimaryKey(id))
@@ -64,12 +71,14 @@ std::variant<bool, DatabaseError> ProductRepository::Delete(uint64_t id)
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::GetPage(uint64_t pageNum)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         size_t offset = (pageNum - 1) * PAGE_SIZE;
@@ -89,24 +98,28 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::GetPage(ui
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::ReadAll()
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findAll();
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<bool, DatabaseError> ProductRepository::Exists(uint64_t id)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         Mapper().findByPrimaryKey(id);
@@ -118,12 +131,14 @@ std::variant<bool, DatabaseError> ProductRepository::Exists(uint64_t id)
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto result = Mapper().count();
@@ -131,48 +146,56 @@ std::variant<uint64_t, DatabaseError> ProductRepository::GetAmount()
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByAuthorId(uint64_t authorId)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_author_id, CompareOperator::EQ, authorId));
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindBySoundId(uint64_t soundId)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_sound_id, CompareOperator::EQ, soundId));
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindPublished()
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         return Mapper().findBy(Criteria(Products::Cols::_is_published, CompareOperator::EQ, true));
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
 
 std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByPriceRange(const std::string& minPrice, const std::string& maxPrice)
 {
+    LOG_INFO << __PRETTY_FUNCTION__;
     try
     {
         auto criteria = Criteria(Products::Cols::_price, CompareOperator::GE, minPrice) &&
@@ -181,6 +204,7 @@ std::variant<std::vector<Products>, DatabaseError> ProductRepository::FindByPric
     }
     catch(const std::exception& e)
     {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
         return DatabaseError::DatabaseError;
     }
 }
