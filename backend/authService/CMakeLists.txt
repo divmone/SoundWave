@@ -26,7 +26,7 @@ add_library(
         src/repositories/user_repository.cpp
         src/services/auth_service.cpp
         src/handlers/auth/logout.cpp
-        ../../../../../devdev/SoundWave/backend/authService/src/handlers/users/users.cpp
+        src/handlers/users/users.cpp
 )
 target_link_libraries(
         ${PROJECT_NAME}_objs

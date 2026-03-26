@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Waveform from './Waveform';
-import { purchaseProduct } from '../../api/services/productsService';
+import { getProductAudioUrl } from '../../api/services/productsService';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 
 function StarRating({ rating }) {
@@ -22,7 +22,7 @@ function StarRating({ rating }) {
 
 export default function ProductCard({ product, delay = 0 }) {
   const [hovered, setHovered] = useState(false);
-  const [buying, setBuying]   = useState(false);
+  const [buying]   = useState(false);
   const [bought, setBought]   = useState(false);
   const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
 
@@ -35,21 +35,14 @@ export default function ProductCard({ product, delay = 0 }) {
 
   const handlePlay = (e) => { e.stopPropagation(); toggle(); };
 
-  const handleBuy = async (e) => {
+  const handleBuy = (e) => {
     e.stopPropagation();
-    setBuying(true);
-    try {
-      await purchaseProduct(product.id, {
-        email: 'user@example.com',       // подставить из auth
-        paymentMethodId: 'pm_mock_test', // подставить из Stripe
-      });
-      setBought(true);
-      setTimeout(() => setBought(false), 3000);
-    } catch (err) {
-      console.error('Purchase failed:', err);
-    } finally {
-      setBuying(false);
-    }
+    const a = document.createElement('a');
+    a.href = getProductAudioUrl(product.id);
+    a.download = product.title ?? `sound-${product.id}`;
+    a.click();
+    setBought(true);
+    setTimeout(() => setBought(false), 3000);
   };
 
   return (
@@ -158,11 +151,23 @@ export default function ProductCard({ product, delay = 0 }) {
         }}>{product.title}</div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.68rem',
-            color: 'var(--text3)',
-          }}>{product.creator}</span>
-          {product.rating && <StarRating rating={product.rating} />}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{
+              width: 18, height: 18, borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--cyan-dark), var(--violet))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="white">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+              </svg>
+            </div>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: '0.72rem',
+              color: 'var(--cyan)', fontWeight: 600, letterSpacing: '0.02em',
+            }}>{product.creator}</span>
+          </div>
+          {!!product.rating && <StarRating rating={product.rating} />}
         </div>
       </div>
 
@@ -183,7 +188,7 @@ export default function ProductCard({ product, delay = 0 }) {
       </div>
 
       {/* Downloads count */}
-      {product.downloadCount && (
+      {!!product.downloadCount && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 5,
           marginBottom: '1rem',
