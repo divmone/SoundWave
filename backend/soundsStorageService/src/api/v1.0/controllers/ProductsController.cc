@@ -331,6 +331,7 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
         httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
     }
 
+    fflush(stdout);
     callback(httpResponse);
 }
 
