@@ -417,11 +417,37 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
             return;
         }
 
-        httpResponse->setBody(std::string(fileData.begin(), fileData.end()));
-        httpResponse->addHeader("Content-Type", sound.mimeType);
-        httpResponse->addHeader("Access-Control-Allow-Origin", "*");
+        const std::string fullBody(fileData.begin(), fileData.end());
+        const size_t totalSize = fullBody.size();
+
+        // Убираем CORS — nginx выставляет его сам
+        // Правильно задаём Content-Type через setContentTypeString, а не addHeader
+        httpResponse->setContentTypeString(sound.mimeType.empty() ? "audio/mpeg" : sound.mimeType);
         httpResponse->addHeader("Accept-Ranges", "bytes");
-        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+
+        // Поддержка Range-запросов (Safari требует 206 для воспроизведения)
+        const std::string rangeHeader = req->getHeader("Range");
+        if (!rangeHeader.empty() && rangeHeader.substr(0, 6) == "bytes=")
+        {
+            size_t dashPos = rangeHeader.find('-', 6);
+            size_t start = std::stoull(rangeHeader.substr(6, dashPos - 6));
+            size_t end = (dashPos + 1 < rangeHeader.size() && rangeHeader[dashPos + 1] != '\0' && !std::string(rangeHeader.substr(dashPos + 1)).empty())
+                ? std::stoull(rangeHeader.substr(dashPos + 1))
+                : totalSize - 1;
+            if (end >= totalSize) end = totalSize - 1;
+
+            httpResponse->setBody(fullBody.substr(start, end - start + 1));
+            httpResponse->addHeader("Content-Range",
+                "bytes " + std::to_string(start) + "-" + std::to_string(end) + "/" + std::to_string(totalSize));
+            httpResponse->addHeader("Content-Length", std::to_string(end - start + 1));
+            httpResponse->setStatusCode(HttpStatusCode::k206PartialContent);
+        }
+        else
+        {
+            httpResponse->setBody(fullBody);
+            httpResponse->addHeader("Content-Length", std::to_string(totalSize));
+            httpResponse->setStatusCode(HttpStatusCode::k200OK);
+        }
     }
     catch (const NotFoundException& e)
     {
