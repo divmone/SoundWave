@@ -418,7 +418,7 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
         }
 
         httpResponse->setBody(std::string(fileData.begin(), fileData.end()));
-        httpResponse->addHeader("Content-Type", sound.mimeType);
+        httpResponse->setContentTypeString(sound.mimeType.empty() ? "audio/wav" : sound.mimeType);
         httpResponse->addHeader("Access-Control-Allow-Origin", "*");
         httpResponse->addHeader("Accept-Ranges", "bytes");
         httpResponse->setStatusCode(HttpStatusCode::k200OK);
