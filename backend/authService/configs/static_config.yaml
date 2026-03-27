@@ -66,6 +66,11 @@ components_manager:
         user-repository: {}
 
         handler-logout:
-          path: /auth/logout
-          method: POST
-          task_processor: main-task-processor
+            path: /auth/logout
+            method: POST
+            task_processor: main-task-processor
+
+        handler-user:
+            path: /users/{id}
+            method: GET
+            task_processor: main-task-processor

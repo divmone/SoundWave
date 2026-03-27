@@ -88,6 +88,11 @@ export async function setUserRole({ role }) {
   return data;
 }
 
+// ── Get user by ID ─────────────────────────────────────────
+export async function getUserById(id) {
+  return get(`/users/${id}`);
+}
+
 // ── Local helpers ──────────────────────────────────────────
 export function getCurrentUser() {
   try {

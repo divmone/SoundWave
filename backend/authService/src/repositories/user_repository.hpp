@@ -24,6 +24,7 @@ namespace shop::repositories {
             const std::string &username);
 
         std::optional<User> findByGoogleId(const std::string &) const;
+        std::optional<User> findById(int64_t id) const;
 
         std::string createSession(int user_id);
         void deleteSession(const std::string &token);
