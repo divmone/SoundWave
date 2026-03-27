@@ -179,10 +179,26 @@ function SuccessScreen({ onClose }) {
 export default function UploadModal({ onClose, user }) {
   const [form, setForm]         = useState({ title: '', price: '', category: 'alerts', tags: '' });
   const [file, setFile]         = useState(null);
+  const [fileError, setFileError] = useState('');
+  const [agreed, setAgreed]     = useState(false);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [done, setDone]         = useState(false);
   const [errors, setErrors]     = useState({});
+
+  const ALLOWED_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/aac', 'audio/x-wav'];
+  const ALLOWED_EXT   = '.mp3, .wav, .ogg, .flac, .aac';
+
+  const handleFile = (f) => {
+    if (!f) return;
+    if (!ALLOWED_TYPES.includes(f.type) && !f.name.match(/\.(mp3|wav|ogg|flac|aac)$/i)) {
+      setFileError(`Unsupported format: ${f.name.split('.').pop().toUpperCase()}. Use ${ALLOWED_EXT}`);
+      setFile(null);
+      return;
+    }
+    setFileError('');
+    setFile(f);
+  };
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
@@ -195,6 +211,7 @@ export default function UploadModal({ onClose, user }) {
   };
 
   const handleSubmit = async () => {
+    if (!agreed) { setErrors(e => ({ ...e, agreed: true })); return; }
     if (!validate()) return;
     setLoading(true);
     try {
@@ -290,7 +307,7 @@ export default function UploadModal({ onClose, user }) {
               <div
                 onDragOver={e => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
-                onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) setFile(f); }}
+                onDrop={e => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
                 onClick={() => document.getElementById('_audioInput').click()}
                 style={{
                   border: `2px dashed ${dragging ? 'var(--cyan)' : file ? 'var(--green)' : 'var(--line2)'}`,
@@ -304,7 +321,7 @@ export default function UploadModal({ onClose, user }) {
                 }}
               >
                 <input id="_audioInput" type="file" accept="audio/*" style={{ display: 'none' }}
-                  onChange={e => setFile(e.target.files[0])} />
+                  onChange={e => handleFile(e.target.files[0])} />
                 <div style={{ fontSize: '2.5rem', marginBottom: 10, lineHeight: 1 }}>
                   {file ? '🎧' : '📂'}
                 </div>
@@ -346,6 +363,58 @@ export default function UploadModal({ onClose, user }) {
 
               <div style={{ marginBottom: '1.8rem' }}>
                 <Input label="Tags (comma separated)" placeholder="Alert, Epic, Cinematic" value={form.tags} onChange={set('tags')} />
+              </div>
+
+              {fileError && (
+                <div style={{
+                  marginBottom: '1rem', padding: '0.75rem 1rem',
+                  background: 'var(--red-dim)', border: '1px solid rgba(255,68,102,0.3)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.8rem', color: 'var(--red)',
+                  fontFamily: 'var(--font-body)', fontWeight: 600,
+                }}>
+                  ⚠️ {fileError}
+                </div>
+              )}
+
+              {/* User agreement */}
+              <div
+                onClick={() => { setAgreed(a => !a); setErrors(e => ({ ...e, agreed: false })); }}
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 10,
+                  marginBottom: '1.2rem', cursor: 'pointer',
+                  padding: '0.8rem 1rem',
+                  background: errors.agreed ? 'var(--red-dim)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${errors.agreed ? 'rgba(255,68,102,0.3)' : 'var(--line)'}`,
+                  borderRadius: 'var(--radius-sm)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                  background: agreed ? 'var(--cyan)' : 'var(--bg4)',
+                  border: `1.5px solid ${agreed ? 'var(--cyan)' : 'var(--line2)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}>
+                  {agreed && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <polyline points="1.5,5 4,7.5 8.5,2" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text2)', fontFamily: 'var(--font-body)', lineHeight: 1.5 }}>
+                  I confirm that I own the rights to this audio and agree to the{' '}
+                  <span
+                    onClick={e => e.stopPropagation()}
+                    style={{ color: 'var(--cyan)', textDecoration: 'underline', cursor: 'pointer' }}
+                  >Terms of Service</span>
+                  {' '}and{' '}
+                  <span
+                    onClick={e => e.stopPropagation()}
+                    style={{ color: 'var(--cyan)', textDecoration: 'underline', cursor: 'pointer' }}
+                  >Content Policy</span>.
+                </span>
               </div>
 
               {Object.keys(errors).length > 0 && (
