@@ -47,14 +47,13 @@ const manager = {
       this.audioCtx = ctx;
       this.analyser = analyser;
       onAnalyser(analyser);
+      // iOS: resume must be called synchronously within user gesture
+      if (ctx.state === 'suspended') ctx.resume();
     } catch {
       onAnalyser(null);
     }
 
-    // IMPORTANT: play() must be called synchronously within user gesture.
-    // resume() called AFTER play() resolves — not before (iOS requirement).
     audio.play()
-      .then(() => { if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume(); })
       .catch(() => {
         onStop();
         onAnalyser(null);
