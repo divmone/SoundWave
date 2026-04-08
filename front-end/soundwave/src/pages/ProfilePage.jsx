@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getUserProducts, deleteProduct, getProductAudioUrl } from '../api/services/productsService';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import UploadModal from '../components/product/UploadModal';
 import { logoutUser } from '../api/services/authService';
 
 function StatCard({ label, value }) {
@@ -179,8 +180,9 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
   const [sounds, setSounds]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
+  const [modal, setModal]     = useState(false);
 
-  useEffect(() => {
+  const loadSounds = useCallback(() => {
     if (!user?.id) return;
     setLoading(true);
     getUserProducts(user.id)
@@ -188,6 +190,13 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [user?.id]);
+
+  useEffect(() => { loadSounds(); }, [loadSounds]);
+
+  const handleUploadClose = (uploaded) => {
+    setModal(false);
+    if (uploaded) loadSounds();
+  };
 
   const handleLogout = async () => {
     await logoutUser();
@@ -208,8 +217,9 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+      {modal && <UploadModal onClose={handleUploadClose} user={user} />}
       <Header
-        onUploadClick={() => onNavigate?.('home')}
+        onUploadClick={() => setModal(true)}
         onNavigate={onNavigate}
         user={user}
         onLogout={handleLogout}
@@ -335,7 +345,7 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
             }}>My Sounds</h2>
             <button
               className="btn-primary"
-              onClick={() => onNavigate?.('home')}
+              onClick={() => setModal(true)}
               style={{ padding: '0.42rem 1.1rem', fontSize: '0.75rem', background: 'linear-gradient(135deg, #6d28d9, var(--violet))' }}
             >
               + Upload new
@@ -386,7 +396,7 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
               </div>
               <button
                 className="btn-primary"
-                onClick={() => onNavigate?.('home')}
+                onClick={() => setModal(true)}
                 style={{ padding: '0.6rem 1.6rem', fontSize: '0.83rem', background: 'linear-gradient(135deg, #6d28d9, var(--violet))' }}
               >
                 + Upload a sound
