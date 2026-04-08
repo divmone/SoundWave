@@ -169,7 +169,7 @@ function SuccessScreen({ onClose }) {
         </div>
       </div>
 
-      <button className="btn-primary" onClick={onClose} style={{ width: '100%', padding: '0.9rem', fontSize: '0.88rem' }}>
+      <button className="btn-primary" onClick={() => onClose(true)} style={{ width: '100%', padding: '0.9rem', fontSize: '0.88rem' }}>
         Got it, thanks! 👍
       </button>
     </div>
@@ -233,7 +233,7 @@ export default function UploadModal({ onClose, user }) {
 
   return (
     <div
-      onClick={onClose}
+      onClick={() => onClose(done)}
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         background: 'rgba(5,5,8,0.88)',
