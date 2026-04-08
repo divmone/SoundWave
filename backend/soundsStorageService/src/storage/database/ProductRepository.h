@@ -18,7 +18,7 @@ using namespace drogon_model::soundwaveSounds;
 
 class ProductRepository : public IDatabaseRepository<Products, uint64_t, DatabaseError>
 {
-    static constexpr uint64_t PAGE_SIZE = 9;
+    static constexpr uint64_t PAGE_SIZE = 12;
 public:
     ProductRepository() = default;
     ~ProductRepository() = default;

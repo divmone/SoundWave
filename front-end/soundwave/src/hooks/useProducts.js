@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { getProducts } from '../api/services/productsService';
 import { getUserById } from '../api/services/authService';
 
-export function useProducts(_category, _search, page = 1) {
+const PAGE_SIZE = 9;
+
+export function useProducts(category, search, page = 1) {
   const [data,    setData]    = useState([]);
   const [total,   setTotal]   = useState(0);
   const [loading, setLoading] = useState(true);
@@ -12,11 +14,31 @@ export function useProducts(_category, _search, page = 1) {
     setLoading(true);
     setError(null);
     try {
-      const res = await getProducts({ page });
-      const items = res?.items ?? [];
+      const res   = await getProducts({ page });
+      let items   = res?.items ?? [];
 
+      // ── Фильтрация по тегу/категории на фронте ─────────
+      // Бэк не поддерживает фильтрацию, делаем сами
+      if (category && category !== 'all') {
+        const cat = category.toLowerCase();
+        items = items.filter(p =>
+          (p.tagNames ?? []).some(t => t.toLowerCase() === cat) ||
+          (p.description ?? '').toLowerCase().includes(cat)
+        );
+      }
+
+      // ── Поиск по заголовку/тегам ────────────────────────
+      if (search && search.trim()) {
+        const q = search.trim().toLowerCase();
+        items = items.filter(p =>
+          (p.title ?? '').toLowerCase().includes(q) ||
+          (p.tagNames ?? []).some(t => t.toLowerCase().includes(q))
+        );
+      }
+
+      // ── Подтягиваем имена авторов ───────────────────────
       const uniqueIds = [...new Set(items.map(p => p.authorId).filter(Boolean))];
-      const userMap = {};
+      const userMap   = {};
       await Promise.allSettled(
         uniqueIds.map(id =>
           getUserById(id)
@@ -27,7 +49,7 @@ export function useProducts(_category, _search, page = 1) {
 
       setData(items.map(p => ({
         ...p,
-        creator: p.authorId ? (userMap[p.authorId] ?? p.creator) : p.creator,
+        creator: p.authorId ? (userMap[p.authorId] ?? p.creator ?? String(p.authorId)) : (p.creator ?? ''),
       })));
       setTotal(res?.total ?? 0);
     } catch (e) {
@@ -36,7 +58,7 @@ export function useProducts(_category, _search, page = 1) {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, category, search]);
 
   useEffect(() => { load(); }, [load]);
 
