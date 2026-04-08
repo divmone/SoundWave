@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import '../styles/globals.css';
 
 import { useProducts }  from '../hooks/useProducts';
@@ -19,7 +19,8 @@ import StatsBar     from '../components/StatsBar';
 import CTASection   from '../components/CTASection';
 import UploadModal  from '../components/product/UploadModal';
 
-import LoginPage from './LoginPage';
+import LoginPage     from './LoginPage';
+import ProfilePage   from './ProfilePage';
 
 // Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
 function getInitialPage() {
@@ -30,6 +31,7 @@ function getInitialPage() {
 }
 
 export default function App() {
+  const [debugOpen,   setDebugOpen]  = useState(false);
   const [page,        setPage]       = useState(getInitialPage);
   const [category,    setCategory]   = useState('all');
   const [search,      setSearch]     = useState('');
@@ -46,6 +48,14 @@ export default function App() {
   const { data: stats }             = useStats();
 
   useEffect(() => { stopAll(); setCurrentPage(1); }, [category, search]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') setDebugOpen(o => !o);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -95,6 +105,7 @@ export default function App() {
     </div>
   );
   if (page === 'login')       return <LoginPage onNavigate={setPage} initialError={oauthError} />;
+  if (page === 'profile')     return <ProfilePage user={user} onNavigate={setPage} onLogout={logout} />;
 
   // ── Main marketplace ───────────────────────────────────
   return (
@@ -200,6 +211,48 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {debugOpen && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
+          maxHeight: '45vh', overflowY: 'auto',
+          background: 'rgba(0,0,0,0.95)', borderTop: '2px solid var(--cyan)',
+          fontFamily: 'monospace', fontSize: '0.72rem', color: '#0ff',
+          padding: '0.75rem 1rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontWeight: 700, color: 'var(--cyan)' }}>🛠 DEBUG — Ctrl+Shift+D to close</span>
+            <span style={{ color: '#888' }}>user: {user ? `id=${user.id} | ${user.username} | ${user.email}` : 'not logged in'}</span>
+          </div>
+          <div style={{ marginBottom: 6, color: '#aaa' }}>
+            page: {currentPage} / {totalPages} | total products: {total} | loading: {String(loading)}
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ color: '#888', textAlign: 'left', borderBottom: '1px solid #333' }}>
+                <th style={{ padding: '2px 8px' }}>id</th>
+                <th style={{ padding: '2px 8px' }}>title</th>
+                <th style={{ padding: '2px 8px' }}>authorId</th>
+                <th style={{ padding: '2px 8px' }}>creator (resolved)</th>
+                <th style={{ padding: '2px 8px' }}>price</th>
+                <th style={{ padding: '2px 8px' }}>tags</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map(p => (
+                <tr key={p.id} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                  <td style={{ padding: '2px 8px', color: '#888' }}>{p.id}</td>
+                  <td style={{ padding: '2px 8px' }}>{p.title}</td>
+                  <td style={{ padding: '2px 8px', color: p.authorId ? '#0ff' : '#f44' }}>{p.authorId ?? '—'}</td>
+                  <td style={{ padding: '2px 8px', color: p.creator ? '#0f0' : '#f44' }}>{p.creator ?? '—'}</td>
+                  <td style={{ padding: '2px 8px', color: '#888' }}>{p.price}</td>
+                  <td style={{ padding: '2px 8px', color: '#888' }}>{(p.tagNames ?? []).join(', ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

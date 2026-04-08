@@ -64,11 +64,17 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '5px 12px 5px 6px',
-                  background: 'var(--bg3)', border: '1px solid var(--line2)', borderRadius: 'var(--radius-pill)',
-                }}>
+                <div
+                  onClick={() => onNavigate?.('profile')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '5px 12px 5px 6px',
+                    background: 'var(--bg3)', border: '1px solid var(--line2)', borderRadius: 'var(--radius-pill)',
+                    cursor: 'pointer', transition: 'border-color 0.18s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--cyan)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--line2)'}
+                >
                   <div style={{
                     width: 26, height: 26, borderRadius: '50%',
                     background: 'linear-gradient(135deg, var(--cyan-dark), var(--violet))',
@@ -126,11 +132,15 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
           {user ? (
             <>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '5px 12px 5px 6px', flex: 1,
-                background: 'var(--bg3)', border: '1px solid var(--line2)', borderRadius: 'var(--radius-pill)',
-              }}>
+              <div
+                onClick={() => { onNavigate?.('profile'); setMenuOpen(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '5px 12px 5px 6px', flex: 1,
+                  background: 'var(--bg3)', border: '1px solid var(--line2)', borderRadius: 'var(--radius-pill)',
+                  cursor: 'pointer',
+                }}
+              >
                 <div style={{
                   width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
                   background: 'linear-gradient(135deg, var(--cyan-dark), var(--violet))',
