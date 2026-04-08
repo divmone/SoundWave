@@ -3,3 +3,4 @@ backend/authService/configs/config_vars.yaml
 .env
 build/
 .idea
+.vscode

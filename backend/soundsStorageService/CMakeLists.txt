@@ -13,7 +13,6 @@ file(GLOB_RECURSE SOURCE_FILES
 find_package(Drogon REQUIRED)
 find_package(Jsoncpp REQUIRED)
 
-
 add_executable(${PROJECT_NAME}
     ${SOURCE_FILES}
 )
@@ -21,6 +20,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${JSONCPP_INCLUDE_DIRS}"
+    "${DROGON_INCLUDE_DIRS}"
 )
 
 target_link_libraries(${PROJECT_NAME} Drogon::Drogon)
