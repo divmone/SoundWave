@@ -6,6 +6,7 @@
 #include <services/ProductService.h>
 #include <services/SoundService.h>
 #include <services/TagService.h>
+#include <middleware/ExceptonHandlerMiddleware.h>
 
 namespace soundwaveSounds
 {
@@ -25,14 +26,14 @@ public:
                                 std::unique_ptr<SoundService> soundService, 
                                 std::unique_ptr<TagService> tagService);
     METHOD_LIST_BEGIN
-        ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get);
-        ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get);
-        ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get);
-        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get);
-        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post);
-        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put);
-        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete);
-        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get);
+        ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
     METHOD_LIST_END
 private:
     void GetSoundsAmount(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
