@@ -175,7 +175,7 @@ export default function UploadModal({ onClose, user }) {
         />
       )}
 
-      <div onClick={onClose} style={{
+      <div onClick={() => onClose(done)} style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         background: 'rgba(5,5,8,0.88)', backdropFilter: 'blur(20px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -195,7 +195,7 @@ export default function UploadModal({ onClose, user }) {
             backgroundSize: '300%', animation: 'shimmer 3s linear infinite', zIndex: 2,
           }} />
 
-          {done ? <SuccessScreen onClose={onClose} /> : (
+          {done ? <SuccessScreen onClose={() => onClose(true)} /> : (
             <>
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem 1.8rem 1.2rem', borderBottom: '1px solid var(--line)' }}>
