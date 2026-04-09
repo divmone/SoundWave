@@ -66,8 +66,15 @@ jobs:
         working-directory: tests
         run: |
           mkdir -p ../reports
-          npx @usebruno/cli run . --output ../reports --format junit || true
-          echo "Tests completed, reports saved to ../reports/"
+          npx @usebruno/cli run . --output ../reports/junit.xml --format junit || true
+          echo "Tests completed"
+
+          if [ -f ../reports/junit.xml ]; then
+            echo "Report generated:"
+            head -20 ../reports/junit.xml
+          else
+            echo "No report generated"
+          fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
