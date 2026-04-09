@@ -1,11 +1,36 @@
-name: Deploy
+name: Test & Deploy
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [authService, soundsStorageService]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install bruno-cli
+        run: npm install -g @usebruno/cli
+      - name: Run Bruno tests
+        run: bruno run tests --env ci --output reports/${{ matrix.service }} --format junitxml
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bruno-test-results-${{ matrix.service }}
+          path: reports/${{ matrix.service }}
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to server
