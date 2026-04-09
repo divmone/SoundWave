@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # Важно для получения предыдущего коммита
+          fetch-depth: 2
 
       - name: Get previous commit hash
         run: echo "PREV_COMMIT=$(git rev-parse HEAD~1)" >> $GITHUB_ENV
@@ -30,11 +30,8 @@ jobs:
             cd /root/SoundWave
             git fetch origin
             git reset --hard origin/main
-            # Останавливаем старые контейнеры
             docker compose down
-            # Пересобираем и запускаем
             docker compose up --build -d
-            # Очищаем неиспользуемые образы
             docker image prune -f
 
       - name: Wait for services to be ready
@@ -44,21 +41,22 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            apt-get update && apt-get install -y curl
-            # Ожидание готовности auth-service
+            cd /root/SoundWave
+            echo "Waiting for services to be ready..."
+            
+            # Ждём пока контейнеры запустятся
             for i in {1..30}; do
-              if docker exec soundwave-auth curl -f http://localhost:8080/health; then
+              if docker ps | grep -q "soundwave-auth" && docker ps | grep -q "soundwave-storage"; then
+                echo "Containers are running!"
                 break
               fi
+              echo "Attempt $i/30: waiting for containers..."
               sleep 2
             done
-            # Ожидание готовности storage-service
-            for i in {1..30}; do
-              if docker exec soundwave-storage curl -f http://localhost:8080/health; then
-                break
-              fi
-              sleep 2
-            done
+         
+            echo "Services failed to become ready:("
+            docker compose logs --tail=50
+            exit 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -71,7 +69,6 @@ jobs:
       - name: Run Bruno tests
         run: |
           mkdir -p reports/${{ matrix.service }}
-          # Используем localhost или IP сервера для тестов
           bruno run tests --env ci --output reports/${{ matrix.service }} --format junitxml || true
 
       - name: Upload test results
@@ -90,6 +87,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /root/SoundWave
+            echo "Rolling back to previous version..."
             git reset --hard ${{ env.PREV_COMMIT }}
             docker compose down
             docker compose up --build -d
+            echo "Rollback completed"
