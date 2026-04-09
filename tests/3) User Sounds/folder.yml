@@ -1,0 +1,7 @@
+info:
+  name: 3) User Sounds
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

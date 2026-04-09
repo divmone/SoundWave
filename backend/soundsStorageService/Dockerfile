@@ -50,6 +50,7 @@ RUN mkdir -p /build/build && cd /build/build && \
 FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y \
+    curl \
     libpq-dev \
     ca-certificates \
     libssl-dev \

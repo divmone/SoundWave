@@ -2,5 +2,9 @@ node_modules/
 backend/authService/configs/config_vars.yaml
 .env
 build/
-.idea
-.vscode
+.idea/
+.vscode/
+
+node_modules
+.DS_Store
+Thumbs.db

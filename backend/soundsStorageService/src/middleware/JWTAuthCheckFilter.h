@@ -14,10 +14,10 @@ namespace soundwaveSounds
 {
     using namespace drogon;
 
-    class JWTAuthCheckMiddleware: public HttpMiddleware<JWTAuthCheckMiddleware>
+    class JWTAuthCheckFilter: public HttpMiddleware<JWTAuthCheckFilter>
     {
     public:
-        JWTAuthCheckMiddleware() {};
+        JWTAuthCheckFilter() {};
 
         void invoke(const drogon::HttpRequestPtr &req,
                     MiddlewareNextCallback &&nextCb,
