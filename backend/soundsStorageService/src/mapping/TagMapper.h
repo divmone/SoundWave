@@ -40,7 +40,6 @@ public:
         TagResponseTo dto;
         dto.id = entity.getValueOfId();
         dto.name = entity.getValueOfName();
-        dto.createdAt = entity.getValueOfCreatedAt().toFormattedString(false);
         return dto;
     }
 

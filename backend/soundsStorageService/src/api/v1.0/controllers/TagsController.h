@@ -13,9 +13,9 @@ using namespace drogon;
 class TagsController : public drogon::HttpController<TagsController, false>
 {
 private:
-    std::unique_ptr<TagService> m_tagService = nullptr;
+    std::shared_ptr<TagService> m_tagService = nullptr;
 public:
-    explicit TagsController(std::unique_ptr<TagService> tagService);
+    explicit TagsController(std::shared_ptr<TagService> tagService): m_tagService(tagService) {};
     METHOD_LIST_BEGIN
         ADD_METHOD_TO(TagsController::GetTags, "api/v1.0/sounds/tags", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
     METHOD_LIST_END

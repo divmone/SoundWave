@@ -4,7 +4,6 @@
 #include <storage/database/ProductRepository.h>
 #include <storage/database/SoundRepository.h>
 #include <storage/database/TagRepository.h>
-#include <storage/database/SaleRepository.h>
 #include <storage/database/ProductTagRepository.h>
 #include <storage/filesystem/SoundDataRepository.h>
 
@@ -14,6 +13,7 @@
 #include <services/SoundDataService.h>
 
 #include <api/v1.0/controllers/ProductsController.h>
+#include  <api/v1.0/controllers/TagsController.h>
 
 using namespace soundwaveSounds;
 
@@ -24,26 +24,28 @@ int main()
     auto productRepo = std::make_shared<ProductRepository>();
     auto soundRepo = std::make_shared<SoundRepository>();
     auto tagRepo = std::make_shared<TagRepository>();
-    auto saleRepo = std::make_shared<SaleRepository>();
     auto productTagRepo = std::make_shared<ProductTagRepository>();
     const char* storagePath = std::getenv("STORAGE_PATH");
     auto soundDataRepo = std::make_shared<SoundDataRepository>(
         storagePath ? storagePath : "./storage/sounds"
     );
 
-    auto productService = std::make_unique<ProductService>(productRepo, tagRepo, productTagRepo);
-    auto soundService = std::make_unique<SoundService>(soundRepo);
-    auto tagService = std::make_unique<TagService>(tagRepo);
-    auto soundDataService = std::make_unique<SoundDataService>(soundDataRepo);
+    auto productService = std::make_shared<ProductService>(productRepo, tagRepo, productTagRepo);
+    auto soundService = std::make_shared<SoundService>(soundRepo);
+    auto tagService = std::make_shared<TagService>(tagRepo);
+    auto soundDataService = std::make_shared<SoundDataService>(soundDataRepo);
     
     auto productsController = std::make_shared<ProductsController>(
-        std::move(soundDataService),
-        std::move(productService),
-        std::move(soundService),
-        std::move(tagService)
+        soundDataService,
+        productService,
+        soundService,
+        tagService
     );
 
+    auto tagsController = std::make_shared<TagsController>(tagService);
+
     drogon::app().registerController(productsController);
+    drogon::app().registerController(tagsController);
     drogon::app().run();
     
     return 0;
