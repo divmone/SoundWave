@@ -38,6 +38,7 @@ FROM ubuntu:22.04 AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libpq5 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/bin/db_test /usr/local/bin/db_test
