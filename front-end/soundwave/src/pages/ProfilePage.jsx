@@ -208,9 +208,10 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
     setSounds(prev => prev.filter(s => s.id !== id));
   };
 
-  const totalEarnings = sounds
-    .filter(s => s.isPublished)
-    .reduce((sum, s) => sum + Number(s.price ?? 0), 0);
+  const totalEarnings = sounds.reduce((sum, s) => {
+    const p = parseFloat(s.price);
+    return sum + (isNaN(p) ? 0 : p);
+  }, 0);
 
   const initials = user?.username?.[0]?.toUpperCase() ?? '?';
   const isCreator = user?.role === 'creator' || sounds.length > 0;
