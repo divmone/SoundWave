@@ -48,13 +48,15 @@ jobs:
             for i in {1..30}; do
               if docker ps | grep -q "soundwave-auth" && docker ps | grep -q "soundwave-storage"; then
                 echo "Containers are running!"
-                break
+                exit 0
               fi
               echo "Attempt $i/30: waiting for containers..."
               sleep 2
+            
+            echo "Ю ар реди? Ю ар реди!"
             done
-         
-            echo "Services failed to become ready:("
+            
+            echo "❌ Services failed to become ready :("
             docker compose logs --tail=50
             exit 1
 
