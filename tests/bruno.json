@@ -1,0 +1,11 @@
+{
+  "version": "1",
+  "name": "SoundWave API Tests",
+  "collections": [
+    "1) Info",
+    "2) Sounds",
+    "3) User Sounds",
+    "4) Upload",
+    "5) Download"
+  ]
+}

@@ -63,10 +63,10 @@ jobs:
         run: npm install -g @usebruno/cli
 
       - name: Run Bruno tests
+        working-directory: tests
         run: |
-          mkdir -p reports
-          # Запускаем из корня проекта, где есть opencollection.yml
-          npx @usebruno/cli run . --output reports --format junitxml || true
+          mkdir -p ../reports
+          npx @usebruno/cli run . --output ../reports --format junitxml || true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
