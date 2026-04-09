@@ -3,7 +3,6 @@
 #include <memory>
 #include <drogon/HttpController.h>
 #include <services/TagService.h>
-#include <middleware/ExceptonHandlerMiddleware.h>
 
 namespace soundwaveSounds
 {
@@ -17,7 +16,7 @@ private:
 public:
     explicit TagsController(std::shared_ptr<TagService> tagService): m_tagService(tagService) {};
     METHOD_LIST_BEGIN
-        ADD_METHOD_TO(TagsController::GetTags, "api/v1.0/sounds/tags", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(TagsController::GetTags, "api/v1.0/sounds/tags", Get);
     METHOD_LIST_END
 private:
     void GetTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);

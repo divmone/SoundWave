@@ -13,7 +13,8 @@
 #include <services/SoundDataService.h>
 
 #include <api/v1.0/controllers/ProductsController.h>
-#include  <api/v1.0/controllers/TagsController.h>
+#include <api/v1.0/controllers/TagsController.h>
+
 
 using namespace soundwaveSounds;
 
@@ -34,7 +35,7 @@ int main()
     auto soundService = std::make_shared<SoundService>(soundRepo);
     auto tagService = std::make_shared<TagService>(tagRepo);
     auto soundDataService = std::make_shared<SoundDataService>(soundDataRepo);
-    
+
     auto productsController = std::make_shared<ProductsController>(
         soundDataService,
         productService,
