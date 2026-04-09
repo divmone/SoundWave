@@ -15,13 +15,18 @@
 #include <api/v1.0/controllers/ProductsController.h>
 #include <api/v1.0/controllers/TagsController.h>
 
+#include <exceptions/GlobalHandler.h>
 
 using namespace soundwaveSounds;
 
 int main() 
 {
     drogon::app().loadConfigFile("config/app/config.json");
-    
+
+    /// БОЛЬШОЙ БАН БАН БАН
+        drogon::app().setExceptionHandler(GlobalExceptionHandler);
+    /// НЕ ДЕЛАТЬ ТАК БОЛЬШЕ В ЖИЗНИ
+
     auto productRepo = std::make_shared<ProductRepository>();
     auto soundRepo = std::make_shared<SoundRepository>();
     auto tagRepo = std::make_shared<TagRepository>();
