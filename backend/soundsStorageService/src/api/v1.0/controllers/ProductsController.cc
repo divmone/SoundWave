@@ -5,10 +5,10 @@
 
 using namespace soundwaveSounds;
 
-ProductsController::ProductsController(std::unique_ptr<SoundDataService> soundDataService,
-                                                        std::unique_ptr<ProductService> productService, 
-                                                        std::unique_ptr<SoundService> soundService, 
-                                                        std::unique_ptr<TagService> tagService)
+ProductsController::ProductsController(std::shared_ptr<SoundDataService> soundDataService,
+                                                        std::shared_ptr<ProductService> productService, 
+                                                        std::shared_ptr<SoundService> soundService, 
+                                                        std::shared_ptr<TagService> tagService)
 {
     m_soundDataService = std::move(soundDataService);
     m_productService = std::move(productService);

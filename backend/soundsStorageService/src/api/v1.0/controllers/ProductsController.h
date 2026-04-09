@@ -16,15 +16,15 @@ using namespace drogon;
 class ProductsController : public drogon::HttpController<ProductsController, false>
 {
 private:
-    std::unique_ptr<SoundDataService> m_soundDataService = nullptr;
-    std::unique_ptr<ProductService> m_productService = nullptr;
-    std::unique_ptr<SoundService> m_soundService = nullptr;
-    std::unique_ptr<TagService> m_tagService = nullptr;
+    std::shared_ptr<SoundDataService> m_soundDataService = nullptr;
+    std::shared_ptr<ProductService> m_productService = nullptr;
+    std::shared_ptr<SoundService> m_soundService = nullptr;
+    std::shared_ptr<TagService> m_tagService = nullptr;
 public:
-    explicit ProductsController(std::unique_ptr<SoundDataService> soundDataService,
-                                std::unique_ptr<ProductService> productService, 
-                                std::unique_ptr<SoundService> soundService, 
-                                std::unique_ptr<TagService> tagService);
+    explicit ProductsController(std::shared_ptr<SoundDataService> soundDataService,
+                                std::shared_ptr<ProductService> productService, 
+                                std::shared_ptr<SoundService> soundService, 
+                                std::shared_ptr<TagService> tagService);
     METHOD_LIST_BEGIN
         ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
