@@ -3,10 +3,12 @@
 #include <exceptions/NotFoundException.h>
 #include <exceptions/ValidationException.h>
 
-soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<SoundDataService> soundDataService,
-                                                        std::unique_ptr<ProductService> productService, 
-                                                        std::unique_ptr<SoundService> soundService, 
-                                                        std::unique_ptr<TagService> tagService)
+using namespace soundwaveSounds;
+
+ProductsController::ProductsController(std::shared_ptr<SoundDataService> soundDataService,
+                                                        std::shared_ptr<ProductService> productService, 
+                                                        std::shared_ptr<SoundService> soundService, 
+                                                        std::shared_ptr<TagService> tagService)
 {
     m_soundDataService = std::move(soundDataService);
     m_productService = std::move(productService);
@@ -14,7 +16,7 @@ soundwaveSounds::ProductsController::ProductsController(std::unique_ptr<SoundDat
     m_tagService = std::move(tagService);
 }
 
-void soundwaveSounds::ProductsController::GetSoundsAmount(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) 
+void ProductsController::GetSoundsAmount(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) 
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -30,7 +32,7 @@ void soundwaveSounds::ProductsController::GetSoundsAmount(const HttpRequestPtr &
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::GetPageOfSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t pageNum)
+void ProductsController::GetPageOfSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t pageNum)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -50,7 +52,7 @@ void soundwaveSounds::ProductsController::GetPageOfSounds(const HttpRequestPtr& 
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::GetSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+void ProductsController::GetSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -65,7 +67,7 @@ void soundwaveSounds::ProductsController::GetSound(const HttpRequestPtr& req, st
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::GetUserSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
+void ProductsController::GetUserSounds(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -85,7 +87,7 @@ void soundwaveSounds::ProductsController::GetUserSounds(const HttpRequestPtr& re
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
+void ProductsController::UploadSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
 {
     Json::Value responseJson;
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
@@ -236,11 +238,11 @@ void soundwaveSounds::ProductsController::UploadSound(const HttpRequestPtr& req,
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::EditSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+void ProductsController::EditSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
 }
 
-void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+void ProductsController::DeleteSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -260,7 +262,7 @@ void soundwaveSounds::ProductsController::DeleteSound(const HttpRequestPtr& req,
     callback(httpResponse);
 }
 
-void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+void ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
 
@@ -287,5 +289,67 @@ void soundwaveSounds::ProductsController::GetSoundData(const HttpRequestPtr& req
     httpResponse->addHeader("Accept-Ranges", "bytes");
     httpResponse->setStatusCode(HttpStatusCode::k200OK);
 
+    callback(httpResponse);
+}
+
+void ProductsController::GetSoundsByTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id)
+{
+    Json::Value responseJson;
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    MultiPartParser parser;
+    parser.parse(req);
+
+
+    auto& params = parser.getParameters();
+    auto it = params.find("metadata");
+    if (it == params.end() || it->second.empty())
+    {
+        responseJson["message"] = "Metadata is required";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    std::string metadataJson = it->second;
+    Json::Value metadata;
+    Json::Reader reader;
+    if (!reader.parse(metadataJson, metadata))
+    {
+        responseJson["message"] = "Invalid metadata JSON format";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    std::vector<uint64_t> tagIds;
+
+    if (metadata.isMember("tags") && metadata["tags"].isArray())
+    {
+        for (const auto& tagId : metadata["tags"])
+        {
+            tagIds.push_back(tagId.asUInt64());
+        }
+    }
+
+    auto dtos = m_productService->GetByTags(tagIds);
+
+    Json::Value jsonResponse(Json::arrayValue);
+
+    for (auto& dto: dtos)
+    {
+        jsonResponse.append(dto.toJson());
+    }
+
+    std::string responseBody = Json::FastWriter().write(jsonResponse);
+    httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+    httpResponse->setBody(responseBody);
+    httpResponse->setStatusCode(HttpStatusCode::k200OK);;
+
+    fflush(stdout);
     callback(httpResponse);
 }

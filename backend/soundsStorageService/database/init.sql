@@ -69,8 +69,7 @@ CREATE INDEX IF NOT EXISTS idx_products_sound_id ON products(sound_id);
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS tags (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- ============================================================================
@@ -79,26 +78,8 @@ CREATE TABLE IF NOT EXISTS tags (
 CREATE TABLE IF NOT EXISTS product_tags (
     product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (product_id, tag_id)
 );
-
--- ============================================================================
--- Таблица sales
--- ============================================================================
-CREATE TABLE IF NOT EXISTS sales (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL REFERENCES products(id),
-    buyer_id BIGINT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    payment_method VARCHAR(50),
-    status VARCHAR(50) DEFAULT 'completed',
-    purchased_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_sales_product_id ON sales(product_id);
-CREATE INDEX IF NOT EXISTS idx_sales_buyer_id ON sales(buyer_id);
-CREATE INDEX IF NOT EXISTS idx_sales_purchased_at ON sales(purchased_at);
 
 -- ============================================================================
 -- Триггеры для автоматического обновления updated_at

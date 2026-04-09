@@ -25,7 +25,7 @@ public:
     std::vector<dto::SoundResponseTo> GetAll();
     std::vector<dto::SoundResponseTo> GetByUserId(uint64_t userId);
     std::vector<dto::SoundResponseTo> GetByFilename(const std::string& filename);
-
+    std::vector<dto::SoundResponseTo> GetByTagIds(const std::vector<uint64_t>& tagIds);
 private:
     std::shared_ptr<SoundRepository> m_dao;
 };

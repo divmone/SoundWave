@@ -13,20 +13,20 @@ using namespace drogon;
 using namespace drogon::orm;
 using namespace drogon_model::soundwaveSounds;
 
-const std::string Products::Cols::_id = "id";
-const std::string Products::Cols::_sound_id = "sound_id";
-const std::string Products::Cols::_author_id = "author_id";
-const std::string Products::Cols::_title = "title";
-const std::string Products::Cols::_description = "description";
-const std::string Products::Cols::_price = "price";
-const std::string Products::Cols::_rating = "rating";
-const std::string Products::Cols::_download_count = "download_count";
-const std::string Products::Cols::_is_published = "is_published";
-const std::string Products::Cols::_created_at = "created_at";
-const std::string Products::Cols::_updated_at = "updated_at";
+const std::string Products::Cols::_id = "\"id\"";
+const std::string Products::Cols::_sound_id = "\"sound_id\"";
+const std::string Products::Cols::_author_id = "\"author_id\"";
+const std::string Products::Cols::_title = "\"title\"";
+const std::string Products::Cols::_description = "\"description\"";
+const std::string Products::Cols::_price = "\"price\"";
+const std::string Products::Cols::_rating = "\"rating\"";
+const std::string Products::Cols::_download_count = "\"download_count\"";
+const std::string Products::Cols::_is_published = "\"is_published\"";
+const std::string Products::Cols::_created_at = "\"created_at\"";
+const std::string Products::Cols::_updated_at = "\"updated_at\"";
 const std::string Products::primaryKeyName = "id";
 const bool Products::hasPrimaryKey = true;
-const std::string Products::tableName = "products";
+const std::string Products::tableName = "\"products\"";
 
 const std::vector<typename Products::MetaData> Products::metaData_={
 {"id","int64_t","bigint",8,1,1,1},
@@ -758,7 +758,7 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
 
 const int64_t &Products::getValueOfId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(id_)
         return *id_;
     return defaultValue;
@@ -780,7 +780,7 @@ const typename Products::PrimaryKeyType & Products::getPrimaryKey() const
 
 const int64_t &Products::getValueOfSoundId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(soundId_)
         return *soundId_;
     return defaultValue;
@@ -797,7 +797,7 @@ void Products::setSoundId(const int64_t &pSoundId) noexcept
 
 const int64_t &Products::getValueOfAuthorId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(authorId_)
         return *authorId_;
     return defaultValue;
@@ -814,7 +814,7 @@ void Products::setAuthorId(const int64_t &pAuthorId) noexcept
 
 const std::string &Products::getValueOfTitle() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(title_)
         return *title_;
     return defaultValue;
@@ -836,7 +836,7 @@ void Products::setTitle(std::string &&pTitle) noexcept
 
 const std::string &Products::getValueOfDescription() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(description_)
         return *description_;
     return defaultValue;
@@ -863,7 +863,7 @@ void Products::setDescriptionToNull() noexcept
 
 const std::string &Products::getValueOfPrice() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(price_)
         return *price_;
     return defaultValue;
@@ -885,7 +885,7 @@ void Products::setPrice(std::string &&pPrice) noexcept
 
 const std::string &Products::getValueOfRating() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(rating_)
         return *rating_;
     return defaultValue;
@@ -912,7 +912,7 @@ void Products::setRatingToNull() noexcept
 
 const int64_t &Products::getValueOfDownloadCount() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(downloadCount_)
         return *downloadCount_;
     return defaultValue;
@@ -934,7 +934,7 @@ void Products::setDownloadCountToNull() noexcept
 
 const bool &Products::getValueOfIsPublished() const noexcept
 {
-    const static bool defaultValue = bool();
+    static const bool defaultValue = bool();
     if(isPublished_)
         return *isPublished_;
     return defaultValue;
@@ -956,7 +956,7 @@ void Products::setIsPublishedToNull() noexcept
 
 const ::trantor::Date &Products::getValueOfCreatedAt() const noexcept
 {
-    const static ::trantor::Date defaultValue = ::trantor::Date();
+    static const ::trantor::Date defaultValue = ::trantor::Date();
     if(createdAt_)
         return *createdAt_;
     return defaultValue;
@@ -973,7 +973,7 @@ void Products::setCreatedAt(const ::trantor::Date &pCreatedAt) noexcept
 
 const ::trantor::Date &Products::getValueOfUpdatedAt() const noexcept
 {
-    const static ::trantor::Date defaultValue = ::trantor::Date();
+    static const ::trantor::Date defaultValue = ::trantor::Date();
     if(updatedAt_)
         return *updatedAt_;
     return defaultValue;
@@ -1374,6 +1374,11 @@ Json::Value Products::toJson() const
         ret["updated_at"]=Json::Value();
     }
     return ret;
+}
+
+std::string Products::toString() const
+{
+    return toJson().toStyledString();
 }
 
 Json::Value Products::toMasqueradedJson(
@@ -2004,15 +2009,14 @@ bool Products::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 255)
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 255)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
                     " field (the maximum value is 255)";
                 return false;
             }
-
             break;
         case 4:
             if(pJson.isNull())
