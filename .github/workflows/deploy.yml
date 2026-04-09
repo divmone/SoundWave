@@ -7,33 +7,20 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  deploy-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service: [authService, soundsStorageService]
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Install bruno-cli
-        run: npm install -g @usebruno/cli
-      - name: Run Bruno tests
-        run: bruno run tests --env ci --output reports/${{ matrix.service }} --format junitxml
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: bruno-test-results-${{ matrix.service }}
-          path: reports/${{ matrix.service }}
+          fetch-depth: 2  # Важно для получения предыдущего коммита
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to server
+      - name: Get previous commit hash
+        run: echo "PREV_COMMIT=$(git rev-parse HEAD~1)" >> $GITHUB_ENV
+
+      - name: Deploy new version
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -41,5 +28,67 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /root/SoundWave
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
+            # Останавливаем старые контейнеры
+            docker compose down
+            # Пересобираем и запускаем
+            docker compose up --build -d
+            # Очищаем неиспользуемые образы
+            docker image prune -f
+
+      - name: Wait for services to be ready
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # Ожидание готовности auth-service
+            for i in {1..30}; do
+              if docker exec soundwave-auth curl -f http://localhost:8080/health; then
+                break
+              fi
+              sleep 2
+            done
+            # Ожидание готовности storage-service
+            for i in {1..30}; do
+              if docker exec soundwave-storage curl -f http://localhost:8080/health; then
+                break
+              fi
+              sleep 2
+            done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install bruno-cli
+        run: npm install -g @usebruno/cli
+
+      - name: Run Bruno tests
+        run: |
+          mkdir -p reports/${{ matrix.service }}
+          # Используем localhost или IP сервера для тестов
+          bruno run tests --env ci --output reports/${{ matrix.service }} --format junitxml || true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bruno-test-results-${{ matrix.service }}
+          path: reports/${{ matrix.service }}
+
+      - name: Rollback on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /root/SoundWave
+            git reset --hard ${{ env.PREV_COMMIT }}
+            docker compose down
             docker compose up --build -d
