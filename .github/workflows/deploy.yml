@@ -44,6 +44,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            apt-get update && apt-get install -y curl
             # Ожидание готовности auth-service
             for i in {1..30}; do
               if docker exec soundwave-auth curl -f http://localhost:8080/health; then
