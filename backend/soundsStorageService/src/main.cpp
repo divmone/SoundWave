@@ -11,7 +11,6 @@
 #include <services/ProductService.h>
 #include <services/SoundService.h>
 #include <services/TagService.h>
-#include <services/SaleService.h>
 #include <services/SoundDataService.h>
 
 #include <api/v1.0/controllers/ProductsController.h>
@@ -35,7 +34,6 @@ int main()
     auto productService = std::make_unique<ProductService>(productRepo, tagRepo, productTagRepo);
     auto soundService = std::make_unique<SoundService>(soundRepo);
     auto tagService = std::make_unique<TagService>(tagRepo);
-    auto saleService = std::make_unique<SaleService>(saleRepo, productRepo);
     auto soundDataService = std::make_unique<SoundDataService>(soundDataRepo);
     
     auto productsController = std::make_shared<ProductsController>(

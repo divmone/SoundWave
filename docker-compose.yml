@@ -34,6 +34,8 @@ services:
     # ports убраны — БД доступна только внутри Docker-сети
     expose:
       - "5432"
+    ports:
+      - "5433:5432"
     volumes:
       - sounds_postgres_data:/var/lib/postgresql/data
       - ./backend/soundsStorageService/database/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
