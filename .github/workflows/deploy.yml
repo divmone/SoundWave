@@ -9,9 +9,6 @@ on:
 jobs:
   deploy-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [authService, soundsStorageService]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -63,29 +60,20 @@ jobs:
           node-version: '18'
 
       - name: Install bruno-cli
-        run: |
-          npm install -g @usebruno/cli
-          which bruno || echo "bruno not found"
-          bruno --version || echo "bruno version check failed"
+        run: npm install -g @usebruno/cli
 
-      - name: Run Bruno tests for authService
-        if: matrix.service == 'authService'
+      - name: Run Bruno tests
         run: |
-          mkdir -p reports/authService
-          npx @usebruno/cli run tests --env ci --output reports/authService --format junitxml || true
-
-      - name: Run Bruno tests for soundsStorageService
-        if: matrix.service == 'soundsStorageService'
-        run: |
-          mkdir -p reports/soundsStorageService
-          npx @usebruno/cli run tests --env ci --output reports/soundsStorageService --format junitxml || true
+          mkdir -p reports
+          # Запускаем из корня проекта, где есть opencollection.yml
+          npx @usebruno/cli run . --output reports --format junitxml || true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: bruno-test-results-${{ matrix.service }}
-          path: reports/${{ matrix.service }}
+          name: bruno-test-results
+          path: reports/
 
       - name: Rollback on failure
         if: failure()
