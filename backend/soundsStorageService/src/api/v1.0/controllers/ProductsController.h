@@ -30,6 +30,7 @@ public:
         ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put, "soundwaveSounds::ExceptonHandlerMiddleware");
         ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete, "soundwaveSounds::ExceptonHandlerMiddleware");
@@ -39,6 +40,7 @@ private:
     void GetSoundsAmount(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
     void GetPageOfSounds(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t pageNum);
     void GetSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
+    void GetSoundsByTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void GetUserSounds(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t userId);
     void UploadSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t userId);
     void EditSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);

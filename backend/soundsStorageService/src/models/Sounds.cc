@@ -13,19 +13,19 @@ using namespace drogon;
 using namespace drogon::orm;
 using namespace drogon_model::soundwaveSounds;
 
-const std::string Sounds::Cols::_id = "id";
-const std::string Sounds::Cols::_user_id = "user_id";
-const std::string Sounds::Cols::_filename = "filename";
-const std::string Sounds::Cols::_original_name = "original_name";
-const std::string Sounds::Cols::_file_path = "file_path";
-const std::string Sounds::Cols::_file_size = "file_size";
-const std::string Sounds::Cols::_mime_type = "mime_type";
-const std::string Sounds::Cols::_duration_seconds = "duration_seconds";
-const std::string Sounds::Cols::_created_at = "created_at";
-const std::string Sounds::Cols::_updated_at = "updated_at";
+const std::string Sounds::Cols::_id = "\"id\"";
+const std::string Sounds::Cols::_user_id = "\"user_id\"";
+const std::string Sounds::Cols::_filename = "\"filename\"";
+const std::string Sounds::Cols::_original_name = "\"original_name\"";
+const std::string Sounds::Cols::_file_path = "\"file_path\"";
+const std::string Sounds::Cols::_file_size = "\"file_size\"";
+const std::string Sounds::Cols::_mime_type = "\"mime_type\"";
+const std::string Sounds::Cols::_duration_seconds = "\"duration_seconds\"";
+const std::string Sounds::Cols::_created_at = "\"created_at\"";
+const std::string Sounds::Cols::_updated_at = "\"updated_at\"";
 const std::string Sounds::primaryKeyName = "id";
 const bool Sounds::hasPrimaryKey = true;
-const std::string Sounds::tableName = "sounds";
+const std::string Sounds::tableName = "\"sounds\"";
 
 const std::vector<typename Sounds::MetaData> Sounds::metaData_={
 {"id","int64_t","bigint",8,1,1,1},
@@ -715,7 +715,7 @@ void Sounds::updateByJson(const Json::Value &pJson) noexcept(false)
 
 const int64_t &Sounds::getValueOfId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(id_)
         return *id_;
     return defaultValue;
@@ -737,7 +737,7 @@ const typename Sounds::PrimaryKeyType & Sounds::getPrimaryKey() const
 
 const int64_t &Sounds::getValueOfUserId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(userId_)
         return *userId_;
     return defaultValue;
@@ -754,7 +754,7 @@ void Sounds::setUserId(const int64_t &pUserId) noexcept
 
 const std::string &Sounds::getValueOfFilename() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(filename_)
         return *filename_;
     return defaultValue;
@@ -776,7 +776,7 @@ void Sounds::setFilename(std::string &&pFilename) noexcept
 
 const std::string &Sounds::getValueOfOriginalName() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(originalName_)
         return *originalName_;
     return defaultValue;
@@ -798,7 +798,7 @@ void Sounds::setOriginalName(std::string &&pOriginalName) noexcept
 
 const std::string &Sounds::getValueOfFilePath() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(filePath_)
         return *filePath_;
     return defaultValue;
@@ -820,7 +820,7 @@ void Sounds::setFilePath(std::string &&pFilePath) noexcept
 
 const int64_t &Sounds::getValueOfFileSize() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(fileSize_)
         return *fileSize_;
     return defaultValue;
@@ -837,7 +837,7 @@ void Sounds::setFileSize(const int64_t &pFileSize) noexcept
 
 const std::string &Sounds::getValueOfMimeType() const noexcept
 {
-    const static std::string defaultValue = std::string();
+    static const std::string defaultValue = std::string();
     if(mimeType_)
         return *mimeType_;
     return defaultValue;
@@ -859,7 +859,7 @@ void Sounds::setMimeType(std::string &&pMimeType) noexcept
 
 const int32_t &Sounds::getValueOfDurationSeconds() const noexcept
 {
-    const static int32_t defaultValue = int32_t();
+    static const int32_t defaultValue = int32_t();
     if(durationSeconds_)
         return *durationSeconds_;
     return defaultValue;
@@ -876,7 +876,7 @@ void Sounds::setDurationSeconds(const int32_t &pDurationSeconds) noexcept
 
 const ::trantor::Date &Sounds::getValueOfCreatedAt() const noexcept
 {
-    const static ::trantor::Date defaultValue = ::trantor::Date();
+    static const ::trantor::Date defaultValue = ::trantor::Date();
     if(createdAt_)
         return *createdAt_;
     return defaultValue;
@@ -893,7 +893,7 @@ void Sounds::setCreatedAt(const ::trantor::Date &pCreatedAt) noexcept
 
 const ::trantor::Date &Sounds::getValueOfUpdatedAt() const noexcept
 {
-    const static ::trantor::Date defaultValue = ::trantor::Date();
+    static const ::trantor::Date defaultValue = ::trantor::Date();
     if(updatedAt_)
         return *updatedAt_;
     return defaultValue;
@@ -1259,6 +1259,11 @@ Json::Value Sounds::toJson() const
         ret["updated_at"]=Json::Value();
     }
     return ret;
+}
+
+std::string Sounds::toString() const
+{
+    return toJson().toStyledString();
 }
 
 Json::Value Sounds::toMasqueradedJson(
@@ -1865,15 +1870,14 @@ bool Sounds::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 512)
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 512)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
                     " field (the maximum value is 512)";
                 return false;
             }
-
             break;
         case 3:
             if(pJson.isNull())
@@ -1886,15 +1890,14 @@ bool Sounds::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 512)
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 512)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
                     " field (the maximum value is 512)";
                 return false;
             }
-
             break;
         case 4:
             if(pJson.isNull())
@@ -1907,15 +1910,14 @@ bool Sounds::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 1024)
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 1024)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
                     " field (the maximum value is 1024)";
                 return false;
             }
-
             break;
         case 5:
             if(pJson.isNull())
@@ -1940,15 +1942,14 @@ bool Sounds::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 128)
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 128)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
                     " field (the maximum value is 128)";
                 return false;
             }
-
             break;
         case 7:
             if(pJson.isNull())

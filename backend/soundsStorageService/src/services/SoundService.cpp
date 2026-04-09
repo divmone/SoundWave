@@ -5,9 +5,7 @@
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
 
-namespace soundwaveSounds
-{
-
+using namespace soundwaveSounds;
 using namespace dto;
 
 SoundService::SoundService(std::shared_ptr<SoundRepository> repository)
@@ -135,4 +133,14 @@ std::vector<SoundResponseTo> SoundService::GetByFilename(const std::string& file
     return SoundMapper::ToResponseList(std::get<std::vector<Sounds>>(result));
 }
 
+std::vector<SoundResponseTo> SoundService::GetByTagIds(const std::vector<uint64_t>& tagIds)
+{
+    auto result = m_dao->FindByTagIds(tagIds);
+
+    if (std::holds_alternative<DatabaseError>(result))
+    {
+        throw DatabaseException("Failed to retrieve sounds by tag IDs");
+    }
+
+    return SoundMapper::ToResponseList(std::get<std::vector<Sounds>>(result));
 }

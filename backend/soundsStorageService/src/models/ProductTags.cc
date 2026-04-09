@@ -13,17 +13,15 @@ using namespace drogon;
 using namespace drogon::orm;
 using namespace drogon_model::soundwaveSounds;
 
-const std::string ProductTags::Cols::_product_id = "product_id";
-const std::string ProductTags::Cols::_tag_id = "tag_id";
-const std::string ProductTags::Cols::_created_at = "created_at";
+const std::string ProductTags::Cols::_product_id = "\"product_id\"";
+const std::string ProductTags::Cols::_tag_id = "\"tag_id\"";
 const std::vector<std::string> ProductTags::primaryKeyName = {"product_id","tag_id"};
 const bool ProductTags::hasPrimaryKey = true;
-const std::string ProductTags::tableName = "product_tags";
+const std::string ProductTags::tableName = "\"product_tags\"";
 
 const std::vector<typename ProductTags::MetaData> ProductTags::metaData_={
 {"product_id","int64_t","bigint",8,0,1,1},
-{"tag_id","int64_t","bigint",8,0,1,1},
-{"created_at","::trantor::Date","timestamp without time zone",0,0,0,0}
+{"tag_id","int64_t","bigint",8,0,1,1}
 };
 const std::string &ProductTags::getColumnName(size_t index) noexcept(false)
 {
@@ -42,33 +40,11 @@ ProductTags::ProductTags(const Row &r, const ssize_t indexOffset) noexcept
         {
             tagId_=std::make_shared<int64_t>(r["tag_id"].as<int64_t>());
         }
-        if(!r["created_at"].isNull())
-        {
-            auto timeStr = r["created_at"].as<std::string>();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
-        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 3 > r.size())
+        if(offset + 2 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -84,36 +60,13 @@ ProductTags::ProductTags(const Row &r, const ssize_t indexOffset) noexcept
         {
             tagId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
-        index = offset + 2;
-        if(!r[index].isNull())
-        {
-            auto timeStr = r[index].as<std::string>();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
-        }
     }
 
 }
 
 ProductTags::ProductTags(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 3)
+    if(pMasqueradingVector.size() != 2)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -132,32 +85,6 @@ ProductTags::ProductTags(const Json::Value &pJson, const std::vector<std::string
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
             tagId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
-        }
-    }
-    if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
-    {
-        dirtyFlag_[2] = true;
-        if(!pJson[pMasqueradingVector[2]].isNull())
-        {
-            auto timeStr = pJson[pMasqueradingVector[2]].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
         }
     }
 }
@@ -180,38 +107,12 @@ ProductTags::ProductTags(const Json::Value &pJson) noexcept(false)
             tagId_=std::make_shared<int64_t>((int64_t)pJson["tag_id"].asInt64());
         }
     }
-    if(pJson.isMember("created_at"))
-    {
-        dirtyFlag_[2]=true;
-        if(!pJson["created_at"].isNull())
-        {
-            auto timeStr = pJson["created_at"].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
-        }
-    }
 }
 
 void ProductTags::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 3)
+    if(pMasqueradingVector.size() != 2)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -228,32 +129,6 @@ void ProductTags::updateByMasqueradedJson(const Json::Value &pJson,
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
             tagId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[1]].asInt64());
-        }
-    }
-    if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
-    {
-        dirtyFlag_[2] = true;
-        if(!pJson[pMasqueradingVector[2]].isNull())
-        {
-            auto timeStr = pJson[pMasqueradingVector[2]].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
         }
     }
 }
@@ -274,37 +149,11 @@ void ProductTags::updateByJson(const Json::Value &pJson) noexcept(false)
             tagId_=std::make_shared<int64_t>((int64_t)pJson["tag_id"].asInt64());
         }
     }
-    if(pJson.isMember("created_at"))
-    {
-        dirtyFlag_[2] = true;
-        if(!pJson["created_at"].isNull())
-        {
-            auto timeStr = pJson["created_at"].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
-        }
-    }
 }
 
 const int64_t &ProductTags::getValueOfProductId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(productId_)
         return *productId_;
     return defaultValue;
@@ -321,7 +170,7 @@ void ProductTags::setProductId(const int64_t &pProductId) noexcept
 
 const int64_t &ProductTags::getValueOfTagId() const noexcept
 {
-    const static int64_t defaultValue = int64_t();
+    static const int64_t defaultValue = int64_t();
     if(tagId_)
         return *tagId_;
     return defaultValue;
@@ -336,28 +185,6 @@ void ProductTags::setTagId(const int64_t &pTagId) noexcept
     dirtyFlag_[1] = true;
 }
 
-const ::trantor::Date &ProductTags::getValueOfCreatedAt() const noexcept
-{
-    const static ::trantor::Date defaultValue = ::trantor::Date();
-    if(createdAt_)
-        return *createdAt_;
-    return defaultValue;
-}
-const std::shared_ptr<::trantor::Date> &ProductTags::getCreatedAt() const noexcept
-{
-    return createdAt_;
-}
-void ProductTags::setCreatedAt(const ::trantor::Date &pCreatedAt) noexcept
-{
-    createdAt_ = std::make_shared<::trantor::Date>(pCreatedAt);
-    dirtyFlag_[2] = true;
-}
-void ProductTags::setCreatedAtToNull() noexcept
-{
-    createdAt_.reset();
-    dirtyFlag_[2] = true;
-}
-
 void ProductTags::updateId(const uint64_t id)
 {
 }
@@ -370,8 +197,7 @@ const std::vector<std::string> &ProductTags::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
         "product_id",
-        "tag_id",
-        "created_at"
+        "tag_id"
     };
     return inCols;
 }
@@ -400,17 +226,6 @@ void ProductTags::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[2])
-    {
-        if(getCreatedAt())
-        {
-            binder << getValueOfCreatedAt();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
 }
 
 const std::vector<std::string> ProductTags::updateColumns() const
@@ -423,10 +238,6 @@ const std::vector<std::string> ProductTags::updateColumns() const
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
-    }
-    if(dirtyFlag_[2])
-    {
-        ret.push_back(getColumnName(2));
     }
     return ret;
 }
@@ -455,17 +266,6 @@ void ProductTags::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[2])
-    {
-        if(getCreatedAt())
-        {
-            binder << getValueOfCreatedAt();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
 }
 Json::Value ProductTags::toJson() const
 {
@@ -486,22 +286,19 @@ Json::Value ProductTags::toJson() const
     {
         ret["tag_id"]=Json::Value();
     }
-    if(getCreatedAt())
-    {
-        ret["created_at"]=getCreatedAt()->toDbStringLocal();
-    }
-    else
-    {
-        ret["created_at"]=Json::Value();
-    }
     return ret;
+}
+
+std::string ProductTags::toString() const
+{
+    return toJson().toStyledString();
 }
 
 Json::Value ProductTags::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 3)
+    if(pMasqueradingVector.size() == 2)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -525,17 +322,6 @@ Json::Value ProductTags::toMasqueradedJson(
                 ret[pMasqueradingVector[1]]=Json::Value();
             }
         }
-        if(!pMasqueradingVector[2].empty())
-        {
-            if(getCreatedAt())
-            {
-                ret[pMasqueradingVector[2]]=getCreatedAt()->toDbStringLocal();
-            }
-            else
-            {
-                ret[pMasqueradingVector[2]]=Json::Value();
-            }
-        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -554,14 +340,6 @@ Json::Value ProductTags::toMasqueradedJson(
     else
     {
         ret["tag_id"]=Json::Value();
-    }
-    if(getCreatedAt())
-    {
-        ret["created_at"]=getCreatedAt()->toDbStringLocal();
-    }
-    else
-    {
-        ret["created_at"]=Json::Value();
     }
     return ret;
 }
@@ -588,18 +366,13 @@ bool ProductTags::validateJsonForCreation(const Json::Value &pJson, std::string 
         err="The tag_id column cannot be null";
         return false;
     }
-    if(pJson.isMember("created_at"))
-    {
-        if(!validJsonOfField(2, "created_at", pJson["created_at"], err, true))
-            return false;
-    }
     return true;
 }
 bool ProductTags::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                      const std::vector<std::string> &pMasqueradingVector,
                                                      std::string &err)
 {
-    if(pMasqueradingVector.size() != 3)
+    if(pMasqueradingVector.size() != 2)
     {
         err = "Bad masquerading vector";
         return false;
@@ -631,14 +404,6 @@ bool ProductTags::validateMasqueradedJsonForCreation(const Json::Value &pJson,
             return false;
         }
       }
-      if(!pMasqueradingVector[2].empty())
-      {
-          if(pJson.isMember(pMasqueradingVector[2]))
-          {
-              if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, true))
-                  return false;
-          }
-      }
     }
     catch(const Json::LogicError &e)
     {
@@ -669,18 +434,13 @@ bool ProductTags::validateJsonForUpdate(const Json::Value &pJson, std::string &e
         err = "The value of primary key must be set in the json object for update";
         return false;
     }
-    if(pJson.isMember("created_at"))
-    {
-        if(!validJsonOfField(2, "created_at", pJson["created_at"], err, false))
-            return false;
-    }
     return true;
 }
 bool ProductTags::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                    const std::vector<std::string> &pMasqueradingVector,
                                                    std::string &err)
 {
-    if(pMasqueradingVector.size() != 3)
+    if(pMasqueradingVector.size() != 2)
     {
         err = "Bad masquerading vector";
         return false;
@@ -706,11 +466,6 @@ bool ProductTags::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
         err = "The value of primary key must be set in the json object for update";
         return false;
     }
-      if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
-      {
-          if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, false))
-              return false;
-      }
     }
     catch(const Json::LogicError &e)
     {
@@ -746,17 +501,6 @@ bool ProductTags::validJsonOfField(size_t index,
                 return false;
             }
             if(!pJson.isInt64())
-            {
-                err="Type error in the "+fieldName+" field";
-                return false;
-            }
-            break;
-        case 2:
-            if(pJson.isNull())
-            {
-                return true;
-            }
-            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

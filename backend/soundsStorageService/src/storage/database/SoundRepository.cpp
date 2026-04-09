@@ -1,9 +1,7 @@
 // SoundRepository.cpp
 #include "SoundRepository.h"
 
-namespace soundwaveSounds
-{
-
+using namespace soundwaveSounds;
 using namespace drogon::orm;
 
 std::variant<uint64_t, DatabaseError> SoundRepository::Create(const Sounds& entity)
@@ -139,4 +137,48 @@ std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByFilename
     }
 }
 
+
+std::variant<std::vector<Sounds>, DatabaseError> SoundRepository::FindByTagIds(const std::vector<uint64_t>& tagIds)
+{
+    if (tagIds.empty())
+    {
+        return std::vector<Sounds>();
+    }
+
+    try
+    {
+        auto client = drogon::app().getDbClient();
+
+        std::string tagIdsStr;
+        for (size_t i = 0; i < tagIds.size(); ++i)
+        {
+            if (i > 0) tagIdsStr += ", ";
+            tagIdsStr += std::to_string(tagIds[i]);
+        }
+
+        std::string sql = R"(
+            SELECT s.* FROM sounds s
+            INNER JOIN sound_tags st ON s.id = st.sound_id
+            WHERE st.tag_id IN ()" + tagIdsStr + R"()
+            GROUP BY s.id
+            HAVING COUNT(DISTINCT st.tag_id) = )" + std::to_string(tagIds.size()) + R"(
+            ORDER BY s.created_at DESC
+        )";
+
+        auto result = client->execSqlSync(sql);
+
+        std::vector<Sounds> sounds;
+        for (const auto& row : result)
+        {
+            sounds.emplace_back(row);
+        }
+
+        return sounds;
+    }
+    catch(const std::exception& e)
+    {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown: " << std::string(e.what());
+        return DatabaseError::DatabaseError;
+    }
 }
+
