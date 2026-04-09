@@ -336,15 +336,19 @@ void ProductsController::GetSoundsByTags(const HttpRequestPtr& req, std::functio
         }
     }
 
-    dto::ProductResponseTo product = m_productService->Create(productRequest);
+    auto dtos = m_productService->GetByTags(tagIds);
 
-    responseJson["message"] = "Sound uploaded successfully";
-    responseJson["productId"] = product.id;
-    responseJson["soundId"] = soundResponse.id;
+    Json::Value jsonResponse(Json::arrayValue);
 
-    httpResponse->setBody(Json::FastWriter().write(responseJson));
+    for (auto& dto: dtos)
+    {
+        jsonResponse.append(dto.toJson());
+    }
+
+    std::string responseBody = Json::FastWriter().write(jsonResponse);
     httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
-    httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    httpResponse->setBody(responseBody);
+    httpResponse->setStatusCode(HttpStatusCode::k200OK);;
 
     fflush(stdout);
     callback(httpResponse);
