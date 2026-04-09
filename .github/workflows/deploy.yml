@@ -44,19 +44,16 @@ jobs:
             cd /root/SoundWave
             echo "Waiting for services to be ready..."
             
-            # Ждём пока контейнеры запустятся
             for i in {1..30}; do
               if docker ps | grep -q "soundwave-auth" && docker ps | grep -q "soundwave-storage"; then
-                echo "Containers are running!"
+                echo "✅ Containers are running!"
                 exit 0
               fi
               echo "Attempt $i/30: waiting for containers..."
               sleep 2
-            
-            echo "Ю ар реди? Ю ар реди!"
             done
             
-            echo "❌ Services failed to become ready :("
+            echo "❌ Services failed to become ready"
             docker compose logs --tail=50
             exit 1
 
@@ -66,12 +63,22 @@ jobs:
           node-version: '18'
 
       - name: Install bruno-cli
-        run: npm install -g @usebruno/cli
-
-      - name: Run Bruno tests
         run: |
-          mkdir -p reports/${{ matrix.service }}
-          bruno run tests --env ci --output reports/${{ matrix.service }} --format junitxml || true
+          npm install -g @usebruno/cli
+          which bruno || echo "bruno not found"
+          bruno --version || echo "bruno version check failed"
+
+      - name: Run Bruno tests for authService
+        if: matrix.service == 'authService'
+        run: |
+          mkdir -p reports/authService
+          npx @usebruno/cli run tests --env ci --output reports/authService --format junitxml || true
+
+      - name: Run Bruno tests for soundsStorageService
+        if: matrix.service == 'soundsStorageService'
+        run: |
+          mkdir -p reports/soundsStorageService
+          npx @usebruno/cli run tests --env ci --output reports/soundsStorageService --format junitxml || true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
