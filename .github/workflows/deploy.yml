@@ -21,10 +21,6 @@ jobs:
           script: |
             cd /root/SoundWave || exit 1
             
-            cat > .env << 'EOF'
-            JWT_CHECK_ENABLED=false
-            EOF
-            
             docker compose down
             docker compose up --build -d
             docker image prune -f
