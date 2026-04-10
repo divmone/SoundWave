@@ -43,7 +43,7 @@ jobs:
                 TOTAL_SERVICES=$(docker compose config --services | wc -l)
             
                 if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ]; then
-                  echo "✅ All services are running!"
+                  echo "All services are running!"
                   docker compose ps
                   exit 0
                 fi
@@ -52,6 +52,6 @@ jobs:
               sleep 10
             done
             
-            echo "❌ Services failed to become ready"
+            echo "Services failed to become ready"
             docker compose logs --tail=50
             exit 1
