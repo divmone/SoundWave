@@ -50,7 +50,9 @@ export default function App() {
   };
 
   const PAGE_SIZE  = 9;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = (category === 'all' && !search.trim())
+    ? Math.ceil(total / PAGE_SIZE)
+    : Math.ceil(products.length / PAGE_SIZE);
   const { data: stats }             = useStats();
 
   useEffect(() => { stopAll(); setCurrentPage(1); }, [category, search]);
