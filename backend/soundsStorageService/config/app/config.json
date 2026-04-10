@@ -12,11 +12,6 @@
         "implicit_page": "index.html",
         "client_max_body_size": "100M"
     },
-    "middlewares": [
-      {
-        "name": "soundwaveSounds::GoogleAuthCheckMiddleware"
-      }
-    ],
     "db_clients": [
         {
             "name": "default",
