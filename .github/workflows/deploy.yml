@@ -27,6 +27,10 @@ jobs:
             cd /root/SoundWave
             git fetch origin
             git reset --hard origin/main
+            
+            cat > .env << EOF
+            JWT_CHECK_ENABLED=false
+            
             docker compose down
             docker compose up --build -d
             docker image prune -f
