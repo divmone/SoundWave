@@ -183,10 +183,14 @@ export default function ProductCard({ product, delay = 0 }) {
                 width: 18, height: 18, borderRadius: '50%',
                 background: 'linear-gradient(135deg, var(--cyan-dark), var(--violet))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                overflow: 'hidden',
               }}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-                </svg>
+                {product.creatorAvatarUrl
+                  ? <img src={product.creatorAvatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <svg width="9" height="9" viewBox="0 0 24 24" fill="white">
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                    </svg>
+                }
               </div>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--cyan)', fontWeight: 600 }}>
                 {product.creator}

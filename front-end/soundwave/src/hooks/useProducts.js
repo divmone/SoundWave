@@ -42,14 +42,15 @@ export function useProducts(category, search, page = 1, refreshKey = 0) {
       await Promise.allSettled(
         uniqueIds.map(id =>
           getUserById(id)
-            .then(u => { userMap[id] = u?.username ?? String(id); })
-            .catch(() => { userMap[id] = String(id); })
+            .then(u => { userMap[id] = { username: u?.username ?? String(id), avatar_url: u?.avatar_url ?? '' }; })
+            .catch(() => { userMap[id] = { username: String(id), avatar_url: '' }; })
         )
       );
 
       setData(items.map(p => ({
         ...p,
-        creator: p.authorId ? (userMap[p.authorId] ?? p.creator ?? String(p.authorId)) : (p.creator ?? ''),
+        creator:            p.authorId ? (userMap[p.authorId]?.username ?? p.creator ?? String(p.authorId)) : (p.creator ?? ''),
+        creatorAvatarUrl:   p.authorId ? (userMap[p.authorId]?.avatar_url ?? '') : '',
       })));
       setTotal(res?.total ?? 0);
     } catch (e) {
