@@ -115,21 +115,7 @@ function SoundRow({ sound, onDelete }) {
       }}>${Number(sound.price).toFixed(2)}</div>
 
       {/* Published badge */}
-      <div style={{
-        padding: '2px 10px',
-        borderRadius: 20,
-        fontSize: '0.62rem',
-        fontWeight: 800,
-        fontFamily: 'var(--font-display)',
-        letterSpacing: '0.05em',
-        background: sound.isPublished ? 'rgba(34,211,122,0.1)' : 'rgba(255,165,0,0.1)',
-        border: `1px solid ${sound.isPublished ? 'rgba(34,211,122,0.3)' : 'rgba(255,165,0,0.3)'}`,
-        color: sound.isPublished ? 'var(--green)' : 'rgba(255,200,80,0.8)',
-        flexShrink: 0,
-      }}>
-        {sound.isPublished ? 'LIVE' : 'PENDING'}
-      </div>
-
+      
       {/* Play link */}
       <a
         href={getProductAudioUrl(sound.id)}
@@ -327,8 +313,6 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
         {/* Stats row */}
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
           <StatCard label="Uploads" value={loading ? '—' : sounds.length} />
-          <StatCard label="Published" value={loading ? '—' : sounds.filter(s => s.isPublished).length} />
-          <StatCard label="Pending" value={loading ? '—' : sounds.filter(s => !s.isPublished).length} />
           <StatCard label="Catalog value" value={loading ? '—' : `$${totalEarnings.toFixed(2)}`} />
         </div>
 

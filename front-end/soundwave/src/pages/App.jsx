@@ -38,10 +38,16 @@ export default function App() {
   const [modal,       setModal]      = useState(false);
   const [oauthError,  setOauthError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [refreshKey,  setRefreshKey]  = useState(0);
   const oauthDone = useRef(false);
 
   const { user, login, logout }               = useAuth();
-  const { data: products, total, loading }    = useProducts(category, search, currentPage);
+  const { data: products, total, loading, refresh } = useProducts(category, search, currentPage, refreshKey);
+
+  const handleNavigate = (target) => {
+    if (target === 'home') setRefreshKey(k => k + 1);
+    setPage(target);
+  };
 
   const PAGE_SIZE  = 9;
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -104,17 +110,17 @@ export default function App() {
       <span style={{ color: 'var(--text2)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem' }}>Signing in...</span>
     </div>
   );
-  if (page === 'login')       return <LoginPage onNavigate={setPage} initialError={oauthError} />;
-  if (page === 'profile')     return <ProfilePage user={user} onNavigate={setPage} onLogout={logout} />;
+  if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
+  if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
 
   // ── Main marketplace ───────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-      {modal && <UploadModal onClose={() => setModal(false)} user={user} />}
+      {modal && <UploadModal onClose={() => setModal(false)} user={user} onSuccess={refresh} />}
 
       <Header
-        onUploadClick={() => user ? setModal(true) : setPage('login')}
-        onNavigate={setPage}
+        onUploadClick={() => user ? setModal(true) : handleNavigate('login')}
+        onNavigate={handleNavigate}
         user={user}
         onLogout={handleLogout}
       />

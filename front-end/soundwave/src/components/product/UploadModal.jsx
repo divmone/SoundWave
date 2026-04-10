@@ -84,7 +84,7 @@ function SuccessScreen({ onClose }) {
   );
 }
 
-export default function UploadModal({ onClose, user }) {
+export default function UploadModal({ onClose, user, onSuccess }) {
   const [form,     setForm]     = useState({ title: '', price: '', tags: '', description: '' });
   const [file,     setFile]     = useState(null);
   const [duration, setDuration] = useState(0);
@@ -156,6 +156,7 @@ export default function UploadModal({ onClose, user }) {
         durationSeconds: duration,
       });
       setDone(true);
+      onSuccess?.();
     } catch (err) {
       setApiError(err.message || 'Upload failed. Please try again.');
     } finally {

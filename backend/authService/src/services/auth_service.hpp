@@ -18,9 +18,12 @@ namespace shop::services {
             const userver::components::ComponentContext& context);
 
         User loginWithGoogle(const std::string& code, const std::string& redirect_uri);
+        int getIdByToken(const std::string& token) const;
 
         static userver::yaml_config::Schema GetStaticConfigSchema();
 
+        std::string createSession(int user_id) const;
+        void deleteSession(const std::string &token) const;
     private:
         repositories::UserRepository& user_repository_;
         userver::clients::http::Client& client_;

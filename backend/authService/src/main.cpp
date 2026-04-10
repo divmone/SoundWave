@@ -13,8 +13,9 @@
 #include <userver/utils/daemon_run.hpp>
 
 #include "handlers/auth/google_auth.hpp"
-#include "handlers/auth/logout.h"
-#include "handlers/users/users.h"
+#include "handlers/auth/logout.hpp"
+#include "handlers/auth/me.hpp"
+#include "handlers/users/users.hpp"
 #include "services/auth_service.hpp"
 
 int main(int argc, char* argv[]) {
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]) {
             .Append<shop::handlers::GoogleAuthHandler>("handler-auth-google")
             .Append<shop::handlers::LogoutHandler>("handler-logout")
             .Append<shop::handlers::UserHandler>("handler-user")
+            .Append<shop::handlers::MeHandler>("handler-me")
         ;
 
     return userver::utils::DaemonMain(argc, argv, component_list);

@@ -25,6 +25,5 @@ namespace shop::handlers {
 
     private:
         shop::services::AuthService &auth_service_;
-        shop::repositories::UserRepository &user_repository_;
     };
 }
