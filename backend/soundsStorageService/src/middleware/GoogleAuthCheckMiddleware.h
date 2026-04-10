@@ -16,7 +16,7 @@ namespace soundwaveSounds
     {
     private:
         static constexpr std::size_t TOKEN_HEADER_OFFSET = 7;
-        static constexpr const char* AUTH_SERVICE_HOST = "http://auth-service:8080/auth/me";
+        static constexpr const char* AUTH_SERVICE_HOST = "http://auth-service:8080";
         HttpClientPtr m_authServiceClient;
 
     public:
@@ -39,7 +39,7 @@ namespace soundwaveSounds
 
                 auto authRequest = HttpRequest::newHttpRequest();
                 authRequest->setMethod(drogon::Get);
-               // authRequest->setPath("/auth/me");
+                authRequest->setPath("/auth/me");
                 authRequest->addHeader("Authorization", "Bearer " + token);
 
                 m_authServiceClient->sendRequest(
