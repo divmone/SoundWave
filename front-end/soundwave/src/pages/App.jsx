@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/globals.css';
 
 import { useProducts }  from '../hooks/useProducts';
@@ -51,7 +51,7 @@ export default function App() {
 
   const PAGE_SIZE    = 9;
   const isFiltered   = category !== 'all' || !!search.trim();
-  const totalPages   = isFiltered ? 1 : Math.ceil(total / PAGE_SIZE);
+  const totalPages   = isFiltered || products.length >= total ? 1 : Math.ceil(total / PAGE_SIZE);
   const { data: stats }             = useStats();
 
   useEffect(() => { stopAll(); setCurrentPage(1); }, [category, search]);
