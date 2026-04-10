@@ -44,14 +44,14 @@ properties:
           , google_client_secret_(config["google-client-secret"].As<std::string>()) {
     }
 
-    int AuthService::getIdByToken(const std::string& token) const {
+    User AuthService::getUserByToken(const std::string& token) const {
         const auto user = user_repository_.findByToken(token);
         if (!user) {
             throw userver::server::handlers::Unauthorized(
                 userver::server::handlers::ExternalBody{"Invalid or expired token"});
         }
 
-        return user->id;
+        return *user;
     }
 
     User AuthService::loginWithGoogle(const std::string &code, const std::string &redirect_uri) {

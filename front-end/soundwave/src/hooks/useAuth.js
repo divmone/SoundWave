@@ -1,10 +1,30 @@
-import { useState, useCallback } from 'react';
-import { getCurrentUser } from '../api/services/authService';
+import { useState, useCallback, useEffect } from 'react';
+import { getCurrentUser, getMe } from '../api/services/authService';
+import { getToken, clearToken } from '../api/httpClient';
 
 export function useAuth() {
-  const [user, setUser] = useState(() => getCurrentUser());
+  const [user,     setUser]     = useState(() => getCurrentUser());
+  const [checking, setChecking] = useState(!!getToken());
 
-  const login  = useCallback((u) => {
+  useEffect(() => {
+    if (!getToken()) return;
+
+    getMe()
+      .then(data => {
+        const updated = { ...getCurrentUser(), ...data };
+        localStorage.setItem('sw_user', JSON.stringify(updated));
+        setUser(updated);
+      })
+      .catch(() => {
+        clearToken();
+        localStorage.removeItem('sw_user');
+        localStorage.removeItem('sw_refresh');
+        setUser(null);
+      })
+      .finally(() => setChecking(false));
+  }, []);
+
+  const login = useCallback((u) => {
     if (u) localStorage.setItem('sw_user', JSON.stringify(u));
     setUser(u);
   }, []);
@@ -16,5 +36,5 @@ export function useAuth() {
     setUser(null);
   }, []);
 
-  return { user, login, logout, isLoggedIn: !!user };
+  return { user, login, logout, checking, isLoggedIn: !!user };
 }
