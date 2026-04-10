@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    google_id VARCHAR(255)
+    google_id VARCHAR(255),
+    avatar_url VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

@@ -25,7 +25,7 @@ namespace shop::handlers {
         const auto token = auth.substr(7);
 
         auth_service_.deleteSession(token);
-
+            
         request.GetHttpResponse().SetStatus(
                userver::server::http::HttpStatus::kOk
            );

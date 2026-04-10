@@ -264,7 +264,12 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
                 fontSize: '1.8rem', fontWeight: 900, color: '#fff',
                 fontFamily: 'var(--font-display)',
                 boxShadow: '0 0 32px var(--cyan-dim)',
-              }}>{initials}</div>
+                overflow: 'hidden',
+              }}>
+                {user?.avatar_url
+                  ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : initials}
+              </div>
 
               {/* Info */}
               <div style={{ flex: 1, minWidth: 160 }}>

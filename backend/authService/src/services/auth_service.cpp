@@ -101,12 +101,13 @@ properties:
         const auto google_sub   = userinfo["sub"].As<std::string>();
         const auto email        = userinfo["email"].As<std::string>();
         const auto name         = userinfo["name"].As<std::string>("");
+        const auto avatar_url   = userinfo["picture"].As<std::string>("");
 
         const auto existing = user_repository_.findByGoogleId(google_sub);
         if (existing.has_value()) {
             return *existing;
         }
 
-        return user_repository_.create(google_sub, email, name);
+        return user_repository_.create(google_sub, email, name, avatar_url);
     }
 }
