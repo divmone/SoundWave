@@ -48,6 +48,7 @@ namespace shop::handlers {
         resp["id"] = response.id;
         resp["email"] = response.email;
         resp["username"] = response.username;
+        resp["avatar_url"] = response.avatar_url;
         resp["accessToken"] = authToken;
         return userver::formats::json::ToString(resp.ExtractValue());
     }

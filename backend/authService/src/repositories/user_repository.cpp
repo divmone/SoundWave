@@ -17,11 +17,11 @@ namespace shop::repositories {
 
     User UserRepository::create(const std::string &google_id,
                                 const std::string &email,
-                                const std::string &username) {
+                                const std::string &username, const std::string &avatar_url) {
         const auto result = pg_cluster->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
-            "INSERT INTO users(google_id, email, username) VALUES($1, $2, $3)RETURNING id, google_id, email, username",
-            google_id, email, username
+            "INSERT INTO users(google_id, email, username, avatar_url) VALUES($1, $2, $3, $4) RETURNING id, google_id, email, username, avatar_url",
+            google_id, email, username, avatar_url
         );
 
         const auto row = result.Front();
@@ -29,7 +29,8 @@ namespace shop::repositories {
             row["id"].As<int>(),
             row["google_id"].As<std::string>(),
             row["email"].As<std::string>(),
-            row["username"].As<std::string>()
+            row["username"].As<std::string>(),
+            row["avatar_url"].As<std::string>()
         };
     }
 
@@ -37,7 +38,7 @@ namespace shop::repositories {
         const std::string &google_id) const {
         const auto result = pg_cluster->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
-            "SELECT id, google_id, email, username FROM users WHERE google_id = $1",
+            "SELECT * FROM users WHERE google_id = $1",
             google_id);
 
         if (result.IsEmpty()) {
@@ -49,7 +50,8 @@ namespace shop::repositories {
             row["id"].As<int>(),
             row["google_id"].As<std::string>(),
             row["email"].As<std::string>(),
-            row["username"].As<std::string>()
+            row["username"].As<std::string>(),
+            row["avatar_url"].As<std::string>()
         };
     }
 
@@ -69,7 +71,8 @@ namespace shop::repositories {
             row["id"].As<int>(),
             row["google_id"].As<std::string>(),
             row["email"].As<std::string>(),
-            row["username"].As<std::string>()
+            row["username"].As<std::string>(),
+            row["avatar_url"].As<std::string>()
         );
     }
 
@@ -94,7 +97,7 @@ namespace shop::repositories {
     std::optional<User> UserRepository::findByToken(const std::string& token) const {
         const auto result = pg_cluster->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
-            "SELECT u.id, u.google_id, u.email, u.username "
+            "SELECT u.id, u.google_id, u.email, u.username, u.avatar_url "
             "FROM sessions s JOIN users u ON u.id = s.user_id "
             "WHERE s.token = $1::uuid AND s.expires_at > now()",
             token
@@ -107,7 +110,8 @@ namespace shop::repositories {
             row["id"].As<int>(),
             row["google_id"].As<std::string>(),
             row["email"].As<std::string>(),
-            row["username"].As<std::string>()
+            row["username"].As<std::string>(),
+            row["avatar_url"].As<std::string>()
         };
     }
 }

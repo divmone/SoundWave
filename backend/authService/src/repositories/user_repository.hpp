@@ -21,7 +21,7 @@ namespace shop::repositories {
         User create(
             const std::string &google_id,
             const std::string &email,
-            const std::string &username);
+            const std::string &username, const std::string &avatar_url);
 
         std::optional<User> findByGoogleId(const std::string &) const;
         std::optional<User> findById(int64_t id) const;

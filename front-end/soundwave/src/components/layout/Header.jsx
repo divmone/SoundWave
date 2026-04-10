@@ -66,8 +66,11 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '0.7rem', fontWeight: 900, color: '#fff',
                     fontFamily: 'var(--font-display)',
+                    overflow: 'hidden',
                   }}>
-                    {user.username?.[0]?.toUpperCase() || '?'}
+                    {user.avatar_url
+                      ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : user.username?.[0]?.toUpperCase() || '?'}
                   </div>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     {user.username}
@@ -124,8 +127,11 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
                   background: 'linear-gradient(135deg, var(--cyan-dark), var(--violet))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '0.7rem', fontWeight: 900, color: '#fff',
+                  overflow: 'hidden',
                 }}>
-                  {user.username?.[0]?.toUpperCase() || '?'}
+                  {user.avatar_url
+                    ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : user.username?.[0]?.toUpperCase() || '?'}
                 </div>
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                   {user.username}

@@ -8,5 +8,6 @@ namespace shop {
         std::string google_id;
         std::string email;
         std::string username;
+        std::string avatar_url;
     };
 }
