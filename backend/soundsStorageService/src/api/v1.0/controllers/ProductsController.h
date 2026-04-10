@@ -25,15 +25,15 @@ public:
                                 std::shared_ptr<SoundService> soundService, 
                                 std::shared_ptr<TagService> tagService);
     METHOD_LIST_BEGIN
-        ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get,             "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get,    "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get,                      "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get,        "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get,               "soundwaveSounds::GoogleAuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get);
+        ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get);
+        ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get);
+        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get,);
+        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get);
         ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post,  "soundwaveSounds::GoogleAuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put,                     "soundwaveSounds::GoogleAuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete,                "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get,             "soundwaveSounds::GoogleAuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get);
     METHOD_LIST_END
 private:
     void GetSoundsAmount(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
