@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navLinks = ['Browse', 'Creators', 'Pricing', 'Blog'];
 
   return (
     <header style={{
@@ -43,20 +42,6 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>SOUNDWAVE</span>
         </div>
-
-        {/* Nav — hidden on mobile */}
-        <nav className="header-nav" style={{ alignItems: 'center', gap: '0.25rem' }}>
-          {navLinks.map(l => (
-            <a key={l} href="#" style={{
-              color: 'var(--text3)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 700,
-              padding: '0.45rem 0.9rem', borderRadius: 'var(--radius-pill)', transition: 'all 0.18s',
-              fontFamily: 'var(--font-display)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.background = 'var(--bg3)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text3)'; e.currentTarget.style.background = 'transparent'; }}
-            >{l}</a>
-          ))}
-        </nav>
 
         {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -122,13 +107,6 @@ export default function Header({ onUploadClick, onNavigate, user, onLogout }) {
 
       {/* Mobile dropdown menu */}
       <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
-        {navLinks.map(l => (
-          <a key={l} href="#" onClick={() => setMenuOpen(false)} style={{
-            color: 'var(--text2)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700,
-            padding: '0.7rem 0.5rem', borderRadius: 8, transition: 'all 0.18s',
-            fontFamily: 'var(--font-display)', borderBottom: '1px solid var(--line)',
-          }}>{l}</a>
-        ))}
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
           {user ? (
             <>

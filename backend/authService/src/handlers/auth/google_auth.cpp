@@ -15,7 +15,7 @@ namespace shop::handlers {
         const userver::components::ComponentContext &context) : HttpHandlerBase(
             config, context),
         auth_service_(context.FindComponent<shop::services::AuthService>())
-        , user_repository_(context.FindComponent<shop::repositories::UserRepository>()) {
+    {
     }
 
     std::string GoogleAuthHandler::HandleRequestThrow(
@@ -42,7 +42,7 @@ namespace shop::handlers {
 
         const auto &response = auth_service_.loginWithGoogle(token, redirect_uri);
 
-        const auto authToken = user_repository_.createSession(response.id);
+        const auto authToken = auth_service_.createSession(response.id);
 
         userver::formats::json::ValueBuilder resp;
         resp["id"] = response.id;

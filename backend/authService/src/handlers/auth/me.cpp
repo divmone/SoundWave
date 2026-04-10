@@ -1,35 +1,31 @@
 //
-// Created by divmone on 3/22/2026.
+// Created by divmone on 4/10/2026.
 //
 
-#include "logout.hpp"
+#include "me.hpp"
 
-#include <services/auth_service.hpp>
 #include <userver/components/component_context.hpp>
 
 namespace shop::handlers {
-    LogoutHandler::LogoutHandler(
+    MeHandler::MeHandler(
             const userver::components::ComponentConfig &config,
             const userver::components::ComponentContext &context)
             :HttpHandlerBase(config, context)
             , auth_service_(context.FindComponent<shop::services::AuthService>()){
 
-
     }
 
-    std::string LogoutHandler::HandleRequestThrow(
+    std::string MeHandler::HandleRequestThrow(
         const userver::server::http::HttpRequest &request,
         userver::server::request::RequestContext &context) const {
 
-        const auto auth = request.GetHeader("Authorization");
-        const auto token = auth.substr(7);
+        const auto token = request.GetHeader("Authorization").substr(7);
 
-        auth_service_.deleteSession(token);
+        const auto userId = auth_service_.getIdByToken(token);
 
-        request.GetHttpResponse().SetStatus(
-               userver::server::http::HttpStatus::kOk
-           );
-        return "{}";
+        userver::formats::json::ValueBuilder resp;
+        resp["id"] = userId;
+        return userver::formats::json::ToString(resp.ExtractValue());
     }
 
 }

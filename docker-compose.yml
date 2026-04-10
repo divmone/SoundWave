@@ -66,9 +66,13 @@ services:
     depends_on:
       auth-postgres:
         condition: service_healthy
+    dns:
+    - 8.8.8.8
+    - 8.8.4.4
     networks:
       - soundwave-network
     restart: unless-stopped
+  
 
   sounds-storage:
     build:

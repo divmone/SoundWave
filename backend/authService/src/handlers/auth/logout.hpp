@@ -6,7 +6,7 @@
 
 #include <userver/server/handlers/http_handler_base.hpp>
 
-#include "repositories/user_repository.hpp"
+#include "services/auth_service.hpp"
 
 namespace shop::handlers {
     class LogoutHandler final : public userver::server::handlers::HttpHandlerBase {
@@ -18,6 +18,6 @@ namespace shop::handlers {
 
         std::string HandleRequestThrow(const userver::server::http::HttpRequest &request, userver::server::request::RequestContext &context) const override;
     private:
-        shop::repositories::UserRepository& user_repository_;
+        shop::services::AuthService& auth_service_;
     };
 }

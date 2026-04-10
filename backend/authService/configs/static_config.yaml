@@ -74,3 +74,8 @@ components_manager:
             path: /users/{id}
             method: GET
             task_processor: main-task-processor
+
+        handler-me:
+            path: /auth/me
+            method: GET
+            task_processor: main-task-processor

@@ -4,7 +4,7 @@ import { getUserById } from '../api/services/authService';
 
 const PAGE_SIZE = 9;
 
-export function useProducts(category, search, page = 1) {
+export function useProducts(category, search, page = 1, refreshKey = 0) {
   const [data,    setData]    = useState([]);
   const [total,   setTotal]   = useState(0);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export function useProducts(category, search, page = 1) {
     } finally {
       setLoading(false);
     }
-  }, [page, category, search]);
+  }, [page, category, search, refreshKey]);
 
   useEffect(() => { load(); }, [load]);
 

@@ -27,6 +27,14 @@ properties:
 )");
     }
 
+    std::string AuthService::createSession(int user_id) const {
+        return user_repository_.createSession(user_id);
+    }
+
+    void AuthService::deleteSession(const std::string &token) const {
+        user_repository_.deleteSession(token);
+    }
+
     AuthService::AuthService(const userver::components::ComponentConfig &config,
                              const userver::components::ComponentContext &context)
         : ComponentBase(config, context)
@@ -34,6 +42,16 @@ properties:
           , client_(context.FindComponent<userver::components::HttpClient>("http-client").GetHttpClient())
           , google_client_id_(config["google-client-id"].As<std::string>())
           , google_client_secret_(config["google-client-secret"].As<std::string>()) {
+    }
+
+    int AuthService::getIdByToken(const std::string& token) const {
+        const auto user = user_repository_.findByToken(token);
+        if (!user) {
+            throw userver::server::handlers::Unauthorized(
+                userver::server::handlers::ExternalBody{"Invalid or expired token"});
+        }
+
+        return user->id;
     }
 
     User AuthService::loginWithGoogle(const std::string &code, const std::string &redirect_uri) {
@@ -85,7 +103,7 @@ properties:
         const auto name         = userinfo["name"].As<std::string>("");
 
         const auto existing = user_repository_.findByGoogleId(google_sub);
-        if (existing) {
+        if (existing.has_value()) {
             return *existing;
         }
 

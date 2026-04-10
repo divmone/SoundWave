@@ -27,6 +27,7 @@ add_library(
         src/services/auth_service.cpp
         src/handlers/auth/logout.cpp
         src/handlers/users/users.cpp
+        src/handlers/auth/me.cpp
 )
 target_link_libraries(
         ${PROJECT_NAME}_objs
