@@ -16,7 +16,7 @@ private:
 public:
     explicit TagsController(std::shared_ptr<TagService> tagService): m_tagService(tagService) {};
     METHOD_LIST_BEGIN
-        ADD_METHOD_TO(TagsController::GetTags, "api/v1.0/sounds/tags", Get);
+        ADD_METHOD_TO(TagsController::GetTags, "api/v1.0/sounds/tags", Get, "soundwaveSounds::GoogleAuthCheckMiddleware");
     METHOD_LIST_END
 private:
     void GetTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
