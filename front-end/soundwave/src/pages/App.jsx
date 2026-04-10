@@ -41,7 +41,7 @@ export default function App() {
   const [refreshKey,  setRefreshKey]  = useState(0);
   const oauthDone = useRef(false);
 
-  const { user, login, logout }               = useAuth();
+  const { user, login, logout, checking }      = useAuth();
   const { data: products, total, loading, refresh } = useProducts(category, search, currentPage, refreshKey);
 
   const handleNavigate = (target) => {
@@ -104,6 +104,12 @@ export default function App() {
   }, []);
 
   // ── Route ─────────────────────────────────────────────
+  if (checking) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', flexDirection: 'column', gap: 16 }}>
+      <span style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,0.15)', borderTopColor: 'var(--cyan)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+    </div>
+  );
+
   if (page === 'oauth-callback') return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', flexDirection: 'column', gap: 16 }}>
       <span style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,0.15)', borderTopColor: 'var(--cyan)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />

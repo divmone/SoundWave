@@ -18,7 +18,7 @@ namespace shop::services {
             const userver::components::ComponentContext& context);
 
         User loginWithGoogle(const std::string& code, const std::string& redirect_uri);
-        int getIdByToken(const std::string& token) const;
+        User getUserByToken(const std::string& token) const;
 
         static userver::yaml_config::Schema GetStaticConfigSchema();
 

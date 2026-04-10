@@ -21,10 +21,14 @@ namespace shop::handlers {
 
         const auto token = request.GetHeader("Authorization").substr(7);
 
-        const auto userId = auth_service_.getIdByToken(token);
+        const auto user = auth_service_.getUserByToken(token);
 
         userver::formats::json::ValueBuilder resp;
-        resp["id"] = userId;
+        resp["id"] = user.id;
+        resp["email"] = user.email;
+        resp["username"] = user.username;
+        resp["avatar_url"] = user.avatar_url;
+        
         return userver::formats::json::ToString(resp.ExtractValue());
     }
 
