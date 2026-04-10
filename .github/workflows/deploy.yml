@@ -15,7 +15,12 @@ jobs:
           fetch-depth: 2
 
       - name: Get previous commit hash
-        run: echo "PREV_COMMIT=$(git rev-parse HEAD~1)" >> $GITHUB_ENV
+        run: |
+          if [ "$(git rev-list --count HEAD~1 2>/dev/null)" -gt 0 ]; then
+            echo "PREV_COMMIT=$(git rev-parse HEAD~1)" >> $GITHUB_ENV
+          else
+            echo "PREV_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          fi
 
       - name: Deploy new version
         uses: appleboy/ssh-action@v1
@@ -30,6 +35,7 @@ jobs:
             
             cat > .env << EOF
             JWT_CHECK_ENABLED=false
+            EOF
             
             docker compose down
             docker compose up --build -d
@@ -46,12 +52,18 @@ jobs:
             echo "Waiting for services to be ready..."
             
             for i in {1..30}; do
-              if docker ps | grep -q "soundwave-auth" && docker ps | grep -q "soundwave-storage"; then
-                echo "✅ Containers are running!"
-                exit 0
+              if [ "$(docker compose ps -q | wc -l)" -gt 0 ] && docker compose ps | grep -q "Up"; then
+                RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | wc -l)
+                TOTAL_SERVICES=$(docker compose config --services | wc -l)
+            
+                if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ]; then
+                  echo "✅ All services are running!"
+                  docker compose ps
+                  exit 0
+                fi
               fi
-              echo "Attempt $i/30: waiting for containers..."
-              sleep 2
+              echo "Attempt $i/30: waiting for containers... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              sleep 10
             done
             
             echo "❌ Services failed to become ready"
@@ -70,15 +82,8 @@ jobs:
         working-directory: tests
         run: |
           mkdir -p ../reports
-          npx @usebruno/cli run . --output ../reports/junit.xml --format junit || true
+          npx @usebruno/cli run . --output ../reports/junit.xml --format junit
           echo "Tests completed"
-
-          if [ -f ../reports/junit.xml ]; then
-            echo "Report generated:"
-            head -20 ../reports/junit.xml
-          else
-            echo "No report generated"
-          fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -96,8 +101,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /root/SoundWave
-            echo "Rolling back to previous version..."
+            echo "Rolling back to previous version: ${{ env.PREV_COMMIT }}"
             git reset --hard ${{ env.PREV_COMMIT }}
             docker compose down
             docker compose up --build -d
             echo "Rollback completed"
+            docker compose logs --tail=20
