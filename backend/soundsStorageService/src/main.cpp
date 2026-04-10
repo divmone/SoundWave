@@ -17,6 +17,8 @@
 
 #include <exceptions/GlobalHandler.h>
 
+#include "middleware/GoogleAuthCheckMiddleware.h"
+
 using namespace soundwaveSounds;
 
 int main() 
@@ -26,6 +28,8 @@ int main()
     /// БОЛЬШОЙ БАН БАН БАН
         drogon::app().setExceptionHandler(GlobalExceptionHandler);
     /// НЕ ДЕЛАТЬ ТАК БОЛЬШЕ В ЖИЗНИ
+
+    //drogon::app().registerMiddleware<GoogleAuthCheckMiddleware>(std::make_shared<GoogleAuthCheckMiddleware>());
 
     auto productRepo = std::make_shared<ProductRepository>();
     auto soundRepo = std::make_shared<SoundRepository>();

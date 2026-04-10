@@ -16,13 +16,14 @@ namespace soundwaveSounds
     {
     private:
         static constexpr std::size_t TOKEN_HEADER_OFFSET = 7;
-        static constexpr const char* AUTH_SERVICE_HOST = "http://auth-service:8080";
+        static constexpr const char* AUTH_SERVICE_HOST = "http://auth-service:8080/auth/me";
         HttpClientPtr m_authServiceClient;
 
     public:
         GoogleAuthCheckMiddleware()
         {
             m_authServiceClient = drogon::HttpClient::newHttpClient(AUTH_SERVICE_HOST);
+            LOG_INFO << "Google middleware launched (probably)";
         }
 
         void invoke(const drogon::HttpRequestPtr &req,
@@ -38,7 +39,7 @@ namespace soundwaveSounds
 
                 auto authRequest = HttpRequest::newHttpRequest();
                 authRequest->setMethod(drogon::Get);
-                authRequest->setPath("/auth/me");
+               // authRequest->setPath("/auth/me");
                 authRequest->addHeader("Authorization", "Bearer " + token);
 
                 m_authServiceClient->sendRequest(
@@ -51,7 +52,7 @@ namespace soundwaveSounds
                             if (json && json->isMember("id"))
                             {
                                 int64_t userId = (*json)["id"].asInt64();
-                                LOG_DEBUG << "Request from user: " << userId;
+                                LOG_INFO << "Request from user: " << userId;
 
                                 nextCb
                                 (
@@ -69,7 +70,7 @@ namespace soundwaveSounds
                         }
                         else if (authResponse && authResponse->getStatusCode() == k401Unauthorized)
                         {
-                            LOG_DEBUG << "Invalid or expired token";
+                           LOG_INFO << "Invalid or expired token";
                         }
                         else
                         {
@@ -81,12 +82,12 @@ namespace soundwaveSounds
                         response->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
                         response->setBody("{\"error\":\"Unauthorized\"}");
                         mcb(response);
-                    }
+                    }, 5
                 );
             }
             else
             {
-                LOG_DEBUG << "Missing or invalid Authorization header";
+                LOG_INFO << "Missing or invalid Authorization header";
                 auto response = HttpResponse::newHttpResponse();
                 response->setStatusCode(k401Unauthorized);
                 response->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
