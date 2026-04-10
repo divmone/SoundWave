@@ -94,6 +94,8 @@ namespace soundwaveSounds
                 response->setBody("{\"error\":\"Missing or invalid Authorization header\"}");
                 mcb(response);
             }
+
+            fflush(stdout);
         }
     };
 }
