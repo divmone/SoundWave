@@ -14,7 +14,7 @@
     },
     "middlewares": [
       {
-        "name": "soundwaveSounds::JWTAuthCheckMiddleware"
+        "name": "soundwaveSounds::GoogleAuthCheckMiddleware"
       }
     ],
     "db_clients": [

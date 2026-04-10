@@ -12,7 +12,7 @@ namespace soundwaveSounds
 {
     using namespace drogon;
 
-    class JWTAuthCheckMiddleware : public HttpMiddleware<JWTAuthCheckMiddleware>
+    class GoogleAuthCheckMiddleware : public HttpMiddleware<GoogleAuthCheckMiddleware>
     {
     private:
         static constexpr std::size_t TOKEN_HEADER_OFFSET = 7;
@@ -20,7 +20,7 @@ namespace soundwaveSounds
         HttpClientPtr m_authServiceClient;
 
     public:
-        JWTAuthCheckMiddleware()
+        GoogleAuthCheckMiddleware()
         {
             m_authServiceClient = drogon::HttpClient::newHttpClient(AUTH_SERVICE_HOST);
         }
