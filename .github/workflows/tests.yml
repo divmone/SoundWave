@@ -17,6 +17,7 @@ jobs:
 
       - name: Get branch info
         run: |
+          cd /root/SoundWave || exit 1
           echo "🌿 Branch: ${GITHUB_REF#refs/heads/}"
           echo "🔖 Commit: ${{ github.sha }}"
           echo "👤 Author: ${{ github.actor }}"
