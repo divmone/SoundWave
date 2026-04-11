@@ -62,8 +62,8 @@ jobs:
             echo "⏳ Waiting for services to start..."
 
             for i in {1..30}; do
-              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | wc -l)
-              TOTAL_SERVICES=$(docker compose config --services | wc -l)
+              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
+              TOTAL_SERVICES=$(docker compose config --services | grep -v "migrate" | wc -l)
 
               if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
                 echo ""
