@@ -61,7 +61,7 @@ jobs:
 
             echo "⏳ Waiting for services to start..."
 
-            for i in {1..30}; do
+            for i in {1..10}; do
               RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
               TOTAL_SERVICES=$(docker compose config --services | grep -v "migrate" | wc -l)
 
@@ -69,6 +69,11 @@ jobs:
                 echo ""
                 echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
                 echo ""
+            
+                bru run tests/bruno.json # env не указываем ибо пока не роляет
+            
+            
+            
                 docker compose ps
                 exit 0
               fi
@@ -84,35 +89,3 @@ jobs:
             docker compose logs --tail=50
             exit 1
 
-            # ============================================
-
-      # ============================================
-      # 3. ROLLBACK ON FAILURE
-      # ============================================
-      - name: Rollback on failure
-        if: failure()
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.TEST_SERVER_HOST }}
-          username: ${{ secrets.TEST_SERVER_USER }}
-          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
-          script: |
-            cd /root/SoundWave || exit 1
-            
-            echo ""
-            echo "🔄 ROLLBACK INITIATED"
-            echo "========================================"
-            
-            # Get previous commit
-            git reset --hard HEAD~1
-            
-            echo "📦 Rolling back to: $(git rev-parse --short HEAD)"
-            
-            # Restart with previous version
-            docker compose down
-            docker compose up --env-file .env.test --build -d
-            
-            echo "✅ Rollback completed!"
-            echo ""
-            echo "📋 Last logs:"
-            docker compose logs --tail=20

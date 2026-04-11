@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: https://soundwave.divmone.ru/api/v1.0/sounds/1/upload
+  url: https://localhost/api/v1.0/sounds/1/upload
   auth: inherit
 
 runtime:
