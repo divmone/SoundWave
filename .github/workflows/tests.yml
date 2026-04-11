@@ -69,17 +69,17 @@ jobs:
                 echo ""
                 echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
                 echo ""
+
+                # ПЕРЕЙТИ В ПАПКУ tests И ЗАПУСТИТЬ ОТТУДА
+                cd tests || exit 1
+                bru run .
             
-                bru run tests/ # env не указываем ибо пока не роляет
-            
-            
-            
-                docker compose ps
+                 echo "Tests passed!"
                 exit 0
               fi
 
-              echo "   Attempt $i/10: waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
-              sleep 10
+              echo "⏳ Waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              sleep 5
             done
 
             echo ""
