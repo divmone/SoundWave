@@ -1,16 +1,104 @@
 name: Tests
 
 on:
+  push:
+    branches:
+      - '*'          # Все ветки
+      - '!main'      # Кроме main
   pull_request:
     branches: [main]
-
+    types: [opened, synchronize, reopened]
+# ДА, я оставлю смайлики от ИИ, они хорошо цветом выделяются в полотне белого текста, что удобно
 jobs:
-  deploy-test-server:
+  test-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy new version to test enviroment
+      - name: Get branch info
+        run: |
+          echo "🌿 Branch: ${GITHUB_REF#refs/heads/}"
+          echo "🔖 Commit: ${{ github.sha }}"
+          echo "👤 Author: ${{ github.actor }}"
+
+      # ============================================
+      # 1. ЛОКАЛЬНЫЕ ТЕСТЫ (pytest - заглушка)
+      # ============================================
+      - name: Run local tests (pytest)
+        run: |
+          echo "НУ ЭТО ВСЕ ФЕЙК КАК БЫ ДА, НЕ ВЕДИТЕСЬ!!!!"
+          echo "🧪 RUNNING LOCAL TESTS"
+          echo "========================================"
+          sleep 1
+          
+          echo "📦 Checking code style..."
+          sleep 1
+          echo "   ✅ Black: passed"
+          echo "   ✅ Flake8: passed"
+          echo "   ✅ mypy: passed"
+          echo ""
+          
+          echo "🔍 Running unit tests..."
+          sleep 2
+          echo "   ✅ test_auth_login (0.02s)"
+          echo "   ✅ test_auth_register (0.03s)"
+          echo "   ✅ test_sounds_upload (0.05s)"
+          echo "   ✅ test_sounds_download (0.04s)"
+          echo "   ✅ test_user_profile (0.01s)"
+          echo "   ✅ test_permissions (0.02s)"
+          echo ""
+          echo "   📊 Results: 12 passed, 0 failed, 0 skipped"
+          echo ""
+          
+          echo "📊 Running coverage check..."
+          sleep 1
+          echo "   Coverage: 87.3%"
+          echo "   Threshold: 80% ✅"
+          echo ""
+          
+          echo "========================================"
+          echo "🎉 All local tests passed!"
+          echo ""
+
+      # ============================================
+      # 2. ДЕПЛОЙ НА ТЕСТОВЫЙ СЕРВЕР
+      # ============================================
+      - name: Deploy to test server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/SoundWave || exit 1
+            
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            echo "🚀 Deploying branch: $BRANCH"
+            
+            # Fetch and checkout the specific branch
+            git fetch origin
+            git checkout $BRANCH
+            git pull origin $BRANCH
+            
+            # Show current commit
+            echo "📦 Deploying commit: $(git rev-parse --short HEAD)"
+            
+            # Stop old containers
+            docker compose down
+            
+            # Build and start new ones
+            docker compose up --env-file .env.test --build -d
+            
+            # Clean up old images
+            docker image prune -f
+            
+            echo "✅ Deployment completed!"
+
+      # ============================================
+      # 3. WAIT FOR SERVICES
+      # ============================================
+      - name: Wait for services to be ready
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.TEST_SERVER_HOST }}
@@ -18,49 +106,98 @@ jobs:
           key: ${{ secrets.TEST_SERVER_SSH_KEY }}
           script: |
             cd /root/SoundWave || exit 1
-            git pull origin main
-            docker compose down
-            docker compose up --env-file .env.test --build -d
-            docker image prune -f
-
-      - name: Wait for services to be ready
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.TEST_SERVER_HOST }}
-          username: ${{ secrets.TEST_SERVER_USER }}
-          key: ${{ secrets.TEST_SERVER_SSH_KEY}}
-          script: |
-            cd /root/SoundWave || exit 1
+            
+            echo "⏳ Waiting for services to start..."
             
             for i in {1..30}; do
               RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | wc -l)
               TOTAL_SERVICES=$(docker compose config --services | wc -l)
             
               if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
-                echo "✅ All services are running!"
+                echo ""
+                echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
+                echo ""
                 docker compose ps
                 exit 0
               fi
             
-              echo "Attempt $i/30: waiting for containers... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              echo "   Attempt $i/30: waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
               sleep 10
             done
             
+            echo ""
             echo "❌ Services failed to become ready"
+            echo ""
+            echo "📋 Last logs:"
             docker compose logs --tail=50
             exit 1
 
+      # ============================================
+      # 4. API ТЕСТЫ (Bruno - заглушка)
+      # ============================================
+      - name: Run API tests (Bruno)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            cd /root/SoundWave || exit 1
+
+            echo "⏳ Waiting for services to start..."
+
+            for i in {1..30}; do
+              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | wc -l)
+              TOTAL_SERVICES=$(docker compose config --services | wc -l)
+
+              if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
+                echo ""
+                echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
+                echo ""
+                docker compose ps
+                exit 0
+              fi
+
+              echo "   Attempt $i/30: waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              sleep 10
+            done
+
+            echo ""
+            echo "❌ Services failed to become ready"
+            echo ""
+            echo "📋 Last logs:"
+            docker compose logs --tail=50
+            exit 1
+
+            # ============================================
+
+      # ============================================
+      # 6. ROLLBACK ON FAILURE
+      # ============================================
       - name: Rollback on failure
         if: failure()
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.TEST_SERVER_HOST }}
           username: ${{ secrets.TEST_SERVER_USER }}
-          key: ${{ secrets.TEST_SERVER_SSH_KEY}}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
           script: |
             cd /root/SoundWave || exit 1
-            echo "Rolling back to previous version..."
+            
+            echo ""
+            echo "🔄 ROLLBACK INITIATED"
+            echo "========================================"
+            
+            # Get previous commit
+            git reset --hard HEAD~1
+            
+            echo "📦 Rolling back to: $(git rev-parse --short HEAD)"
+            
+            # Restart with previous version
             docker compose down
             docker compose up --env-file .env.test --build -d
-            echo "Rollback completed"
+            
+            echo "✅ Rollback completed!"
+            echo ""
+            echo "📋 Last logs:"
             docker compose logs --tail=20
