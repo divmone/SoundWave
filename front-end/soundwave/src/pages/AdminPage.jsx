@@ -8,7 +8,7 @@ import Header from '../components/layout/Header';
 // ── Список email-адресов с доступом к админке ──────────────
 const ADMIN_EMAILS = [
   'dimasston99@gmail.com',
-  'dimoon.amid05@gmaiil.com',
+  'dimoon.amid05@gmail.com',
   'kakadel02@gmail.com'
   // добавь сюда другие почты при необходимости
 ];
