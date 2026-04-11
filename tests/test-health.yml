@@ -1,0 +1,12 @@
+name: Get Sounds Amount
+type: http
+method: GET
+url: http://localhost:8080/api/v1.0/sounds/amount
+
+assertions:
+  - name: Status is 200
+    type: res.status
+    value: 200
+  - name: Has amount field
+    type: res.body
+    value: amount

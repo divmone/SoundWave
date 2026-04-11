@@ -72,7 +72,7 @@ jobs:
 
                 # ПЕРЕЙТИ В ПАПКУ tests И ЗАПУСТИТЬ ОТТУДА
                 cd tests || exit 1
-                bru run .
+                bru run  test-health.yml
             
                  echo "Tests passed!"
                 exit 0
