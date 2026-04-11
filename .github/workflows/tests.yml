@@ -78,7 +78,7 @@ jobs:
                 exit 0
               fi
 
-              echo "   Attempt $i/30: waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              echo "   Attempt $i/10: waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
               sleep 10
             done
 
