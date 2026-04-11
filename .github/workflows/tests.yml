@@ -48,9 +48,9 @@ jobs:
             echo "✅ Deployment completed!"
 
       # ============================================
-      # 2. API ТЕСТЫ (Bruno - заглушка)
+      # 2. API ТЕСТЫ (python - заглушка)
       # ============================================
-      - name: Run API tests (Bruno)
+      - name: Run API tests (python)
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.TEST_SERVER_HOST }}
@@ -72,7 +72,7 @@ jobs:
 
                 # ПЕРЕЙТИ В ПАПКУ tests И ЗАПУСТИТЬ ОТТУДА
                 cd tests || exit 1
-                bru run  test-health.yml
+                python3 test_api.py
             
                  echo "Tests passed!"
                 exit 0
