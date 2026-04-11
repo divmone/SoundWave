@@ -10,8 +10,6 @@ services:
       - "5432"
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
-      - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-      - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveUsers"]
       interval: 5s
@@ -34,7 +32,6 @@ services:
     #  - "5433:5432"
     volumes:
       - sounds_postgres_data:/var/lib/postgresql/data
-      - ./backend/soundsStorageService/database/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveSounds"]
       interval: 5s
@@ -44,6 +41,40 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
+  
+  migrate-auth:
+    image: liquibase/liquibase:4.27
+    command: >
+      --url=jdbc:postgresql://auth-postgres:5432/soundwaveUsers
+      --username=${POSTGRES_USER:-postgres}
+      --password=${POSTGRES_PASSWORD:-postgres}
+      --changelog-file=db.changelog-master.xml
+      --search-path=/liquibase/changelog
+      update
+    volumes:
+      - ./migrations/authService:/liquibase/changelog
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+  
+  migrate-sounds:
+    image: liquibase/liquibase:4.27
+    command: >
+      --url=jdbc:postgresql://sounds-postgres:5432/soundwaveSounds
+      --username=${POSTGRES_USER:-postgres}
+      --password=${POSTGRES_PASSWORD:-postgres}
+      --changelog-file=db.changelog-master.xml
+      --search-path=/liquibase/changelog
+      update
+    volumes:
+      - ./migrations/soundsStorageService:/liquibase/changelog
+    depends_on:
+      sounds-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
 
   auth-service:
     build:
@@ -63,6 +94,8 @@ services:
     depends_on:
       auth-postgres:
         condition: service_healthy
+      migrate-auth:
+        condition: service_completed_successfully
     dns:
     - 8.8.8.8
     - 8.8.4.4
@@ -92,6 +125,8 @@ services:
     depends_on:
       sounds-postgres:
         condition: service_healthy
+      migrate-sounds:
+        condition: service_completed_successfully
     networks:
       - soundwave-network
     restart: unless-stopped

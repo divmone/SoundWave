@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset divmone:1
+-- changeset divmone:1 splitStatements:false
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS product_tags (
     PRIMARY KEY (product_id, tag_id)
 );
 
--- changeset divmone:6
+-- changeset divmone:6 splitStatements:false
 DROP TRIGGER IF EXISTS update_sounds_updated_at ON sounds;
 DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 
