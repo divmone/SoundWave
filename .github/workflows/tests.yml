@@ -70,7 +70,6 @@ jobs:
                 echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
                 echo ""
 
-                # ПЕРЕЙТИ В ПАПКУ tests И ЗАПУСТИТЬ ОТТУДА
                 cd tests || exit 1
                 python3 test_api.py
             
