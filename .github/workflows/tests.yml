@@ -20,15 +20,15 @@ jobs:
             cd /root/SoundWave || exit 1
             git pull origin main
             docker compose down
-            docker compose up --build -d
+            docker compose up --env-file .env.test --build -d
             docker image prune -f
 
       - name: Wait for services to be ready
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY}}
           script: |
             cd /root/SoundWave || exit 1
             
@@ -54,13 +54,13 @@ jobs:
         if: failure()
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY}}
           script: |
             cd /root/SoundWave || exit 1
             echo "Rolling back to previous version..."
             docker compose down
-            docker compose up --build -d
+            docker compose up --env-file .env.test --build -d
             echo "Rollback completed"
             docker compose logs --tail=20
