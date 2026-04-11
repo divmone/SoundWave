@@ -4,6 +4,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import UploadModal from '../components/product/UploadModal';
 import { logoutUser } from '../api/services/authService';
+import { isAdminUser } from './AdminPage';
 
 function StatCard({ label, value }) {
   return (
@@ -303,14 +304,32 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
                 )}
               </div>
 
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="btn-ghost"
-                style={{ padding: '0.5rem 1.2rem', fontSize: '0.78rem', flexShrink: 0 }}
-              >
-                Sign out
-              </button>
+              {/* Admin + Logout */}
+              <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                {isAdminUser(user) && (
+                  <button
+                    onClick={() => onNavigate?.('admin')}
+                    style={{
+                      padding: '0.5rem 1.2rem', fontSize: '0.78rem',
+                      background: 'var(--red-dim)', border: '1px solid rgba(255,68,102,0.35)',
+                      color: 'var(--red)', borderRadius: 'var(--radius-pill)',
+                      fontFamily: 'var(--font-display)', fontWeight: 800,
+                      cursor: 'pointer', transition: 'all 0.18s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,68,102,0.18)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--red-dim)'}
+                  >
+                    Admin panel
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="btn-ghost"
+                  style={{ padding: '0.5rem 1.2rem', fontSize: '0.78rem' }}
+                >
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>

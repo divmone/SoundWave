@@ -21,6 +21,7 @@ import UploadModal  from '../components/product/UploadModal';
 
 import LoginPage     from './LoginPage';
 import ProfilePage   from './ProfilePage';
+import AdminPage, { isAdminUser } from './AdminPage';
 
 // Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
 function getInitialPage() {
@@ -119,6 +120,7 @@ export default function App() {
   );
   if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
   if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
+  if (page === 'admin')       return isAdminUser(user) ? <AdminPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} /> : null;
 
   // ── Main marketplace ───────────────────────────────────
   return (
