@@ -20,7 +20,7 @@ jobs:
             cd /root/SoundWave || exit 1
             git pull origin main
             docker compose down
-            docker compose up --env-file .env.prod --build -d
+            docker compose --env-file .env.prod up  --build -d
             docker image prune -f
 
       - name: Wait for services to be ready

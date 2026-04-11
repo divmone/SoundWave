@@ -43,7 +43,7 @@ jobs:
             docker compose down
             
             # Build and start new ones
-            docker compose up --env-file .env.test --build -d
+            docker compose --env-file .env.test up  --build -d
             
             # Clean up old images
             docker image prune -f
