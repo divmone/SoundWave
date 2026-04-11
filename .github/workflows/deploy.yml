@@ -3,11 +3,9 @@ name: Deploy
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-    
+
 jobs:
-  deploy:
+  deploy-prod-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,36 +20,8 @@ jobs:
             cd /root/SoundWave || exit 1
             git pull origin main
             docker compose down
-            docker compose up --build -d
+            docker compose --env-file .env.prod up  --build -d
             docker image prune -f
-
-      - name: Wait for services to be ready
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /root/SoundWave || exit 1
-            
-            for i in {1..30}; do
-              AUTH_OK=$(docker compose ps auth-service --format "{{.State}}" | grep -c "running" || true)
-              STORAGE_OK=$(docker compose ps sounds-storage --format "{{.State}}" | grep -c "running" || true)
-              NGINX_OK=$(docker compose ps nginx --format "{{.State}}" | grep -c "running" || true)
-
-              if [ "$AUTH_OK" -ge 1 ] && [ "$STORAGE_OK" -ge 1 ] && [ "$NGINX_OK" -ge 1 ]; then
-                echo "✅ All services are running!"
-                docker compose ps
-                exit 0
-              fi
-
-              echo "Attempt $i/30: waiting... (auth=$AUTH_OK storage=$STORAGE_OK nginx=$NGINX_OK)"
-              sleep 10
-            done
-            
-            echo "❌ Services failed to become ready"
-            docker compose logs --tail=50
-            exit 1
 
       - name: Rollback on failure
         if: failure()
@@ -65,6 +35,6 @@ jobs:
             echo "Rolling back to previous version..."
             git checkout HEAD~1
             docker compose down
-            docker compose up --build -d
+            docker compose up --env-file .env.prod --build -d
             echo "Rollback completed"
             docker compose logs --tail=20

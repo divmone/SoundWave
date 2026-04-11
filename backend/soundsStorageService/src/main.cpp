@@ -29,13 +29,11 @@ int main()
         drogon::app().setExceptionHandler(GlobalExceptionHandler);
     /// НЕ ДЕЛАТЬ ТАК БОЛЬШЕ В ЖИЗНИ
 
-    //drogon::app().registerMiddleware<GoogleAuthCheckMiddleware>(std::make_shared<GoogleAuthCheckMiddleware>());
-
     auto productRepo = std::make_shared<ProductRepository>();
     auto soundRepo = std::make_shared<SoundRepository>();
     auto tagRepo = std::make_shared<TagRepository>();
     auto productTagRepo = std::make_shared<ProductTagRepository>();
-    const char* storagePath = std::getenv("STORAGE_PATH");
+    auto storagePath = std::getenv("STORAGE_PATH");
     auto soundDataRepo = std::make_shared<SoundDataRepository>(
         storagePath ? storagePath : "./storage/sounds"
     );
@@ -57,6 +55,6 @@ int main()
     drogon::app().registerController(productsController);
     drogon::app().registerController(tagsController);
     drogon::app().run();
-    
+
     return 0;
 }

@@ -1,0 +1,90 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - '*'          # Все ветки
+      - '!main'      # Кроме main
+# ДА, я оставлю смайлики от ИИ, они хорошо цветом выделяются в полотне белого текста, что удобно
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ============================================
+      # 1. ДЕПЛОЙ НА ТЕСТОВЫЙ СЕРВЕР
+      # ============================================
+      - name: Deploy to test server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/SoundWave || exit 1
+            
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            echo "🚀 Deploying branch: $BRANCH"
+            
+            # Fetch and checkout the specific branch
+            git fetch origin
+            git checkout $BRANCH
+            git pull origin $BRANCH
+            
+            # Show current commit
+            echo "📦 Deploying commit: $(git rev-parse --short HEAD)"
+            
+            # Stop old containers
+            docker compose down
+            
+            # Build and start new ones
+            docker compose --env-file .env.test up  --build -d
+            
+            # Clean up old images
+            docker image prune -f
+            
+            echo "✅ Deployment completed!"
+
+      # ============================================
+      # 2. API ТЕСТЫ (python - заглушка)
+      # ============================================
+      - name: Run API tests (python)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            cd /root/SoundWave || exit 1
+
+            echo "⏳ Waiting for services to start..."
+
+            for i in {1..10}; do
+              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
+              TOTAL_SERVICES=$(docker compose config --services | grep -v "migrate" | wc -l)
+
+              if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
+                echo ""
+                echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
+                echo ""
+
+                cd tests || exit 1
+                python3 test_api.py
+            
+                 echo "Tests passed!"
+                exit 0
+              fi
+
+              echo "⏳ Waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+              sleep 5
+            done
+
+            echo ""
+            echo "❌ Services failed to become ready"
+            echo ""
+            echo "📋 Last logs:"
+            docker compose logs --tail=50
+            exit 1
+
