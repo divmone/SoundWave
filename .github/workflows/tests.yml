@@ -71,7 +71,7 @@ jobs:
                 echo ""
 
                 cd tests || exit 1
-                python3 test_api.py
+                python3 tests.py
             
                  echo "Tests passed!"
                 exit 0
