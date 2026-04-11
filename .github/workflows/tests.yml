@@ -70,7 +70,7 @@ jobs:
                 echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
                 echo ""
             
-                bru run tests/bruno.json # env не указываем ибо пока не роляет
+                bru run tests/ # env не указываем ибо пока не роляет
             
             
             
