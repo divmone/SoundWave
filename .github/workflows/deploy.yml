@@ -35,16 +35,17 @@ jobs:
             cd /root/SoundWave || exit 1
             
             for i in {1..30}; do
-              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | wc -l)
-              TOTAL_SERVICES=$(docker compose config --services | wc -l)
-            
-              if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
+              AUTH_OK=$(docker compose ps auth-service --format "{{.State}}" | grep -c "running" || true)
+              STORAGE_OK=$(docker compose ps sounds-storage --format "{{.State}}" | grep -c "running" || true)
+              NGINX_OK=$(docker compose ps nginx --format "{{.State}}" | grep -c "running" || true)
+
+              if [ "$AUTH_OK" -ge 1 ] && [ "$STORAGE_OK" -ge 1 ] && [ "$NGINX_OK" -ge 1 ]; then
                 echo "✅ All services are running!"
                 docker compose ps
                 exit 0
               fi
-            
-              echo "Attempt $i/30: waiting for containers... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
+
+              echo "Attempt $i/30: waiting... (auth=$AUTH_OK storage=$STORAGE_OK nginx=$NGINX_OK)"
               sleep 10
             done
             
@@ -62,6 +63,7 @@ jobs:
           script: |
             cd /root/SoundWave || exit 1
             echo "Rolling back to previous version..."
+            git checkout HEAD~1
             docker compose down
             docker compose up --build -d
             echo "Rollback completed"
