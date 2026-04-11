@@ -5,18 +5,18 @@
             "Group": "Servers",
             "Host": "auth-postgres",
             "Port": 5432,
-            "MaintenanceDB": "soundwaveUsers",
-            "Username": "myuser",
-            "PassFile": "mypassword"
+            "MaintenanceDB": "${AUTH_DB_NAME}",
+            "Username": "${POSTGRES_USER}",
+            "PassFile": "${POSTGRES_PASSWORD}"
         },
         "2": {
             "Name": "Sounds DB",
             "Group": "Servers",
             "Host": "sounds-postgres",
             "Port": 5432,
-            "MaintenanceDB": "soundwaveSounds",
-            "Username": "myuser",
-            "PassFile": "mypassword"
+            "MaintenanceDB": "${SOUNDS_DB_NAME}",
+            "Username": "${POSTGRES_USER}",
+            "PassFile": "${POSTGRES_PASSWORD}"
         }
     }
 }

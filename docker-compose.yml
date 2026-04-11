@@ -1,11 +1,6 @@
 services:
   auth-postgres:
     image: postgres:15
-    container_name: auth-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: soundwaveUsers
     expose:
       - "5432"
     volumes:
@@ -13,7 +8,7 @@ services:
       - ./backend/authService/postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       - ./backend/authService/postgresql/data/initial_data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveUsers"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${AUTH_DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,20 +18,13 @@ services:
 
   sounds-postgres:
     image: postgres:15
-    container_name: sounds-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: soundwaveSounds
     expose:
       - "5432"
-    #ports:
-    #  - "5433:5432"
     volumes:
       - sounds_postgres_data:/var/lib/postgresql/data
       - ./backend/soundsStorageService/database/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d soundwaveSounds"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${SOUNDS_DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -49,7 +37,6 @@ services:
     build:
       context: ./backend/authService
       dockerfile: Dockerfile
-    container_name: soundwave-auth
     expose:
       - "8080"
     environment:
@@ -57,24 +44,25 @@ services:
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DB_NAME=soundwaveUsers
-      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@auth-postgres:5432/soundwaveUsers
-      - CPU_LIMIT=4c
+      - DB_NAME=${AUTH_DB_NAME:-soundwaveUsers}
+      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@auth-postgres:5432/${AUTH_DB_NAME:-soundwaveUsers}
+      - CPU_LIMIT=${AUTH_CPU_LIMIT:-4c}
+      - LOG_LEVEL=${AUTH_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
     depends_on:
       auth-postgres:
         condition: service_healthy
     dns:
-    - 8.8.8.8
-    - 8.8.4.4
+      - 8.8.8.8
+      - 8.8.4.4
     networks:
       - soundwave-network
     restart: unless-stopped
 
-  sounds-storage:
+  sounds-service:
     build:
       context: ./backend/soundsStorageService
       dockerfile: Dockerfile
-    container_name: soundwave-storage
     expose:
       - "8080"
     environment:
@@ -82,10 +70,11 @@ services:
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DB_NAME=soundwaveSounds
+      - DB_NAME=${SOUNDS_DB_NAME:-soundwaveSounds}
       - SERVER_PORT=8080
-      - STORAGE_PATH=/data/sounds
-      - JWT_CHECK_ENABLED=${JWT_CHECK_ENABLED:-false}
+      - STORAGE_PATH=${STORAGE_PATH:-/data/sounds}
+      - LOG_LEVEL=${SOUNDS_LOG_LEVEL:-info}
+      - OAUTH_TOKEN_CHECK_ENABLED=${OAUTH_TOKEN_CHECK_ENABLED:-false}
     volumes:
       - sounds_data:/data/sounds
       - ./backend/soundsStorageService/config:/app/config:ro
@@ -100,41 +89,23 @@ services:
     build:
       context: ./front-end/soundwave
       dockerfile: Dockerfile
-    container_name: soundwave-frontend-builder
     volumes:
       - frontend_dist:/frontend-dist
     networks:
       - soundwave-network
     restart: unless-stopped
 
-  # Nginx — единственная точка входа
   nginx:
     image: nginx:alpine
-    container_name: soundwave-nginx
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-80}:80"
     volumes:
-      - frontend_dist:/usr/share/nginx/html:ro
+      - frontend_dist:/usr/share/share/nginx/html:ro
       - ./front-end/soundwave/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - frontend
       - auth-service
-      - sounds-storage
-    networks:
-      - soundwave-network
-    restart: unless-stopped
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: StrongPassword
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - sounds-service
     networks:
       - soundwave-network
     restart: unless-stopped
@@ -144,7 +115,6 @@ volumes:
   sounds_postgres_data:
   sounds_data:
   frontend_dist:
-  pgadmin_data:
 
 networks:
   soundwave-network:

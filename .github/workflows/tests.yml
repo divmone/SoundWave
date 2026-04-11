@@ -1,7 +1,7 @@
-name: Deploy
+name: Tests
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 jobs:
@@ -10,12 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy new version
+      - name: Deploy new version to test enviroment
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY}}
           script: |
             cd /root/SoundWave || exit 1
             git pull origin main
