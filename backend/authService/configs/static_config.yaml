@@ -60,8 +60,8 @@ components_manager:
             task_processor: main-task-processor
 
         auth-service:
-            google-client-id: $google-client-id
-            google-client-secret: $google-client-secret
+            google-client-id#env: GOOGLE_CLIENT_ID
+            google-client-secret#env: GOOGLE_CLIENT_SECRET
 
         user-repository: {}
 

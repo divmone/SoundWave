@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.12...3.31)
-project(mailService CXX)
+project(db_test CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DownloadUserver)
 
 find_package(
-    userver
-    COMPONENTS core #
-    QUIET
+        userver
+        COMPONENTS core #
+        postgresql
+        QUIET
 )
 if(NOT userver_FOUND)
     # Tries TRY_DIR first, falls back to downloading userver from GitHub using CPM.
@@ -20,29 +21,23 @@ userver_setup_environment()
 include_directories(src)
 
 add_library(
-    ${PROJECT_NAME}_objs OBJECT
-    src/greeting.cpp #
-    src/hello.cpp #
+        ${PROJECT_NAME}_objs OBJECT
+        src/handlers/send/SendHandler.cpp
+        src/services/SendService.cpp
+        src/services/SendService.h
+        src/handlers/emails/NotifyHandler.cpp
+        src/handlers/emails/NotifyHandler.hpp
+        src/dto/dto.hpp
 )
 target_link_libraries(
-    ${PROJECT_NAME}_objs
-    PUBLIC userver::core #
+        ${PROJECT_NAME}_objs
+        PUBLIC userver::core
+        userver::postgresql
 )
-
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
-
-# Unit Tests
-add_executable(${PROJECT_NAME}_unittest src/greeting_test.cpp)
-target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
-add_google_tests(${PROJECT_NAME}_unittest)
-
-# Benchmarks
-add_executable(${PROJECT_NAME}_benchmark src/greeting_benchmark.cpp)
-target_link_libraries(${PROJECT_NAME}_benchmark PRIVATE ${PROJECT_NAME}_objs userver::ubench)
-add_google_benchmark_tests(${PROJECT_NAME}_benchmark)
 
 # Functional testing
 userver_testsuite_add_simple()
@@ -59,12 +54,12 @@ endif()
 file(GLOB CONFIGS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.yaml ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.json)
 
 install(
-    TARGETS ${PROJECT_NAME}
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT ${PROJECT_NAME}
+        TARGETS ${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT ${PROJECT_NAME}
 )
 install(
-    FILES ${CONFIGS_FILES}
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
-    COMPONENT ${PROJECT_NAME}
+        FILES ${CONFIGS_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
 )

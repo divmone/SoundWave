@@ -8,21 +8,24 @@
 #include <userver/server/handlers/tests_control.hpp>
 #include <userver/testsuite/testsuite_support.hpp>
 
+#include <userver/storages/postgres/component.hpp> 
 
 #include <userver/utils/daemon_run.hpp>
 
-#include <hello.hpp>
+#include "handlers/send/SendHandler.h"
+#include "handlers/emails/NotifyHandler.hpp"
+#include "services/SendService.h"
 
 int main(int argc, char* argv[]) {
     auto component_list =
         userver::components::MinimalServerComponentList()
-            .Append<userver::server::handlers::Ping>()
-            .Append<userver::components::TestsuiteSupport>()
             .AppendComponentList(userver::clients::http::ComponentList())
-            .Append<userver::clients::dns::Component>()
-            .Append<userver::server::handlers::TestsControl>()
             .Append<userver::congestion_control::Component>()
-            .Append<mailService::Hello>()
+            .Append<userver::clients::dns::Component>("dns-client")
+            .Append<userver::components::TestsuiteSupport>()
+            .Append<shop::handlers::SendHandler>("handler-send")
+            .Append<shop::handlers::NotifyHandler>("handler-emails")
+            .Append<shop::services::SendService>("service-send")
         ;
 
     return userver::utils::DaemonMain(argc, argv, component_list);
