@@ -1,0 +1,30 @@
+build*/
+cmake-build-*/
+compile_commands.json
+CMakeUserPresets.json
+
+.cache/
+.ccache/
+.cores/
+Testing/
+
+.idea/
+.vscode/
+.DS_Store
+Makefile.local
+.venv/
+.venv1/
+
+configs/config_vars.yaml
+
+# Binaries
+db_test
+*.o
+*.a
+*.so
+*.out
+
+# WSL Zone.Identifier artifacts
+*:Zone.Identifier
+
+tests/__pycache__

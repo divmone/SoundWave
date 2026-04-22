@@ -91,6 +91,8 @@ services:
       - CPU_LIMIT=${AUTH_CPU_LIMIT:-4c}
       - LOG_LEVEL=${AUTH_LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -132,6 +134,22 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  mail-service:
+    build:
+      context: ./backend/mailService
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - CPU_LIMIT=${AUTH_CPU_LIMIT:-4c}
+      - LOG_LEVEL=${AUTH_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./front-end/soundwave
@@ -153,6 +171,7 @@ services:
       - frontend
       - auth-service
       - sounds-service
+      - mail-service
     networks:
       - soundwave-network
     restart: unless-stopped
