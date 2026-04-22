@@ -3,14 +3,51 @@
 ## Base URL
 
 ```
-http://localhost:8080
+http://localhost
 ```
 
 ---
 
-## Emails
+## Endpoints
 
-### POST `/emails/notify`
+### POST `/send`
+
+Sends a raw email with custom subject and HTML body.
+
+#### Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `to` | string | ✅ | Recipient email address |
+| `subject` | string | ✅ | Email subject |
+| `html` | string | ✅ | Email body (HTML) |
+
+#### Request
+```json
+{
+  "to": "user@example.com",
+  "subject": "Hello",
+  "html": "<b>Hello!</b>"
+}
+```
+
+#### Response
+```json
+{
+  "id": "49a3999c-0ce1-4ea6-ab68-..."
+}
+```
+
+#### curl
+```bash
+curl -X POST http://localhost/send \
+  -H "Content-Type: application/json" \
+  -d '{"to": "user@example.com", "subject": "Hello", "html": "<b>Hello!</b>"}'
+```
+
+---
+
+### POST `/notify`
 
 Sends an email notification. The type of notification is determined by the `type` field.
 
@@ -51,7 +88,7 @@ Sent when a track is submitted for review.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "track-submitted", "to": "user@example.com", "name": "Dimas", "trackId": "123"}'
 ```
@@ -74,7 +111,7 @@ Sent when a track is approved and goes live.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "track-approved", "to": "user@example.com", "name": "Dimas", "trackId": "123"}'
 ```
@@ -104,7 +141,7 @@ Sent when a track is rejected.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "track-rejected", "to": "user@example.com", "name": "Dimas", "trackId": "123", "reason": "Low quality"}'
 ```
@@ -134,7 +171,7 @@ Sent when a track is purchased.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "track-purchased", "to": "user@example.com", "name": "Dimas", "trackId": "123", "amount": "9.99"}'
 ```
@@ -164,7 +201,7 @@ Sent when a track is deleted.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "track-deleted", "to": "user@example.com", "name": "Dimas", "trackId": "123", "reason": "Violated terms"}'
 ```
@@ -197,7 +234,7 @@ Sent for payment events.
 
 **curl:**
 ```bash
-curl -X POST http://localhost:8080/emails/notify \
+curl -X POST http://localhost/notify \
   -H "Content-Type: application/json" \
   -d '{"type": "payment", "to": "user@example.com", "name": "Dimas", "transactionId": "txn_456", "amount": "9.99", "status": "confirmed"}'
 ```
