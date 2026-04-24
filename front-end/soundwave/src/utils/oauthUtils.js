@@ -59,7 +59,6 @@ export function buildAppleAuthUrl() {
     redirect_uri:  REDIRECT_URI,
     response_type: 'code',
     response_mode: 'query',
-    scope:         'name email',
     state:         'apple',
   });
   return `https://appleid.apple.com/auth/authorize?${params}`;
