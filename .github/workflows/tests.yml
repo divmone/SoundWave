@@ -5,7 +5,7 @@ on:
     branches:
       - '*'          # Все ветки
       - '!main'      # Кроме main
-# ДА, я оставлю смайлики от ИИ, они хорошо цветом выделяются в полотне белого текста, что удобно
+
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
@@ -37,10 +37,10 @@ jobs:
             echo "📦 Deploying commit: $(git rev-parse --short HEAD)"
             
             # Stop old containers
-            docker compose down
+            docker compose -f docker-compose.yml -f docker-compose.override.yml down
             
-            # Build and start new ones
-            docker compose --env-file .env.test up  --build -d
+            # Build and start new ones (with debug override for testing)
+            docker compose -f docker-compose.yml -f docker-compose.override.yml --env-file .env.test up --build -d
             
             # Clean up old images
             docker image prune -f
@@ -62,8 +62,8 @@ jobs:
             echo "⏳ Waiting for services to start..."
 
             for i in {1..10}; do
-              RUNNING_SERVICES=$(docker compose ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
-              TOTAL_SERVICES=$(docker compose config --services | grep -v "migrate" | wc -l)
+              RUNNING_SERVICES=$(docker compose -f docker-compose.yml -f docker-compose.override.yml ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
+              TOTAL_SERVICES=$(docker compose -f docker-compose.yml -f docker-compose.override.yml config --services | grep -v "migrate" | wc -l)
 
               if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
                 echo ""
@@ -73,7 +73,7 @@ jobs:
                 cd tests || exit 1
                 python3 tests.py
             
-                 echo "Tests passed!"
+                echo "Tests passed!"
                 exit 0
               fi
 
@@ -85,6 +85,5 @@ jobs:
             echo "❌ Services failed to become ready"
             echo ""
             echo "📋 Last logs:"
-            docker compose logs --tail=50
+            docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail=50
             exit 1
-
