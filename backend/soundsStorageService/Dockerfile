@@ -6,8 +6,9 @@ ARG BUILD_TYPE=Release
 FROM ubuntu:22.04 AS builder
 ARG BUILD_TYPE
 ENV BUILD_TYPE=${BUILD_TYPE}
+RUN echo "Builder stage: BUILD_TYPE=${BUILD_TYPE}"
 
-# 1. Установка пакетов (меняется редко)
+# 1. Установка пакетов
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -22,8 +23,7 @@ RUN apt-get update && apt-get install -y \
     libjsoncpp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Сборка Drogon (меняется ещё реже)
-#    Пересобирается только если изменился этот слой
+# 2. Сборка Drogon (кэшируется)
 RUN git clone https://github.com/drogonframework/drogon.git && \
     cd drogon && \
     git submodule update --init && \
@@ -37,21 +37,16 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
     make install && \
     ldconfig
 
-# 3. Копируем CMakeLists.txt отдельно (меняется реже кода)
+# 3. Копируем всё, что нужно для сборки (сразу всё)
 COPY CMakeLists.txt /build/
-COPY database /build/database
-
-# 4. Сборка зависимостей (кэшируется, пока CMakeLists.txt не изменился)
-RUN mkdir -p /build/build && cd /build/build && \
-    cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && \
-    make -j$(nproc)
-
-# 5. Копируем исходники (меняется часто) — ПОСЛЕ сборки зависимостей
 COPY src /build/src
 COPY config /build/config
+COPY database /build/database
 
-# 6. Пересобираем только код (зависимости уже собраны)
-RUN cd /build/build && \
+# 4. Сборка проекта
+RUN mkdir -p /build/build && cd /build/build && \
+    echo "CMake build type: ${BUILD_TYPE}" && \
+    cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && \
     make -j$(nproc)
 
 # ============================================
@@ -59,7 +54,6 @@ RUN cd /build/build && \
 # ============================================
 FROM ubuntu:22.04
 
-# СНОВА объявляем ARG (обязательно!)
 ARG BUILD_TYPE=Release
 ENV BUILD_TYPE=${BUILD_TYPE}
 RUN echo "Runtime stage: BUILD_TYPE=${BUILD_TYPE}"
@@ -99,4 +93,5 @@ RUN chmod +x /app/SoundsStorageService
 
 EXPOSE 8080
 
+# Всегда запускаем сервис (в Debug режиме тоже, отладка через attach)
 CMD ["/app/SoundsStorageService"]
