@@ -1,52 +1,97 @@
-# Build stage
-FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v2.15 AS builder
+# ============================================
+# STAGE 1: Builder
+# ============================================
+ARG BUILD_TYPE=Release
+
+FROM ubuntu:22.04 AS builder
+ARG BUILD_TYPE
+ENV BUILD_TYPE=${BUILD_TYPE}
+RUN echo "Builder stage: BUILD_TYPE=${BUILD_TYPE}"
+
+# 1. Установка пакетов
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    ninja-build \
+    g++ \
+    libpq-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    git \
+    uuid-dev \
+    zlib1g-dev \
+    libjsoncpp-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Сборка Drogon (кэшируется)
+RUN git clone https://github.com/drogonframework/drogon.git && \
+    cd drogon && \
+    git submodule update --init && \
+    mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release \
+             -DBUILD_EXAMPLES=OFF \
+             -DBUILD_CTL=OFF \
+             -DUSE_ORM=ON \
+             -DUSE_POSTGRES=ON && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+# 3. Копируем всё, что нужно для сборки (сразу всё)
+COPY CMakeLists.txt /build/
+COPY src /build/src
+COPY config /build/config
+COPY database /build/database
+
+# 4. Сборка проекта
+RUN mkdir -p /build/build && cd /build/build && \
+    echo "CMake build type: ${BUILD_TYPE}" && \
+    cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && \
+    make -j$(nproc)
+
+# ============================================
+# STAGE 2: Runtime
+# ============================================
+FROM ubuntu:22.04
+
+ARG BUILD_TYPE=Release
+ENV BUILD_TYPE=${BUILD_TYPE}
+RUN echo "Runtime stage: BUILD_TYPE=${BUILD_TYPE}"
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    libpq-dev \
+    ca-certificates \
+    libssl-dev \
+    libcurl4 \
+    uuid-runtime \
+    zlib1g \
+    libjsoncpp-dev \
+    gettext-base \
+    && rm -rf /var/lib/apt/lists/*
+
+# Устанавливаем gdbserver только для Debug сборки
+RUN if [ "$BUILD_TYPE" = "Debug" ]; then \
+        echo "Installing gdbserver for Debug build" && \
+        apt-get update && apt-get install -y gdbserver; \
+    else \
+        echo "Release build (${BUILD_TYPE}), skipping gdbserver"; \
+    fi
+
+COPY --from=builder /usr/local/lib/libdrogon.so* /usr/local/lib/
+COPY --from=builder /usr/local/lib/libtrantor.so* /usr/local/lib/
+RUN ldconfig
+
+RUN mkdir -p /app/config /data/sounds
 
 WORKDIR /app
 
-# Сначала копируем только файлы с зависимостями
-COPY CMakeLists.txt .
-COPY cmake ./cmake
+COPY --from=builder /build/build/SoundsStorageService /app/SoundsStorageService
+COPY config /app/config
 
-# Собираем зависимости (этот слой будет кэшироваться, пока не изменится CMakeLists.txt или cmake/)
-RUN cmake -B build-release \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
-    -G Ninja \
-    && cmake --build build-release --parallel $(nproc) \
-    || true  # Может упасть из-за отсутствия исходников, игнорируем
-
-# Теперь копируем исходники
-COPY src ./src
-COPY configs ./configs
-
-# Собираем проект (будет пересобираться только при изменении src/)
-RUN cmake -B build-release \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
-    -G Ninja \
-    && cmake --build build-release --parallel $(nproc) \
-    && cmake --install build-release --prefix /install
-
-# Collect all shared library dependencies
-RUN ldd /install/bin/paymentService \
-    | grep -oP '(?<=> )/[^ ]+' \
-    | xargs -I{} cp --parents {} /install
-
-# Runtime stage
-FROM ubuntu:22.04 AS runtime
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    libpq5 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /install/bin/paymentService /usr/local/bin/paymentService
-COPY --from=builder /install/etc/paymentService /etc/paymentService
-COPY --from=builder /install/lib /usr/lib
+RUN chmod +x /app/SoundsStorageService
 
 EXPOSE 8080
 
-ENV DB_CONNECTION=""
-
-CMD ["paymentService", "-c", "/etc/paymentService/static_config.yaml", "--config_vars", "/etc/paymentService/config_vars.yaml"]
+# Всегда запускаем сервис (в Debug режиме тоже, отладка через attach)
+CMD ["/app/SoundsStorageService"]

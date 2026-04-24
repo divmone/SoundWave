@@ -1,5 +1,5 @@
 services:
-  # ========== GDBSERVER (не нужен, но оставлю на твоё усмотрение) ==========
+  # ========== GDBSERVER ==========
   gdbserver:
     build:
       context: .
@@ -53,7 +53,7 @@ services:
   # ========== PAYMENT SERVICE ==========
   payment-service:
     build:
-      context: ./backend/paymentService
+      context: backend/paymentServiceUSERVER-NE-RABOTAET
       dockerfile: Dockerfile
       args:
         - BUILD_TYPE=Debug

@@ -1,73 +1,46 @@
-cmake_minimum_required(VERSION 3.12...3.31)
-project(paymentService CXX)
+cmake_minimum_required(VERSION 3.15)
+project(PaymentService)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(DownloadUserver)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(
-    userver
-    COMPONENTS core #
-               postgresql
-    QUIET
-)
-if(NOT userver_FOUND)
-    # Tries TRY_DIR first, falls back to downloading userver from GitHub using CPM.
-    download_userver(TRY_DIR third_party/userver)
-endif()
-
-userver_setup_environment()
-
-# Common sources
-include_directories(src)
-
-add_library(
-    ${PROJECT_NAME}_objs OBJECT
-    src/greeting.cpp #
-    src/hello.cpp #
-    src/hello_postgres.cpp
-)
-target_link_libraries(
-    ${PROJECT_NAME}_objs
-    PUBLIC userver::core #
-           userver::postgresql
+file(GLOB_RECURSE SOURCE_FILES
+    "src/*.cpp"
+    "src/*.cc"
 )
 
+find_package(Drogon REQUIRED)
+find_package(Jsoncpp REQUIRED)
 
-# The Service
-add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
-
-# Unit Tests
-add_executable(${PROJECT_NAME}_unittest src/greeting_test.cpp)
-target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
-add_google_tests(${PROJECT_NAME}_unittest)
-
-# Benchmarks
-add_executable(${PROJECT_NAME}_benchmark src/greeting_benchmark.cpp)
-target_link_libraries(${PROJECT_NAME}_benchmark PRIVATE ${PROJECT_NAME}_objs userver::ubench)
-add_google_benchmark_tests(${PROJECT_NAME}_benchmark)
-
-# Functional testing
-userver_testsuite_add_simple()
-
-# Install
-include(GNUInstallDirs)
-
-if(DEFINED ENV{PREFIX})
-    message(STATUS "Set install prefix: $ENV{PREFIX}")
-    file(TO_CMAKE_PATH "$ENV{PREFIX}" PREFIX_PATH)
-    set(CMAKE_INSTALL_PREFIX "${PREFIX_PATH}")
-endif()
-
-file(GLOB CONFIGS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.yaml ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.json)
-
-install(
-    TARGETS ${PROJECT_NAME}
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT ${PROJECT_NAME}
+add_executable(${PROJECT_NAME}
+    ${SOURCE_FILES}
 )
-install(
-    FILES ${CONFIGS_FILES}
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
-    COMPONENT ${PROJECT_NAME}
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${JSONCPP_INCLUDE_DIRS}"
+    "${DROGON_INCLUDE_DIRS}"
+)
+
+target_link_libraries(${PROJECT_NAME} Drogon::Drogon)
+
+
+# Копирование папки config в директорию сборки
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/config
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/config
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/config
+    COMMENT "Copying config directory to output directory"
+)
+
+# Создание папки storage в директории исполняемого файла
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/storage
+    COMMENT "Creating storage directory in output directory"
 )
