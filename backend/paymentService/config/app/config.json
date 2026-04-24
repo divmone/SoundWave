@@ -10,7 +10,7 @@
         "threads_num": 2,
         "document_root": "http",
         "implicit_page": "index.html",
-        "client_max_body_size": "100M"
+        "client_max_body_size": "10M"
     },
     "db_clients": [
         {

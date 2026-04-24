@@ -9,4 +9,3 @@ enum class DatabaseError
     DatabaseError,
     Unknown
 };
-

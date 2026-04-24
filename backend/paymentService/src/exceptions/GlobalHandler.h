@@ -2,18 +2,19 @@
 // Created by dmitry on 09.04.2026.
 //
 
-#ifndef SOUNDSSTORAGESERVICE_GLOBALHANDLER_H
-#define SOUNDSSTORAGESERVICE_GLOBALHANDLER_H
+#ifndef PAYMENTSERVICE_GLOBALHANDLER_H
+#define PAYMENTSERVICE_GLOBALHANDLER_H
 
 #include <drogon/HttpAppFramework.h>
 
 #include "ValidationException.h"
 #include "exceptions/DatabaseException.h"
 #include "exceptions/NotFoundException.h"
+#include "exceptions/PaymentException.h"
 
 void GlobalExceptionHandler(const std::exception& e,
-                            const drogon::HttpRequestPtr& req,
-                            std::function<void(const drogon::HttpResponsePtr&)> &&callback)
+                        const drogon::HttpRequestPtr& req,
+                        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
 {
     auto httpResponse = drogon::HttpResponse::newHttpResponse();
     Json::Value responseJson;
@@ -33,6 +34,11 @@ void GlobalExceptionHandler(const std::exception& e,
         responseJson["message"] = e.what();
         httpResponse->setStatusCode(drogon::k400BadRequest);
     }
+    else if (dynamic_cast<const PaymentException*>(&e))
+    {
+        responseJson["message"] = e.what();
+        httpResponse->setStatusCode(drogon::k402PaymentRequired);
+    }
     else
     {
         responseJson["message"] = "An unknown error occurred";
@@ -45,4 +51,4 @@ void GlobalExceptionHandler(const std::exception& e,
     callback(std::move(httpResponse));
 }
 
-#endif //SOUNDSSTORAGESERVICE_GLOBALHANDLER_H
+#endif //PAYMENTSERVICE_GLOBALHANDLER_H
