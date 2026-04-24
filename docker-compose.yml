@@ -159,33 +159,7 @@ services:
 
   ######################################################
 
-    # payment-service:
-      #  build:
-      #     context: ./backend/paymentService
-    #    dockerfile: Dockerfile
-      #  expose:
-    #    - "8080"
-      # environment:
-      #    - DB_HOST=payment-postgres
-      #   - DB_PORT=5432
-      #    - DB_USER=${POSTGRES_USER:-postgres}
-      #   - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      #   - DB_NAME=${PAYMENT_DB_NAME:-soundwavePayment}
-      #    - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@payment-postgres:5432/${PAYMENT_DB_NAME:-soundwavePayment}
-      #    - CPU_LIMIT=${PAYMENT_CPU_LIMIT:-4c}
-      #    - LOG_LEVEL=${PAYMENT_LOG_LEVEL:-info}
-    #    - ENVIRONMENT=${ENVIRONMENT:-prod}
-      #  depends_on:
-      #    payment-postgres:
-      #      condition: service_healthy
-      #    migrate-payment:
-    #      condition: service_completed_successfully
-      #  dns:
-      #   - 8.8.8.8
-    #   - 8.8.4.4
-      #networks:
-    #   - soundwave-network
-    # restart: unless-stopped
+
 
   ######################################################
 
@@ -234,7 +208,6 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
-
 
   ######################################################
 
@@ -342,17 +315,6 @@ services:
 
   ######################################################
 
-    #  gdbserver:
-    #   build: .
-      #   security_opt: # options needed for gdb debugging
-      #     - seccomp:unconfined
-    #     - apparmor:unconfined
-    #    container_name: debug
-      #    ports:
-    #    - "7776:22"
-    #    - "7777:7777"
-      #  volumes:
-  #    - .:/code
 
 volumes:
   auth_postgres_data:

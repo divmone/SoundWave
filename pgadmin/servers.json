@@ -17,6 +17,15 @@
             "MaintenanceDB": "${SOUNDS_DB_NAME}",
             "Username": "${POSTGRES_USER}",
             "PassFile": "${POSTGRES_PASSWORD}"
+        },
+        "3": {
+          "Name": "Payment DB",
+          "Group": "Servers",
+          "Host": "payment-postgres",
+          "Port": 5432,
+          "MaintenanceDB": "${PAYMENT_DB_NAME}",
+          "Username": "${POSTGRES_USER}",
+          "PassFile": "${POSTGRES_PASSWORD}"
         }
     }
 }

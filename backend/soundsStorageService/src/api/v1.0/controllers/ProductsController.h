@@ -30,9 +30,9 @@ public:
         ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get);
         ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get,);
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get);
-        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post,  "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put,                     "soundwaveSounds::GoogleAuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete,                "soundwaveSounds::GoogleAuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post,  "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put,                     "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete,                "soundwaveSounds::AuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get);
     METHOD_LIST_END
 private:

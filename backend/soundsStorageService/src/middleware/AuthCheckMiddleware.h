@@ -12,24 +12,48 @@ namespace soundwaveSounds
 {
     using namespace drogon;
 
-    class GoogleAuthCheckMiddleware : public HttpMiddleware<GoogleAuthCheckMiddleware>
+    class AuthCheckMiddleware : public HttpMiddleware<AuthCheckMiddleware>
     {
     private:
         static constexpr std::size_t TOKEN_HEADER_OFFSET = 7;
         static constexpr const char* AUTH_SERVICE_HOST = "http://auth-service:8080";
         HttpClientPtr m_authServiceClient;
-
+        bool m_isEnabled;
     public:
-        GoogleAuthCheckMiddleware()
+        AuthCheckMiddleware()
         {
-            m_authServiceClient = drogon::HttpClient::newHttpClient(AUTH_SERVICE_HOST);
-            LOG_INFO << "Google middleware launched (probably)";
+            auto envValue = std::getenv("OAUTH_TOKEN_CHECK_ENABLED");
+
+            std::string env = envValue ? envValue : "";
+            if (env != "" && env == "false")
+            {
+                m_isEnabled = false;
+                LOG_INFO << "Auth middleware was not enabled!";
+            }
+            else
+            {
+                m_isEnabled = true;
+                m_authServiceClient = drogon::HttpClient::newHttpClient(AUTH_SERVICE_HOST);
+                LOG_INFO << "Auth middleware launched (probably)";
+            }
         }
 
         void invoke(const drogon::HttpRequestPtr &req,
                     MiddlewareNextCallback &&nextCb,
                     MiddlewareCallback &&mcb) override
         {
+            if (!m_isEnabled)
+            {
+                nextCb
+               (
+                   [mcb = std::move(mcb)](const HttpResponsePtr &resp)
+                   {
+                       mcb(resp);
+                   }
+               );
+                return;
+            }
+
             const auto authHeader = req->getHeader("Authorization");
 
             if (authHeader.size() > TOKEN_HEADER_OFFSET &&

@@ -17,7 +17,7 @@
 
 #include <exceptions/GlobalHandler.h>
 
-#include "middleware/GoogleAuthCheckMiddleware.h"
+#include "middleware/AuthCheckMiddleware.h"
 
 using namespace soundwaveSounds;
 

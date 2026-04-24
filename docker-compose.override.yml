@@ -1,0 +1,81 @@
+services:
+  # ========== GDBSERVER (не нужен, но оставлю на твоё усмотрение) ==========
+  gdbserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.gdbserver
+    container_name: soundwave-debug
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "7776:22"
+      - "7777:7777"
+    volumes:
+      - .:/code
+    environment:
+      - BUILD_TYPE=Debug
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  # ========== AUTH SERVICE ==========
+  auth-service:
+    build:
+      context: ./backend/authService
+      dockerfile: Dockerfile
+      args:
+        - BUILD_TYPE=Debug
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    # command убран - сервис запускается нормально
+
+  # ========== SOUNDS SERVICE ==========
+  sounds-service:
+    build:
+      context: ./backend/soundsStorageService
+      dockerfile: Dockerfile
+      args:
+        - BUILD_TYPE=Debug
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+
+  # ========== PAYMENT SERVICE ==========
+  payment-service:
+    build:
+      context: ./backend/paymentService
+      dockerfile: Dockerfile
+      args:
+        - BUILD_TYPE=Debug
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+
+  # ========== COMMENT SERVICE ==========
+  comment-service:
+    build:
+      context: ./backend/commentService
+      dockerfile: Dockerfile
+      args:
+        - BUILD_TYPE=Debug
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
