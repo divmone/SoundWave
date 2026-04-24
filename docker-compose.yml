@@ -161,7 +161,7 @@ services:
 
   payment-service:
     build:
-      context: backend/paymentServiceUSERVER-NE-RABOTAET
+      context: backend/paymentService
       dockerfile: Dockerfile
     expose:
       - "8080"
