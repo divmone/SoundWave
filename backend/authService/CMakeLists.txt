@@ -28,6 +28,8 @@ add_library(
         src/handlers/auth/logout.cpp
         src/handlers/users/users.cpp
         src/handlers/auth/me.cpp
+        src/handlers/auth/apple_auth.cpp
+        src/handlers/auth/apple_auth.hpp
 )
 target_link_libraries(
         ${PROJECT_NAME}_objs

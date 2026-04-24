@@ -18,12 +18,11 @@ namespace shop::repositories {
             const userver::components::ComponentContext &context
         );
 
-        User create(
-            const std::string &google_id,
-            const std::string &email,
+        User create(const std::string &email,
             const std::string &username, const std::string &avatar_url);
 
-        std::optional<User> findByGoogleId(const std::string &) const;
+        void linkOAuthProvider(int user_id, const std::string& provider, const std::string& provider_id);
+        std::optional<User> findByOauthId(const std::string &, const std::string &) const;
         std::optional<User> findById(int64_t id) const;
 
         std::string createSession(int user_id);

@@ -101,7 +101,7 @@ export default function App() {
 
     const exchange = callback.provider === 'google'
       ? loginWithGoogle({ code: callback.code })
-      : loginWithApple({ identityToken: callback.identityToken, authorizationCode: callback.authorizationCode });
+      : loginWithApple({ code: callback.code });
 
     exchange
       .then(data => handleOAuthSuccess(data.user))
