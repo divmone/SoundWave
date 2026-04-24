@@ -6,4 +6,5 @@
 
     <include file="V1__init_schema.sql" relativeToChangelogFile="true"/>
     <include file="V2__add_is_admin.sql" relativeToChangelogFile="true"/>
+    <include file="V4__add_indexes.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

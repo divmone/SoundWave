@@ -176,6 +176,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - soundwave-network
     restart: unless-stopped
@@ -220,6 +226,22 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
+
+  mongo-init:
+    image: mongo:7
+    command: >
+      mongosh --host mongodb
+      --username ${MONGO_USER:-admin}
+      --password ${MONGO_PASSWORD:-admin}
+      --authenticationDatabase admin
+      soundwave
+      --eval 'db.comments.createIndex({"productId": 1, "createdAt": -1})'
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+    restart: on-failure
 
 volumes:
   auth_postgres_data:
