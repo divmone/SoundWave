@@ -1,0 +1,6 @@
+CompileFlags:
+  Remove:
+    - -static-libasan
+    - -static-libubsan
+    - -fno-sanitize-recover*
+    - -fsanitize=*

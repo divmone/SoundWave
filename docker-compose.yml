@@ -134,6 +134,21 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  comment-service:
+    build:
+      context: ./backend/commentService
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - CPU_LIMIT=${AUTH_CPU_LIMIT:-4c}
+      - MONGO_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-admin}@mongodb:27017/soundwave?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
   mail-service:
     build:
       context: ./backend/mailService
@@ -146,6 +161,21 @@ services:
       - LOG_LEVEL=${AUTH_LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-prod}
       
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    container_name: soundwave-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
+      MONGO_INITDB_DATABASE: soundwave
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     networks:
       - soundwave-network
     restart: unless-stopped
@@ -197,6 +227,7 @@ volumes:
   sounds_data:
   frontend_dist:
   pgadmin_data:
+  mongo_data:
 
 networks:
   soundwave-network:

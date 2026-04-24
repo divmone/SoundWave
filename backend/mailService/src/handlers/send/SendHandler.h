@@ -6,7 +6,6 @@
 #define DB_TEST_SENDHANDLER_H
 
 #include <userver/server/handlers/http_handler_base.hpp>
-
 #include "services/SendService.h"
 
 namespace shop::handlers {

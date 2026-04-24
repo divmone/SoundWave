@@ -19,7 +19,7 @@ function StarRating({ rating }) {
   );
 }
 
-export default function ProductCard({ product, delay = 0 }) {
+export default function ProductCard({ product, user, delay = 0, onOpenProduct }) {
   const [hovered,      setHovered]      = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
@@ -113,23 +113,24 @@ export default function ProductCard({ product, delay = 0 }) {
       )}
 
       {/* ── Card ───────────────────────────────────────── */}
+      <div style={{ animation: `cardIn 0.5s cubic-bezier(.22,.68,0,1.1) ${delay}s both` }}>
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onClick={() => onOpenProduct?.(product)}
         style={{
           position: 'relative',
           background: hovered ? 'var(--bg3)' : 'var(--bg2)',
           border: `1px solid ${hovered ? 'rgba(99,215,255,0.2)' : 'var(--line)'}`,
           borderRadius: 'var(--radius-lg)',
           padding: '1.25rem',
-          cursor: 'default',
+          cursor: 'pointer',
           overflow: 'hidden',
-          transition: 'background 0.25s, border-color 0.25s, box-shadow 0.3s, transform 0.3s',
+          transition: 'background 0.25s, border-color 0.25s, box-shadow 0.3s, transform 0.3s, border-radius 0.2s',
           transform: hovered ? 'translateY(-6px)' : 'none',
           boxShadow: hovered
             ? '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(99,215,255,0.08)'
             : '0 4px 20px rgba(0,0,0,0.5)',
-          animation: `cardIn 0.5s cubic-bezier(.22,.68,0,1.1) ${delay}s both`,
         }}
       >
         {/* Top glow on hover */}
@@ -278,6 +279,8 @@ export default function ProductCard({ product, delay = 0 }) {
             </button>
           </div>
         </div>
+      </div>
+
       </div>
     </>
   );

@@ -6,7 +6,7 @@
 
 #include <userver/components/component_context.hpp>
 
-shop::handlers::SendHandler::SendHandler(
+shop::handlers::SendHandler::SendHandler( 
     const userver::components::ComponentConfig &config,
     const userver::components::ComponentContext &context)
     : HttpHandlerBase(config, context), sendService_(context.FindComponent<shop::services::SendService>()) {

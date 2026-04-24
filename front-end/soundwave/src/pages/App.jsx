@@ -22,6 +22,7 @@ import UploadModal  from '../components/product/UploadModal';
 import LoginPage     from './LoginPage';
 import ProfilePage   from './ProfilePage';
 import AdminPage, { isAdminUser } from './AdminPage';
+import ProductPage   from './ProductPage';
 
 // Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
 function getInitialPage() {
@@ -32,14 +33,15 @@ function getInitialPage() {
 }
 
 export default function App() {
-  const [debugOpen,   setDebugOpen]  = useState(false);
-  const [page,        setPage]       = useState(getInitialPage);
-  const [category,    setCategory]   = useState('all');
-  const [search,      setSearch]     = useState('');
-  const [modal,       setModal]      = useState(false);
-  const [oauthError,  setOauthError] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [refreshKey,  setRefreshKey]  = useState(0);
+  const [debugOpen,      setDebugOpen]      = useState(false);
+  const [page,           setPage]           = useState(getInitialPage);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [category,       setCategory]       = useState('all');
+  const [search,         setSearch]         = useState('');
+  const [modal,          setModal]          = useState(false);
+  const [oauthError,     setOauthError]     = useState('');
+  const [currentPage,    setCurrentPage]    = useState(1);
+  const [refreshKey,     setRefreshKey]     = useState(0);
   const oauthDone = useRef(false);
 
   const { user, login, logout, checking }      = useAuth();
@@ -48,6 +50,11 @@ export default function App() {
   const handleNavigate = (target) => {
     if (target === 'home') setRefreshKey(k => k + 1);
     setPage(target);
+  };
+
+  const handleOpenProduct = (product) => {
+    setSelectedProduct(product);
+    setPage('product');
   };
 
   const PAGE_SIZE    = 9;
@@ -121,6 +128,7 @@ export default function App() {
   if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
   if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
   if (page === 'admin')       return isAdminUser(user) ? <AdminPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} /> : null;
+  if (page === 'product' && selectedProduct) return <ProductPage product={selectedProduct} user={user} onNavigate={handleNavigate} onLogout={handleLogout} />;
 
   // ── Main marketplace ───────────────────────────────────
   return (
@@ -155,7 +163,7 @@ export default function App() {
             <EmptyState search={search} onReset={() => { setCategory('all'); setSearch(''); }} />
           ) : (
             <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-              {products.map((p, i) => <ProductCard key={p.id} product={p} delay={i * 0.05} />)}
+              {products.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} />)}
             </div>
           )}
 
