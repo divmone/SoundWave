@@ -1,5 +1,6 @@
 #include "CommentRepository.hpp"
 
+#include <optional>
 #include <userver/components/component_context.hpp>
 #include <userver/storages/mongo/component.hpp>
 #include <userver/formats/bson.hpp>
@@ -11,7 +12,7 @@ shop::repositories::CommentRepository::CommentRepository(
     : ComponentBase(config, context)
     , mongoPool_(context.FindComponent<userver::components::Mongo>("mongo-db-1").GetPool())
 {
-}
+}   
 
 CommentDto shop::repositories::CommentRepository::create(
     const std::string &text,
@@ -42,6 +43,25 @@ CommentDto shop::repositories::CommentRepository::create(
         .text      = text,
         .createdAt = userver::utils::datetime::Timestring(userver::utils::datetime::Now()),
     };
+}
+
+std::optional<CommentDto> shop::repositories::CommentRepository::findById(const std::string& commentId) {
+    auto collection = mongoPool_->GetCollection("comments");
+    auto cursor = collection.Find(
+        userver::formats::bson::MakeDoc("_id", userver::formats::bson::Oid(commentId))
+    );
+
+    for (auto doc : cursor) {
+        return CommentDto{
+            .id        = doc["_id"].As<userver::formats::bson::Oid>().ToString(),
+            .productId = doc["productId"].As<std::string>(),
+            .userId    = doc["userId"].As<std::string>(),
+            .parentId  = doc["parentId"].As<std::string>(),
+            .text      = doc["text"].As<std::string>(),
+            .createdAt = {},
+        };
+    }
+    return std::nullopt;
 }
 
 userver::formats::json::Value shop::repositories::CommentRepository::getAll(const std::string& soundId) {
