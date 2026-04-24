@@ -50,7 +50,7 @@ CommentDto CommentService::createComment(
     const auto comment = commentRepository.create(text, parentId, productId, userId);
 
     try {
-        notifyAuthor(productId, userId);
+        notifyAuthor(productId, parentId, userId);
     } catch (...) {}
 
     return comment;
@@ -73,7 +73,23 @@ userver::formats::json::Value CommentService::getAll(const std::string &soundId)
     return commentRepository.getAll(soundId);
 }
 
-void CommentService::notifyAuthor(const std::string& productId, const std::string& commenterUserId) const {
+void CommentService::sendMail(const std::string& email, const std::string& username,
+                              const std::string& subject, const std::string& html) const {
+    userver::formats::json::ValueBuilder body;
+    body["to"]      = email;
+    body["subject"] = subject;
+    body["html"]    = html;
+
+    [[maybe_unused]] const auto mailResp = client.CreateRequest()
+        .post(mail_url_ + "/send",
+              userver::formats::json::ToString(body.ExtractValue()))
+        .headers({{"Content-Type", "application/json"}})
+        .timeout(std::chrono::seconds{5})
+        .perform();
+}
+
+void CommentService::notifyAuthor(const std::string& productId, const std::string& parentId, const std::string& commenterUserId) const {
+    // получаем трек → authorId + title
     const auto soundResp = client.CreateRequest()
         .get(sounds_url_ + "/api/v1.0/sounds/" + productId)
         .timeout(std::chrono::seconds{5})
@@ -85,36 +101,50 @@ void CommentService::notifyAuthor(const std::string& productId, const std::strin
     const auto authorId = soundJson["authorId"].As<int64_t>(0);
     const auto trackTitle = soundJson["title"].As<std::string>("");
 
-    if (authorId == 0) return;
+    // уведомляем автора трека (если это не сам комментатор)
+    if (authorId != 0 && std::to_string(authorId) != commenterUserId) {
+        const auto userResp = client.CreateRequest()
+            .get(auth_url_ + "/users/" + std::to_string(authorId))
+            .timeout(std::chrono::seconds{5})
+            .perform();
 
-    if (std::to_string(authorId) == commenterUserId) return;
+        if (userResp->status_code() == 200) {
+            const auto userJson = userver::formats::json::FromString(userResp->body());
+            const auto email    = userJson["email"].As<std::string>("");
+            const auto username = userJson["username"].As<std::string>("");
+            if (!email.empty()) sendMail(email, username,
+                "New comment on your track \"" + trackTitle + "\"",
+                "<p>Hi <b>" + username + "</b>,</p>"
+                "<p>Someone left a comment on your track <b>\"" + trackTitle + "\"</b> on SoundWave.</p>"
+                "<p><a href=\"https://soundwave.divmone.ru\">soundwave.divmone.ru</a></p>");
+        }
+    }
 
-    const auto userResp = client.CreateRequest()
-        .get(auth_url_ + "/users/" + std::to_string(authorId))
+    // если это ответ на комментарий — уведомляем автора родительского комментария
+    if (parentId.empty()) return;
+
+    const auto parentComment = commentRepository.findById(parentId);
+    if (!parentComment.has_value()) return;
+
+    const auto& parentUserId = parentComment->userId;
+    // не шлём если автор родительского комментария — тот же человек или автор трека
+    if (parentUserId == commenterUserId || parentUserId == std::to_string(authorId)) return;
+
+    const auto parentUserResp = client.CreateRequest()
+        .get(auth_url_ + "/users/" + parentUserId)
         .timeout(std::chrono::seconds{5})
         .perform();
 
-    if (userResp->status_code() != 200) return;
+    if (parentUserResp->status_code() != 200) return;
 
-    const auto userJson = userver::formats::json::FromString(userResp->body());
-    const auto email = userJson["email"].As<std::string>("");
-    const auto username = userJson["username"].As<std::string>("");
-
-    if (email.empty()) return;
-
-    userver::formats::json::ValueBuilder body;
-    body["to"] = email;
-    body["subject"] = "New comment on your track \"" + trackTitle + "\"";
-    body["html"] = "<p>Hi <b>" + username + "</b>,</p>"
-                   "<p>Someone left a comment on your track <b>\"" + trackTitle + "\"</b> on SoundWave.</p>"
-                   "<p>Check it out on <a href=\"https://soundwave.divmone.ru\">soundwave.divmone.ru</a></p>";
-
-    client.CreateRequest()
-        .post(mail_url_ + "/send",
-              userver::formats::json::ToString(body.ExtractValue()))
-        .headers({{"Content-Type", "application/json"}})
-        .timeout(std::chrono::seconds{5})
-        .perform();
+    const auto parentUserJson = userver::formats::json::FromString(parentUserResp->body());
+    const auto email    = parentUserJson["email"].As<std::string>("");
+    const auto username = parentUserJson["username"].As<std::string>("");
+    if (!email.empty()) sendMail(email, username,
+        "Someone replied to your comment on \"" + trackTitle + "\"",
+        "<p>Hi <b>" + username + "</b>,</p>"
+        "<p>Someone replied to your comment on the track <b>\"" + trackTitle + "\"</b> on SoundWave.</p>"
+        "<p><a href=\"https://soundwave.divmone.ru\">soundwave.divmone.ru</a></p>");
 }
 
 } // namespace shop::services

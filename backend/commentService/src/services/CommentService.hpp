@@ -27,7 +27,9 @@ namespace shop::services {
         userver::formats::json::Value getAll(const std::string& soundId) const;
 
     private:
-        void notifyAuthor(const std::string& productId, const std::string& commenterUserId) const;
+        void notifyAuthor(const std::string& productId, const std::string& parentId, const std::string& commenterUserId) const;
+        void sendMail(const std::string& email, const std::string& username,
+                      const std::string& subject, const std::string& html) const;
 
         shop::repositories::CommentRepository &commentRepository;
         userver::clients::http::Client& client;
