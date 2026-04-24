@@ -15,8 +15,11 @@
 #include "handlers/auth/google_auth.hpp"
 #include "handlers/auth/logout.hpp"
 #include "handlers/auth/me.hpp"
+#include "handlers/purchase_methods/PurchseMethodsGet.hpp"
 #include "handlers/users/users.hpp"
+#include "repositories/purchase_methods_repository.hpp"
 #include "services/auth_service.hpp"
+#include "services/purchase_methods_service.hpp"
 
 int main(int argc, char* argv[]) {
     auto component_list =
@@ -32,6 +35,11 @@ int main(int argc, char* argv[]) {
             .Append<shop::handlers::LogoutHandler>("handler-logout")
             .Append<shop::handlers::UserHandler>("handler-user")
             .Append<shop::handlers::MeHandler>("handler-me")
+            // .Append<shop::repositories::PurchaseMethodsRepository>("purchaseMethods-repository")
+            // .Append<shop::services::PurchaseMethodsService>("purchase-methods-service")
+            // .Append<shop::handlers::PurchaseMethodsGet>("handlers-purchase-methods-get")
+            // .Append<shop::handlers::PurchaseMethodsGet>("handlers-purchase-methods-post")
+            // .Append<shop::handlers::PurchaseMethodsGet>("handlers-purchase-methods-delete")
         ;
 
     return userver::utils::DaemonMain(argc, argv, component_list);
