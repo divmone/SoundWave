@@ -41,7 +41,7 @@ namespace shop::repositories {
         const auto result = pg_cluster->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
             "INSERT INTO user_oauth_providers(user_id, provider, provider_id) "
-            "VALUES($1, $2, $3)",
+            "VALUES($1, $2, $3) ON CONFL    ICT (provider, provider_id) DO NOTHING",
             user_id, provider, provider_id);
     }
 
