@@ -22,6 +22,12 @@ function buildTree(flat) {
   return roots;
 }
 
+function autoResize(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
 function ReplyInput({ onPost, onCancel, posting }) {
   const [text, setText] = useState('');
   const ref = useRef(null);
@@ -32,18 +38,18 @@ function ReplyInput({ onPost, onCancel, posting }) {
       <textarea
         ref={ref}
         value={text}
-        onChange={e => setText(e.target.value)}
+        onChange={e => { setText(e.target.value); autoResize(e.target); }}
         onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onPost(text); if (e.key === 'Escape') onCancel(); }}
         placeholder="Reply… (Ctrl+Enter · Esc to cancel)"
         maxLength={500}
-        rows={2}
+        rows={1}
         style={{
           width: '100%', boxSizing: 'border-box',
           background: 'var(--bg4)', border: '1.5px solid var(--line-hot)',
           borderRadius: 8, color: 'var(--text)',
           fontFamily: 'var(--font-body)', fontSize: '0.82rem',
           padding: '0.5rem 0.75rem', outline: 'none',
-          resize: 'none', lineHeight: 1.5,
+          resize: 'none', lineHeight: 1.5, overflow: 'hidden',
         }}
       />
       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 5 }}>
@@ -158,6 +164,10 @@ function CommentNode({ comment, user, soundId, depth, onDelete, onReply }) {
   );
 }
 
+function sortNewestFirst(arr) {
+  return [...arr].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
 export default function CommentsSection({ product, user }) {
   const [flat, setFlat]           = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -165,6 +175,8 @@ export default function CommentsSection({ product, user }) {
   const [text, setText]           = useState('');
   const [posting, setPosting]     = useState(false);
   const [postError, setPostError] = useState('');
+  const textareaRef               = useRef(null);
+  const listRef                   = useRef(null);
 
   useEffect(() => {
     getComments(product.id)
@@ -173,13 +185,23 @@ export default function CommentsSection({ product, user }) {
       .finally(() => setLoading(false));
   }, [product.id]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getComments(product.id)
+        .then(data => { if (Array.isArray(data)) setFlat(data); })
+        .catch(() => {});
+    }, 1_000);
+    return () => clearInterval(interval);
+  }, [product.id]);
+
   const handlePost = async () => {
     if (!text.trim()) return;
     setPosting(true); setPostError('');
     try {
       const comment = await postComment(product.id, text.trim(), null, user);
-      setFlat(prev => [...prev, comment]);
+      setFlat(prev => [comment, ...prev]);
       setText('');
+      if (textareaRef.current) { textareaRef.current.style.height = 'auto'; }
     } catch (e) {
       setPostError(e.message || 'Failed to post');
     } finally { setPosting(false); }
@@ -195,56 +217,22 @@ export default function CommentsSection({ product, user }) {
 
   const handleDelete = (id) => setFlat(prev => prev.filter(c => c.id !== id));
 
-  const tree = buildTree(flat);
+  const tree = buildTree(sortNewestFirst(flat));
 
   return (
     <div>
-      {/* Comments list */}
-      <div style={{ maxHeight: 320, overflowY: 'auto', padding: '0.75rem 1rem' }}>
-        {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[1, 2].map(i => (
-              <div key={i} style={{
-                height: 48, background: 'var(--bg3)', borderRadius: 8,
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }} />
-            ))}
-          </div>
-        ) : error ? (
-          <div style={{ color: 'var(--red)', fontSize: '0.8rem' }}>⚠️ {error}</div>
-        ) : tree.length === 0 ? (
-          <div style={{
-            padding: '1.2rem 0', textAlign: 'center',
-            color: 'var(--text3)', fontSize: '0.8rem', fontFamily: 'var(--font-body)',
-          }}>
-            💬 No comments yet
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {tree.map((c, i) => (
-              <div key={c.id}>
-                <CommentNode comment={c} user={user} soundId={product.id}
-                  depth={0} onDelete={handleDelete} onReply={handleReply} />
-                {i < tree.length - 1 && (
-                  <div style={{ height: 1, background: 'var(--line)', marginTop: 12 }} />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Input */}
-      <div style={{ padding: '0.6rem 1rem 0.9rem', borderTop: '1px solid var(--line)' }}>
+      <div style={{ padding: '1rem 1rem 0.75rem' }}>
         {user ? (
           <>
             <textarea
+              ref={textareaRef}
               value={text}
-              onChange={e => { setText(e.target.value); setPostError(''); }}
+              onChange={e => { setText(e.target.value); setPostError(''); autoResize(e.target); }}
               onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handlePost(); }}
               placeholder="Write a comment… (Ctrl+Enter)"
               maxLength={500}
-              rows={2}
+              rows={1}
               style={{
                 width: '100%', boxSizing: 'border-box',
                 background: 'var(--bg3)',
@@ -252,7 +240,8 @@ export default function CommentsSection({ product, user }) {
                 borderRadius: 8, color: 'var(--text)',
                 fontFamily: 'var(--font-body)', fontSize: '0.82rem',
                 padding: '0.55rem 0.8rem', outline: 'none',
-                resize: 'none', lineHeight: 1.5, transition: 'border-color 0.18s',
+                resize: 'none', lineHeight: 1.5,
+                transition: 'border-color 0.18s', overflow: 'hidden',
               }}
               onFocus={e => e.target.style.borderColor = 'var(--cyan)'}
               onBlur={e => e.target.style.borderColor = postError ? 'var(--red)' : 'var(--line2)'}
@@ -273,6 +262,41 @@ export default function CommentsSection({ product, user }) {
             background: 'var(--bg3)', borderRadius: 8,
             fontSize: '0.78rem', color: 'var(--text3)',
           }}>Sign in to comment</div>
+        )}
+      </div>
+
+      {/* Comments list */}
+      <div ref={listRef} style={{ padding: '0.25rem 1rem 0.75rem', borderTop: '1px solid var(--line)' }}>
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: '0.75rem' }}>
+            {[1, 2].map(i => (
+              <div key={i} style={{
+                height: 48, background: 'var(--bg3)', borderRadius: 8,
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }} />
+            ))}
+          </div>
+        ) : error ? (
+          <div style={{ color: 'var(--red)', fontSize: '0.8rem', paddingTop: '0.75rem' }}>⚠️ {error}</div>
+        ) : tree.length === 0 ? (
+          <div style={{
+            padding: '1.2rem 0', textAlign: 'center',
+            color: 'var(--text3)', fontSize: '0.8rem', fontFamily: 'var(--font-body)',
+          }}>
+            💬 No comments yet
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: '0.75rem' }}>
+            {tree.map((c, i) => (
+              <div key={c.id}>
+                <CommentNode comment={c} user={user} soundId={product.id}
+                  depth={0} onDelete={handleDelete} onReply={handleReply} />
+                {i < tree.length - 1 && (
+                  <div style={{ height: 1, background: 'var(--line)', marginTop: 12 }} />
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
