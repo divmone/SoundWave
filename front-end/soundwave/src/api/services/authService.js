@@ -73,11 +73,12 @@ export async function loginWithGoogle({ code }) {
 }
 
 // ── OAuth: Apple ───────────────────────────────────────────
-// identityToken — JWT от Apple Sign In
-export async function loginWithApple({ identityToken, authorizationCode }) {
-  const data = await post('/auth/apple', { identityToken, authorizationCode });
-  saveSession(data);
-  return data;
+export async function loginWithApple({ code }) {
+  const redirect_uri = `${window.location.origin}/auth/callback`;
+  const data = await post('/auth/apple', { code, redirect_uri });
+  const user = data.user ?? data;
+  saveSession({ ...data, user });
+  return { user };
 }
 
 // ── Set role (after OAuth) ─────────────────────────────────

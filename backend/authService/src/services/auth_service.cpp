@@ -103,11 +103,14 @@ properties:
         const auto name         = userinfo["name"].As<std::string>("");
         const auto avatar_url   = userinfo["picture"].As<std::string>("");
 
-        const auto existing = user_repository_.findByGoogleId(google_sub);
+        const auto existing = user_repository_.findByOauthId("google", google_sub);
         if (existing.has_value()) {
             return *existing;
         }
 
-        return user_repository_.create(google_sub, email, name, avatar_url);
+        const auto& user = user_repository_.create(email, name, avatar_url);
+        user_repository_.linkOAuthProvider(user.id, "google", google_sub);
+
+        return user;
     }
 }

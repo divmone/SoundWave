@@ -18,7 +18,7 @@
 // ── Config ────────────────────────────────────────────────
 // Замени на свои credentials из Google Cloud Console / Apple Developer
 const GOOGLE_CLIENT_ID  = "251762912684-hsofsg384fmjmlahr560c953i1ejqj7i.apps.googleusercontent.com"
-const APPLE_CLIENT_ID   = process.env.REACT_APP_APPLE_CLIENT_ID   || 'YOUR_APPLE_SERVICE_ID';
+const APPLE_CLIENT_ID   = 'soundwave.divmone.ru';
 const REDIRECT_URI      = `${window.location.origin}/auth/callback`
 
 // ── Google ────────────────────────────────────────────────
@@ -57,8 +57,8 @@ export function buildAppleAuthUrl() {
   const params = new URLSearchParams({
     client_id:     APPLE_CLIENT_ID,
     redirect_uri:  REDIRECT_URI,
-    response_type: 'code id_token',
-    response_mode: 'form_post',
+    response_type: 'code',
+    response_mode: 'query',
     scope:         'name email',
     state:         'apple',
   });
@@ -89,10 +89,8 @@ export function parseOAuthCallback() {
   }
 
   if (state === 'apple') {
-    // Apple использует form_post — параметры могут быть в hash или search
-    const identityToken   = params.get('id_token');
-    const authorizationCode = params.get('code');
-    if (identityToken) return { provider: 'apple', identityToken, authorizationCode };
+    const code = params.get('code');
+    if (code) return { provider: 'apple', code };
   }
 
   return null;
