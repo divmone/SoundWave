@@ -10,7 +10,6 @@ COPY cmake ./cmake
 # Собираем зависимости (этот слой будет кэшироваться, пока не изменится CMakeLists.txt или cmake/)
 RUN cmake -B build-release \
     -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
     -G Ninja \
     && cmake --build build-release --parallel $(nproc) \
     || true  # Может упасть из-за отсутствия исходников, игнорируем
@@ -22,7 +21,6 @@ COPY configs ./configs
 # Собираем проект (будет пересобираться только при изменении src/)
 RUN cmake -B build-release \
     -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
     -G Ninja \
     && cmake --build build-release --parallel $(nproc) \
     && cmake --install build-release --prefix /install

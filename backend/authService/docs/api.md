@@ -12,7 +12,7 @@ Base URL: `/auth`
 
 | Заголовок | Обязательный | Описание |
 |---|---|---|
-| `Authorization` | Да | `Bearer <token>` — токен из `/auth/google` |
+| `` | Да | `Bearer <token>` — токен из `/auth/google` |
 
 ### Ответы
 
