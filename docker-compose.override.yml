@@ -53,7 +53,7 @@ services:
   # ========== PAYMENT SERVICE ==========
   payment-service:
     build:
-      context: backend/paymentServiceUSERVER
+      context: backend/paymentService
       dockerfile: Dockerfile
       args:
         - BUILD_TYPE=Debug
