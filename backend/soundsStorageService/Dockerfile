@@ -41,7 +41,6 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
 COPY CMakeLists.txt /build/
 COPY src /build/src
 COPY config /build/config
-COPY database /build/database
 
 # 4. Сборка проекта
 RUN mkdir -p /build/build && cd /build/build && \
