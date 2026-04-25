@@ -92,6 +92,4 @@ jobs:
             echo ""
             echo "❌ Services failed to become ready"
             echo ""
-            echo "📋 Last logs:"
-            docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail=50
             exit 1
