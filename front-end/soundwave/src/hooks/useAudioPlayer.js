@@ -1,17 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { getProductAudioUrl } from '../api/services/productsService';
 
+const MAX_PREVIEW_SECONDS = 1;
+
 const manager = {
   audio: null,
   audioCtx: null,
   analyser: null,
   stopCurrent: null,
   currentId: null,
+  previewTimeout: null,
 
   play(id, url, onStop, onAnalyser, onDuration) {
     if (this.stopCurrent) this.stopCurrent();
     if (this.audio) { this.audio.pause(); this.audio = null; }
     if (this.audioCtx) { this.audioCtx.close(); this.audioCtx = null; this.analyser = null; }
+    if (this.previewTimeout) { clearTimeout(this.previewTimeout); this.previewTimeout = null; }
 
     this.currentId = id;
 
@@ -60,9 +64,17 @@ const manager = {
         this.audio = null;
         this.stopCurrent = null;
       });
+
+    // Stop after MAX_PREVIEW_SECONDS seconds
+    this.previewTimeout = setTimeout(() => {
+      console.log('[useAudioPlayer] Preview limit reached, stopping...');
+      this.stop();
+      onStop();
+    }, MAX_PREVIEW_SECONDS * 1000);
   },
 
   stop() {
+    if (this.previewTimeout) { clearTimeout(this.previewTimeout); this.previewTimeout = null; }
     if (this.stopCurrent) this.stopCurrent();
     if (this.audio) { this.audio.pause(); this.audio = null; }
     if (this.audioCtx) { this.audioCtx.close(); this.audioCtx = null; }

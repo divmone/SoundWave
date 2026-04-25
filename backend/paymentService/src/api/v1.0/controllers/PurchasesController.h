@@ -21,6 +21,7 @@ public:
         ADD_METHOD_TO(PurchasesController::GetPurchase, "api/payment/purchases/{id}", Get, "soundwavePayment::AuthCheckMiddleware");
         ADD_METHOD_TO(PurchasesController::CheckAccess, "api/payment/purchases/access/{userId}/{productId}", Get, "soundwavePayment::AuthCheckMiddleware");
         ADD_METHOD_TO(PurchasesController::RevokeAccess, "api/payment/purchases/{id}/revoke", Post, "soundwavePayment::AuthCheckMiddleware");
+        ADD_METHOD_TO(PurchasesController::GetDownloadUrl, "api/payment/download/{userId}/{productId}", Get, "soundwavePayment::AuthCheckMiddleware");
     METHOD_LIST_END
 private:
     void GetUserPurchases(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, const std::string& userId);
