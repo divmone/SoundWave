@@ -36,6 +36,11 @@ const SERVICES = {
     baseURL: process.env.REACT_APP_STORAGE_URL || '',
     defaultPath: '',
   },
+  PAYMENT: {
+    name: 'payment',
+    baseURL: process.env.REACT_APP_PAYMENT_URL || '',
+    defaultPath: '',
+  },
 };
 
 // ── Token helpers ──────────────────────────────────────────
@@ -165,6 +170,21 @@ export const storage = {
   
   /** POST multipart/form-data (для файлов) */
   upload: (path, formData, options) => execute('STORAGE', 'POST', path, formData, options),
+};
+
+// ── Клиент для платежного сервиса (порт 8080) ───────────────
+export const payment = {
+  /** GET /path */
+  get: (path, options) => execute('PAYMENT', 'GET', path, null, options),
+  
+  /** POST /path { body } */
+  post: (path, body, options) => execute('PAYMENT', 'POST', path, body, options),
+  
+  /** PUT /path { body } */
+  put: (path, body, options) => execute('PAYMENT', 'PUT', path, body, options),
+  
+  /** DELETE /path */
+  del: (path, options) => execute('PAYMENT', 'DELETE', path, null, options),
 };
 
 // ── Для обратной совместимости (если код использует старые импорты) ──

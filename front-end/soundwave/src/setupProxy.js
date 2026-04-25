@@ -32,4 +32,20 @@ module.exports = function (app) {
       },
     })
   );
+
+  // Payment service (порт 8080)
+  app.use(
+    '/api/payment',
+    createProxyMiddleware({
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api/payment': '/api/payment',
+      },
+      onError: (err, req, res) => {
+        console.error('Proxy error for /api/payment:', err);
+        res.status(500).send('Proxy error');
+      },
+    })
+  );
 };

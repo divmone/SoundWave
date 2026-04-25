@@ -175,6 +175,8 @@ services:
       - CPU_LIMIT=${PAYMENT_CPU_LIMIT:-4c}
       - LOG_LEVEL=${PAYMENT_LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
     depends_on:
       payment-postgres:
         condition: service_healthy

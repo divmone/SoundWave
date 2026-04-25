@@ -17,6 +17,7 @@ struct PaymentResponseTo
     int64_t productId = 0;
     std::string stripePaymentIntentId;
     std::string stripePaymentMethodId;
+    std::string clientSecret;
     std::string amount;
     std::string currency;
     std::string status;
@@ -35,6 +36,7 @@ struct PaymentResponseTo
         if (productId > 0) json["productId"] = productId;
         if (!stripePaymentIntentId.empty()) json["stripePaymentIntentId"] = stripePaymentIntentId;
         if (!stripePaymentMethodId.empty()) json["stripePaymentMethodId"] = stripePaymentMethodId;
+        if (!clientSecret.empty()) json["clientSecret"] = clientSecret;
         if (!amount.empty()) json["amount"] = amount;
         if (!currency.empty()) json["currency"] = currency;
         if (!status.empty()) json["status"] = status;

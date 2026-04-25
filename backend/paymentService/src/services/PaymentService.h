@@ -13,6 +13,7 @@ class PurchaseRepository;
 class PaymentMethodRepository;
 class StripeCustomerRepository;
 class PaymentIntentRepository;
+class StripeClient;
 
 class PaymentService
 {
@@ -46,6 +47,7 @@ private:
     std::shared_ptr<PaymentMethodRepository> m_paymentMethodRepo;
     std::shared_ptr<StripeCustomerRepository> m_stripeCustomerRepo;
     std::shared_ptr<PaymentIntentRepository> m_paymentIntentRepo;
+    std::shared_ptr<StripeClient> m_stripeClient;
 };
 
 }
