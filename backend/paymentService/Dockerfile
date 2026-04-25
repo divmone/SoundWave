@@ -85,12 +85,12 @@ RUN mkdir -p /app/config /data/sounds
 
 WORKDIR /app
 
-COPY --from=builder /build/build/SoundsStorageService /app/SoundsStorageService
+COPY --from=builder /build/build/PaymentService /app/PaymentService
 COPY config /app/config
 
-RUN chmod +x /app/SoundsStorageService
+RUN chmod +x /app/PaymentService
 
 EXPOSE 8080
 
 # Всегда запускаем сервис (в Debug режиме тоже, отладка через attach)
-CMD ["/app/SoundsStorageService"]
+CMD ["/app/PaymentService"]

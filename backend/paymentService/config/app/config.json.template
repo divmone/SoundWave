@@ -10,15 +10,15 @@
         "threads_num": 2,
         "document_root": "http",
         "implicit_page": "index.html",
-        "client_max_body_size": "100M"
+        "client_max_body_size": "10M"
     },
     "db_clients": [
         {
             "name": "default",
             "rdbms": "postgresql",
-            "host": "sounds-postgres",
+            "host": "localhost",
             "port": 5432,
-            "dbname": "soundwaveSounds",
+            "dbname": "soundwavePayment",
             "user": "myuser",
             "passwd": "mypassword",
             "is_fast": false,

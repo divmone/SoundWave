@@ -1,4 +1,7 @@
 services:
+
+  ######################################################
+
   auth-postgres:
     image: postgres:15
     container_name: soundwave-auth-postgres
@@ -19,6 +22,7 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  ######################################################
 
   sounds-postgres:
     image: postgres:15
@@ -40,7 +44,32 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
-  
+
+  ######################################################
+
+  payment-postgres:
+    image: postgres:15
+    container_name: soundwave-payment-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${PAYMENT_DB_NAME:-soundwavePayment}
+    expose:
+      - "5432"
+    volumes:
+      - payment_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${PAYMENT_DB_NAME:-soundwavePayment}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  ######################################################
+
   migrate-auth:
     image: liquibase/liquibase:4.27
     command: >
@@ -57,7 +86,9 @@ services:
         condition: service_healthy
     networks:
       - soundwave-network
-  
+
+  ######################################################
+
   migrate-sounds:
     image: liquibase/liquibase:4.27
     command: >
@@ -74,6 +105,27 @@ services:
         condition: service_healthy
     networks:
       - soundwave-network
+
+  ######################################################
+
+  migrate-payment:
+    image: liquibase/liquibase:4.27
+    command: >
+      --url=jdbc:postgresql://payment-postgres:5432/soundwavePayment
+      --username=${POSTGRES_USER:-postgres}
+      --password=${POSTGRES_PASSWORD:-postgres}
+      --changelog-file=db.changelog-master.xml
+      --search-path=/liquibase/changelog
+      update
+    volumes:
+      - ./migrations/paymentService:/liquibase/changelog
+    depends_on:
+      payment-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+
+  ######################################################
 
   auth-service:
     build:
@@ -93,12 +145,6 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-prod}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - APPLE_TEAM_ID=${APPLE_TEAM_ID}
-      - APPLE_KEY_ID=${APPLE_KEY_ID}
-      - APPLE_CLIENT_ID=${APPLE_CLIENT_ID}
-      - APPLE_PRIVATE_KEY_PATH=/run/secrets/apple_key
-    volumes:
-      - ./secrets/AuthKey_4PCUBPG2CH.p8:/run/secrets/apple_key:ro
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -110,6 +156,38 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
+
+  ######################################################
+
+  payment-service:
+    build:
+      context: backend/paymentService
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - DB_HOST=payment-postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=${PAYMENT_DB_NAME:-soundwavePayment}
+      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@payment-postgres:5432/${PAYMENT_DB_NAME:-soundwavePayment}
+      - CPU_LIMIT=${PAYMENT_CPU_LIMIT:-4c}
+      - LOG_LEVEL=${PAYMENT_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    depends_on:
+      payment-postgres:
+        condition: service_healthy
+      migrate-payment:
+        condition: service_completed_successfully
+    dns:
+     - 8.8.8.8
+     - 8.8.4.4
+    networks:
+       - soundwave-network
+    restart: unless-stopped
+
+  ######################################################
 
   sounds-service:
     build:
@@ -140,6 +218,8 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  ######################################################
+
   comment-service:
     build:
       context: ./backend/commentService
@@ -155,6 +235,8 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  ######################################################
+
   mail-service:
     build:
       context: ./backend/mailService
@@ -166,10 +248,12 @@ services:
       - CPU_LIMIT=${AUTH_CPU_LIMIT:-4c}
       - LOG_LEVEL=${AUTH_LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-prod}
-      
+
     networks:
       - soundwave-network
     restart: unless-stopped
+
+  ######################################################
 
   mongodb:
     image: mongo:7
@@ -192,6 +276,8 @@ services:
       - soundwave-network
     restart: unless-stopped
 
+  ######################################################
+
   frontend:
     build:
       context: ./front-end/soundwave
@@ -201,6 +287,8 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
+
+  ######################################################
 
   nginx:
     image: nginx:alpine
@@ -217,6 +305,8 @@ services:
     networks:
       - soundwave-network
     restart: unless-stopped
+
+  ######################################################
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -249,9 +339,12 @@ services:
       - soundwave-network
     restart: on-failure
 
+  ######################################################
+
 volumes:
   auth_postgres_data:
   sounds_postgres_data:
+  payment_postgres_data:
   sounds_data:
   frontend_dist:
   pgadmin_data:
@@ -260,3 +353,4 @@ volumes:
 networks:
   soundwave-network:
     driver: bridge
+
