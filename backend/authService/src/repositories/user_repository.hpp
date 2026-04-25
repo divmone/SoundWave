@@ -29,6 +29,8 @@ namespace shop::repositories {
         void deleteSession(const std::string &token);
 
         std::optional<User> findByToken(const std::string& token) const;
+
+
     private:
         userver::storages::postgres::ClusterPtr pg_cluster;
     };

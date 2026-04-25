@@ -61,7 +61,10 @@ components_manager:
             method: POST
             task_processor: main-task-processor
 
-        comment-service: {}
+        comment-service:
+            auth-service-url: http://auth-service:8080
+            sounds-service-url: http://sounds-service:8080
+            mail-service-url: http://mail-service:8080
 
         comment-repository: {}
 

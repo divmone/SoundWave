@@ -69,6 +69,10 @@ components_manager:
 
         user-repository: {}
 
+        # purchaseMethods-repository: {}
+
+        # purchase-methods-service: {}
+
         handler-logout:
             path: /auth/logout
             method: POST
@@ -83,3 +87,18 @@ components_manager:
             path: /auth/me
             method: GET
             task_processor: main-task-processor
+
+        # handlers-purchase-methods-get:
+        #     path: /purchaseMethods/{userID}
+        #     method: GET
+        #     task_processor: main-task-processor
+
+        # handlers-purchase-methods-post:
+        #     path: /purchaseMethods/{userID}
+        #     method: POST
+        #     task_processor: main-task-processor
+
+        # handlers-purchase-methods-delete:
+        #     path: /purchaseMethods/{userID}
+        #     method: DELETE
+        #     task_processor: main-task-processor

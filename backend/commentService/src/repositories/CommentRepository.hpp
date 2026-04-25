@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <userver/clients/http/client.hpp>
 #include <userver/components/component_base.hpp>
 #include <userver/storages/mongo/pool.hpp>
@@ -18,6 +19,7 @@ namespace shop::repositories {
                           const std::string &userId);
 
         userver::formats::json::Value getAll(const std::string& soundId);
+        std::optional<CommentDto> findById(const std::string& commentId);
     private:
         userver::storages::mongo::PoolPtr mongoPool_;
     };
