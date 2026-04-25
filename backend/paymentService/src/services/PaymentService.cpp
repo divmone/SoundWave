@@ -4,12 +4,14 @@
 #include <storage/database/PaymentMethodRepository.h>
 #include <storage/database/StripeCustomerRepository.h>
 #include <storage/database/PaymentIntentRepository.h>
+#include <services/StripeClient.h>
 #include <mapping/PaymentMapper.h>
 #include <mapping/PurchaseMapper.h>
 #include <mapping/PaymentMethodMapper.h>
 #include <exceptions/DatabaseException.h>
 #include <exceptions/NotFoundException.h>
 #include <exceptions/PaymentException.h>
+#include <drogon/DrClassMap.h>
 
 namespace soundwavePayment
 {
@@ -27,65 +29,114 @@ PaymentService::PaymentService(
     , m_paymentMethodRepo(paymentMethodRepository)
     , m_stripeCustomerRepo(stripeCustomerRepository)
     , m_paymentIntentRepo(paymentIntentRepository)
+    , m_stripeClient(StripeClient::create())
 {
+    LOG_INFO << "PaymentService initialized";
 }
 
 PaymentResponseTo PaymentService::CreatePayment(int32_t userId, int64_t productId, const std::string& amount, const std::string& currency)
 {
+    LOG_INFO << "CreatePayment called: userId=" << userId << " productId=" << productId << " amount=" << amount;
+    
+    int64_t amountCents = std::stoll(amount);
+    
+    auto stripeResult = m_stripeClient->CreatePaymentIntent(amountCents, currency, userId, productId);
+    LOG_INFO << "Stripe CreatePaymentIntent result: success=" << stripeResult.success << " id=" << stripeResult.id;
+    
+    if (!stripeResult.success)
+    {
+        LOG_ERROR << "Stripe error: " << stripeResult.errorMessage;
+        throw PaymentException(stripeResult.errorMessage.empty() ? "Failed to create Stripe PaymentIntent" : stripeResult.errorMessage);
+    }
+    
+    drogon_model::soundwavePayment::PaymentIntents intent;
+    intent.setUserId(userId);
+    intent.setStripePaymentIntentId(stripeResult.id);
+    intent.setStripeClientSecret(stripeResult.clientSecret);
+    intent.setProductId(productId);
+    intent.setAmount(amount);
+    intent.setStatus("created");
+    
+    auto intentCreateResult = m_paymentIntentRepo->Create(intent);
+    if (std::holds_alternative<DatabaseError>(intentCreateResult))
+    {
+        LOG_ERROR << "Failed to create payment intent record";
+        throw DatabaseException("Failed to create payment intent record");
+    }
+    
     PaymentRequestTo request;
     request.userId = userId;
     request.productId = productId;
     request.amount = amount;
     request.currency = currency;
-
+    request.stripePaymentIntentId = stripeResult.id;
+    request.status = stripeResult.status;
+    
     auto entity = PaymentMapper::ToEntity(request);
-    auto result = m_paymentRepo->Create(entity);
-
-    if (std::holds_alternative<DatabaseError>(result))
+    auto paymentResult = m_paymentRepo->Create(entity);
+    
+    if (std::holds_alternative<DatabaseError>(paymentResult))
     {
-        throw DatabaseException("Failed to create payment");
+        throw DatabaseException("Failed to create payment record");
     }
-
-    auto id = std::get<uint64_t>(result);
-    auto getResult = m_paymentRepo->GetByID(id);
-    if (std::holds_alternative<DatabaseError>(getResult))
-    {
-        throw DatabaseException("Failed to retrieve created payment");
-    }
-
-    auto payment = std::get<drogon_model::soundwavePayment::Payments>(getResult);
-    return PaymentMapper::ToResponse(payment);
+    
+    auto paymentId = std::get<uint64_t>(paymentResult);
+    auto payment = std::get<drogon_model::soundwavePayment::Payments>(m_paymentRepo->GetByID(paymentId));
+    auto response = PaymentMapper::ToResponse(payment);
+    response.stripePaymentIntentId = stripeResult.id;
+    response.clientSecret = stripeResult.clientSecret;
+    
+    return response;
 }
 
 PaymentResponseTo PaymentService::ConfirmPayment(const std::string& paymentIntentId)
 {
-    auto result = m_paymentIntentRepo->GetByStripePaymentIntentId(paymentIntentId);
-    if (std::holds_alternative<DatabaseError>(result))
+    auto intentResult = m_paymentIntentRepo->GetByStripePaymentIntentId(paymentIntentId);
+    if (std::holds_alternative<DatabaseError>(intentResult))
     {
         throw NotFoundException("Payment intent not found");
     }
-
-    auto intent = std::get<drogon_model::soundwavePayment::PaymentIntents>(result);
-    intent.setStatus("succeeded");
+    
+    auto intent = std::get<drogon_model::soundwavePayment::PaymentIntents>(intentResult);
+    
+    auto stripeResult = m_stripeClient->ConfirmPaymentIntent(paymentIntentId);
+    
+    intent.setStatus(stripeResult.status);
     m_paymentIntentRepo->Update(intent.getValueOfId(), intent);
-
+    
     PaymentRequestTo request;
     request.userId = intent.getValueOfUserId();
+    request.productId = intent.getValueOfProductId();
     request.amount = intent.getValueOfAmount();
     request.currency = "USD";
-
+    request.stripePaymentIntentId = paymentIntentId;
+    request.status = stripeResult.success ? "succeeded" : "failed";
+    
     auto entity = PaymentMapper::ToEntity(request);
-    entity.setStripePaymentIntentId(paymentIntentId);
     auto createResult = m_paymentRepo->Create(entity);
-
+    
     if (std::holds_alternative<DatabaseError>(createResult))
     {
         throw DatabaseException("Failed to create payment");
     }
-
-    auto payment = std::get<drogon_model::soundwavePayment::Payments>(m_paymentRepo->GetByID(std::get<uint64_t>(createResult)));
+    
+    auto paymentId = std::get<uint64_t>(createResult);
+    auto payment = std::get<drogon_model::soundwavePayment::Payments>(m_paymentRepo->GetByID(paymentId));
     auto response = PaymentMapper::ToResponse(payment);
-    response.status = "succeeded";
+    response.status = stripeResult.success ? "succeeded" : "failed";
+    
+    if (stripeResult.success)
+    {
+        try
+        {
+            CreatePurchase(paymentId, intent.getValueOfUserId(), intent.getValueOfProductId(), 
+                          intent.getValueOfAmount(), "");
+        }
+        catch (const std::exception&)
+        {
+        }
+    }
+    
     return response;
 }
 
@@ -227,8 +278,8 @@ bool PaymentService::CheckUserHasAccess(int32_t userId, int64_t productId)
 
 bool PaymentService::RefundPurchase(uint64_t id, const std::string& reason)
 {
-    auto result = m_purchaseRepo->MarkAsRefunded(id, reason);
-    if (std::holds_alternative<DatabaseError>(result))
+    auto refundResult = m_purchaseRepo->MarkAsRefunded(id, reason);
+    if (std::holds_alternative<DatabaseError>(refundResult))
     {
         return false;
     }
@@ -241,12 +292,17 @@ bool PaymentService::RefundPurchase(uint64_t id, const std::string& reason)
         if (std::holds_alternative<drogon_model::soundwavePayment::Payments>(paymentGetResult))
         {
             auto payment = std::get<drogon_model::soundwavePayment::Payments>(paymentGetResult);
+            auto stripePI = payment.getValueOfStripePaymentIntentId();
+            if (!stripePI.empty())
+            {
+                auto refund = m_stripeClient->CreateRefund(stripePI, reason);
+            }
             payment.setStatus("refunded");
             m_paymentRepo->Update(purchase.getValueOfPaymentId(), payment);
         }
     }
 
-    return std::get<bool>(result);
+    return std::get<bool>(refundResult);
 }
 
 std::string PaymentService::GetPaymentIntentClientSecret(int32_t userId, int64_t productId)
@@ -259,6 +315,40 @@ std::string PaymentService::GetPaymentIntentClientSecret(int32_t userId, int64_t
 
     auto intent = std::get<drogon_model::soundwavePayment::PaymentIntents>(intentResult);
     return intent.getValueOfStripeClientSecret();
+}
+
+CheckoutSessionResponseTo PaymentService::CreateCheckoutSession(int32_t userId, int64_t productId, const std::string& amount, const std::string& currency, const std::string& productTitle)
+{
+    LOG_INFO << "CreateCheckoutSession called: userId=" << userId << " productId=" << productId << " amount=" << amount << " title=" << productTitle;
+    
+    CheckoutSessionResponseTo response;
+    
+    auto stripeResult = m_stripeClient->CreateCheckoutSession(productId, productTitle, std::stoll(amount), currency, userId);
+    LOG_INFO << "Stripe CreateCheckoutSession result: success=" << stripeResult.success << " url=" << (stripeResult.success ? "OK" : stripeResult.errorMessage);
+    
+    if (stripeResult.success)
+    {
+        response.sessionId = stripeResult.id;
+        response.checkoutUrl = stripeResult.url;
+    }
+    else
+    {
+        LOG_ERROR << "Stripe checkout error: " << stripeResult.errorMessage;
+        response.errorMessage = stripeResult.errorMessage;
+    }
+    
+    return response;
+}
+
+dto::PurchaseResponseTo PaymentService::CreateCheckoutPurchase(int32_t userId, int64_t productId, const std::string& productTitle, const std::string& amountPaid)
+{
+    LOG_INFO << "CreateCheckoutPurchase: userId=" << userId << " productId=" << productId << " title=" << productTitle;
+    
+    auto purchase = CreatePurchase(0, userId, productId, amountPaid, productTitle);
+    
+    LOG_INFO << "Purchase created with id: " << purchase.id;
+    
+    return purchase;
 }
 
 PaymentResponseTo PaymentService::enrichWithPaymentMethod(const PaymentResponseTo& payment)

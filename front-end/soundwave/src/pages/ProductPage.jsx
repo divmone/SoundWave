@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import Waveform from '../components/product/Waveform';
 import CommentsSection from '../components/product/CommentsSection';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { getProductAudioUrl } from '../api/services/productsService';
+import { createCheckoutSession, checkPurchaseAccess } from '../api/services/paymentService';
 
 function StarRating({ rating }) {
   return (
@@ -24,7 +25,46 @@ function StarRating({ rating }) {
 export default function ProductPage({ product, user, onNavigate, onLogout }) {
   const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [purchaseError, setPurchaseError] = useState('');
   const audioUrl = getProductAudioUrl(product.id);
+
+  useEffect(() => {
+    if (user) {
+      checkAccess(user.id, product.id);
+    }
+  }, [user, product.id]);
+
+  const checkAccess = async (userId, productId) => {
+    try {
+      const res = await checkPurchaseAccess(userId, productId);
+      setHasPurchased(res.hasAccess);
+    } catch {
+      setHasPurchased(false);
+    }
+  };
+
+  const handleBuyClick = async () => {
+    if (!user) {
+      onNavigate('login');
+      return;
+    }
+    setPurchaseError('');
+    setPurchasing(true);
+
+    try {
+      const res = await createCheckoutSession(user.id, product.id, product.price, 'usd', product.title);
+      if (res.checkoutUrl) {
+        window.location.href = res.checkoutUrl;
+      } else {
+        throw new Error(res.errorMessage || 'Failed to create checkout session');
+      }
+    } catch (err) {
+      setPurchaseError(err.message || 'Failed to start checkout. Please try again.');
+      setPurchasing(false);
+    }
+  };
 
   const fmtDuration = (s) => {
     if (!s) return null;
@@ -151,20 +191,30 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                 {product.price}
               </span>
               <span style={{ fontSize: '0.68rem', color: 'var(--text3)' }}>USD</span>
-              <button
-                onClick={() => setShowBuyModal(true)}
-                style={{
+              {hasPurchased ? (
+                <span style={{
                   marginLeft: 12, padding: '0.55rem 1.4rem', borderRadius: 'var(--radius-pill)',
-                  background: 'linear-gradient(135deg, var(--cyan-dark), var(--cyan))',
-                  border: 'none', color: '#000', cursor: 'pointer',
-                  fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.82rem',
-                  boxShadow: '0 4px 16px rgba(99,215,255,0.3)', transition: 'transform 0.2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                Buy
-              </button>
+                  background: 'rgba(0,200,100,0.15)', border: '1px solid rgba(0,200,100,0.3)',
+                  color: '#0fa', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.82rem',
+                }}>
+                  Owned
+                </span>
+              ) : (
+                <button
+                  onClick={() => setShowBuyModal(true)}
+                  style={{
+                    marginLeft: 12, padding: '0.55rem 1.4rem', borderRadius: 'var(--radius-pill)',
+                    background: 'linear-gradient(135deg, var(--cyan-dark), var(--cyan))',
+                    border: 'none', color: '#000', cursor: 'pointer',
+                    fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.82rem',
+                    boxShadow: '0 4px 16px rgba(99,215,255,0.3)', transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  Buy
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -202,7 +252,7 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
       {/* Buy modal */}
       {showBuyModal && (
         <div
-          onClick={() => setShowBuyModal(false)}
+          onClick={() => !purchasing && setShowBuyModal(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 1000,
             background: 'rgba(5,5,8,0.88)', backdropFilter: 'blur(16px)',
@@ -241,19 +291,31 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                   Commercial license included<br />Instant download after payment
                 </div>
               </div>
-              <div style={{
-                padding: '0.7rem 1rem', marginBottom: '1.2rem',
-                background: 'rgba(255,165,0,0.06)', border: '1px solid rgba(255,165,0,0.2)',
-                borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: 'rgba(255,200,80,0.8)',
-              }}>
-                💳 Payment integration coming soon. Contact the creator to arrange purchase.
-              </div>
+
+              {purchaseError && (
+                <div style={{
+                  padding: '0.7rem 1rem', marginBottom: '1.2rem',
+                  background: 'rgba(255,60,60,0.1)', border: '1px solid rgba(255,60,60,0.3)',
+                  borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: '#f66',
+                }}>
+                  {purchaseError}
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button onClick={() => setShowBuyModal(false)} className="btn-ghost"
-                  style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>Close</button>
-                <button className="btn-primary" disabled
-                  style={{ flex: 2, padding: '0.8rem', fontSize: '0.82rem', justifyContent: 'center', opacity: 0.45, cursor: 'not-allowed' }}>
-                  Purchase (Coming Soon)
+                <button onClick={() => setShowBuyModal(false)} className="btn-ghost" disabled={purchasing}
+                  style={{ flex: 1, padding: '0.8rem', justifyContent: 'center', opacity: purchasing ? 0.5 : 1 }}>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleBuyClick}
+                  disabled={purchasing}
+                  className="btn-primary"
+                  style={{
+                    flex: 2, padding: '0.8rem', fontSize: '0.82rem', justifyContent: 'center',
+                    opacity: purchasing ? 0.7 : 1, cursor: purchasing ? 'wait' : 'pointer',
+                  }}>
+                  {purchasing ? 'Redirecting to payment...' : `Pay $${product.price}`}
                 </button>
               </div>
             </div>

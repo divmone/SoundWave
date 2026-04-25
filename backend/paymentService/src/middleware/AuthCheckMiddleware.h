@@ -42,8 +42,11 @@ namespace soundwavePayment
                     MiddlewareNextCallback &&nextCb,
                     MiddlewareCallback &&mcb) override
         {
+            LOG_INFO << "AuthCheckMiddleware invoked for path: " << req->path();
+            
             if (!m_isEnabled)
             {
+                LOG_INFO << "Auth middleware disabled, allowing request";
                 nextCb
                 (
                     [mcb = std::move(mcb)](const HttpResponsePtr &resp)
@@ -55,11 +58,13 @@ namespace soundwavePayment
             }
 
             const auto authHeader = req->getHeader("Authorization");
+            LOG_INFO << "Auth header present: " << (!authHeader.empty() ? "yes" : "no");
 
             if (authHeader.size() > TOKEN_HEADER_OFFSET &&
                 authHeader.substr(0, 7) == "Bearer ")
             {
                 const auto token = authHeader.substr(TOKEN_HEADER_OFFSET);
+                LOG_INFO << "Valid Bearer token detected, validating with auth-service";
 
                 auto authRequest = HttpRequest::newHttpRequest();
                 authRequest->setMethod(drogon::Get);

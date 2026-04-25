@@ -17,6 +17,22 @@ module.exports = function (app) {
     })
   );
 
+  // Payment service (порт 8080) - ДОЛЖЕН быть ПЕРЕД /api иначе /api ловит всё
+  app.use(
+    '/api/payment',
+    createProxyMiddleware({
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api/payment': '/api/payment',
+      },
+      onError: (err, req, res) => {
+        console.error('Proxy error for /api/payment:', err);
+        res.status(500).send('Proxy error');
+      },
+    })
+  );
+
   // Sounds service (порт 8082)
   app.use(
     '/api',

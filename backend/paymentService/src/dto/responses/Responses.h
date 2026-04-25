@@ -17,6 +17,7 @@ struct PaymentResponseTo
     int64_t productId = 0;
     std::string stripePaymentIntentId;
     std::string stripePaymentMethodId;
+    std::string clientSecret;
     std::string amount;
     std::string currency;
     std::string status;
@@ -35,6 +36,7 @@ struct PaymentResponseTo
         if (productId > 0) json["productId"] = productId;
         if (!stripePaymentIntentId.empty()) json["stripePaymentIntentId"] = stripePaymentIntentId;
         if (!stripePaymentMethodId.empty()) json["stripePaymentMethodId"] = stripePaymentMethodId;
+        if (!clientSecret.empty()) json["clientSecret"] = clientSecret;
         if (!amount.empty()) json["amount"] = amount;
         if (!currency.empty()) json["currency"] = currency;
         if (!status.empty()) json["status"] = status;
@@ -139,6 +141,22 @@ struct PaymentIntentResponseTo
         if (!status.empty()) json["status"] = status;
         if (!expiresAt.empty()) json["expiresAt"] = expiresAt;
         if (!createdAt.empty()) json["createdAt"] = createdAt;
+        return json;
+    }
+};
+
+struct CheckoutSessionResponseTo
+{
+    std::string sessionId;
+    std::string checkoutUrl;
+    std::string errorMessage;
+    
+    Json::Value toJson() const
+    {
+        Json::Value json;
+        if (!sessionId.empty()) json["sessionId"] = sessionId;
+        if (!checkoutUrl.empty()) json["checkoutUrl"] = checkoutUrl;
+        if (!errorMessage.empty()) json["errorMessage"] = errorMessage;
         return json;
     }
 };

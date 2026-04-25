@@ -49,7 +49,7 @@ int main()
     auto paymentsController = std::make_shared<PaymentsController>(paymentService);
     auto purchasesController = std::make_shared<PurchasesController>(paymentService);
     auto paymentMethodsController = std::make_shared<PaymentMethodsController>(paymentMethodService);
-    auto webhookController = std::make_shared<WebhookController>();
+    auto webhookController = std::make_shared<WebhookController>(paymentService);
 
     drogon::app().registerController(paymentsController);
     drogon::app().registerController(purchasesController);

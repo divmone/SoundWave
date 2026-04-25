@@ -16,6 +16,8 @@ struct PaymentRequestTo
     std::string amount;
     std::string currency;
     std::string paymentMethodId;
+    std::string stripePaymentIntentId;
+    std::string status;
 
     bool validate() const
     {

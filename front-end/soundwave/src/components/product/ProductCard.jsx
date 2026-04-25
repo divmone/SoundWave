@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Waveform from './Waveform';
 import { getProductAudioUrl } from '../../api/services/productsService';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
+import { createCheckoutSession } from '../../api/services/paymentService';
 
 function StarRating({ rating }) {
   return (
@@ -19,9 +20,11 @@ function StarRating({ rating }) {
   );
 }
 
-export default function ProductCard({ product, user, delay = 0, onOpenProduct }) {
+export default function ProductCard({ product, user, delay = 0, onOpenProduct, onNavigate }) {
   const [hovered,      setHovered]      = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [purchaseError, setPurchaseError] = useState('');
   const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
 
   const fmtDuration = (s) => {
@@ -88,23 +91,52 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct })
                 </div>
               </div>
 
-              {/* Coming soon notice */}
-              <div style={{
-                padding: '0.7rem 1rem', marginBottom: '1.2rem',
-                background: 'rgba(255,165,0,0.06)', border: '1px solid rgba(255,165,0,0.2)',
-                borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: 'rgba(255,200,80,0.8)',
-              }}>
-                💳 Payment integration coming soon. Contact the creator to arrange purchase.
-              </div>
+              {purchaseError && (
+                <div style={{
+                  padding: '0.7rem 1rem', marginBottom: '1.2rem',
+                  background: 'rgba(255,60,60,0.1)', border: '1px solid rgba(255,60,60,0.3)',
+                  borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: '#f66',
+                }}>
+                  {purchaseError}
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button onClick={() => setShowBuyModal(false)} className="btn-ghost"
-                  style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>
-                  Close
+                <button onClick={() => setShowBuyModal(false)} className="btn-ghost" disabled={purchasing}
+                  style={{ flex: 1, padding: '0.8rem', justifyContent: 'center', opacity: purchasing ? 0.5 : 1 }}>
+                  Cancel
                 </button>
-                <button className="btn-primary" disabled
-                  style={{ flex: 2, padding: '0.8rem', fontSize: '0.82rem', justifyContent: 'center', opacity: 0.45, cursor: 'not-allowed' }}>
-                  Purchase (Coming Soon)
+                <button
+                  onClick={async () => {
+                    console.log('[ProductCard] Pay clicked', { user, product, purchasing });
+                    if (!user) {
+                      console.log('[ProductCard] No user, redirecting to login');
+                      onNavigate?.('login');
+                      setShowBuyModal(false);
+                      return;
+                    }
+                    setPurchaseError('');
+                    setPurchasing(true);
+                    try {
+                      console.log('[ProductCard] Creating checkout session...');
+                      const res = await createCheckoutSession(user.id, product.id, product.price, 'usd', product.title);
+                      console.log('[ProductCard] Checkout response:', res);
+                      if (res.checkoutUrl) {
+                        window.location.href = res.checkoutUrl;
+                      } else {
+                        setPurchaseError(res.errorMessage || 'Failed to create checkout');
+                      }
+                    } catch (err) {
+                      console.error('[ProductCard] Checkout error:', err);
+                      setPurchaseError(err.message || 'Checkout failed');
+                    } finally {
+                      setPurchasing(false);
+                    }
+                  }}
+                  disabled={purchasing}
+                  className="btn-primary"
+                  style={{ flex: 2, padding: '0.8rem', fontSize: '0.82rem', justifyContent: 'center', opacity: purchasing ? 0.7 : 1, cursor: purchasing ? 'wait' : 'pointer' }}>
+                  {purchasing ? 'Redirecting...' : `Pay $${product.price}`}
                 </button>
               </div>
             </div>

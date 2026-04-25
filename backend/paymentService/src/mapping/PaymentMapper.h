@@ -23,7 +23,11 @@ public:
         entity.setUserId(dto.userId);
         entity.setAmount(dto.amount);
         entity.setCurrency(dto.currency);
-        entity.setStatus("pending");
+        entity.setStatus(dto.status.empty() ? "pending" : dto.status);
+        if (!dto.stripePaymentIntentId.empty())
+        {
+            entity.setStripePaymentIntentId(dto.stripePaymentIntentId);
+        }
         return entity;
     }
 
