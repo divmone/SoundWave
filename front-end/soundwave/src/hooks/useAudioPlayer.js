@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getProductAudioUrl } from '../api/services/productsService';
 
-const MAX_PREVIEW_SECONDS = 1;
+const MAX_PREVIEW_SECONDS = 3;
 
 const manager = {
   audio: null,
