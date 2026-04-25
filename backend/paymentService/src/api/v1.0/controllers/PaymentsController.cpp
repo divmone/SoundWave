@@ -192,4 +192,46 @@ void PaymentsController::RefundPayment(const HttpRequestPtr& req, std::function<
     callback(httpResponse);
 }
 
+void PaymentsController::CreateCheckoutSession(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback)
+{
+    Json::Value responseJson;
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    try
+    {
+        LOG_INFO << "CreateCheckoutSession request received";
+        
+        auto json = req->getJsonObject();
+        if (!json)
+        {
+            LOG_ERROR << "Invalid JSON body in CreateCheckoutSession";
+            throw ValidationException("Invalid JSON body");
+        }
+
+        int32_t userId = (*json)["userId"].asInt();
+        int64_t productId = (*json)["productId"].asInt64();
+        std::string amount = (*json)["amount"].asString();
+        std::string currency = (*json)["currency"].asString();
+        std::string productTitle = (*json)["productTitle"].asString();
+        
+        LOG_INFO << "Checkout params: userId=" << userId << " productId=" << productId << " amount=" << amount << " currency=" << currency;
+
+        auto result = m_paymentService->CreateCheckoutSession(userId, productId, amount, currency, productTitle);
+        LOG_INFO << "Checkout session created: sessionId=" << result.sessionId << " hasUrl=" << !result.checkoutUrl.empty();
+        
+        responseJson = result.toJson();
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "CreateCheckoutSession error: " << e.what();
+        responseJson["message"] = e.what();
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+    }
+
+    httpResponse->setBody(Json::FastWriter().write(responseJson));
+    httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+    callback(httpResponse);
+}
+
 }

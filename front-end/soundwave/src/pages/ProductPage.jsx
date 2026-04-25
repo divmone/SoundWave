@@ -4,7 +4,7 @@ import Waveform from '../components/product/Waveform';
 import CommentsSection from '../components/product/CommentsSection';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { getProductAudioUrl } from '../api/services/productsService';
-import { createPayment, confirmPayment, checkPurchaseAccess } from '../api/services/paymentService';
+import { createCheckoutSession, checkPurchaseAccess } from '../api/services/paymentService';
 
 function StarRating({ rating }) {
   return (
@@ -28,7 +28,6 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
   const [purchasing, setPurchasing] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [purchaseError, setPurchaseError] = useState('');
-  const [paymentStep, setPaymentStep] = useState('idle');
   const audioUrl = getProductAudioUrl(product.id);
 
   useEffect(() => {
@@ -52,20 +51,17 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
       return;
     }
     setPurchaseError('');
-    setPaymentStep('creating');
     setPurchasing(true);
 
     try {
-      const res = await createPayment(user.id, product.id, product.price, 'usd');
-      setPaymentStep('confirming');
-      await confirmPayment(res.stripePaymentIntentId);
-      setHasPurchased(true);
-      setPaymentStep('success');
-      setTimeout(() => setShowBuyModal(false), 1500);
+      const res = await createCheckoutSession(user.id, product.id, product.price, 'usd', product.title);
+      if (res.checkoutUrl) {
+        window.location.href = res.checkoutUrl;
+      } else {
+        throw new Error(res.errorMessage || 'Failed to create checkout session');
+      }
     } catch (err) {
-      setPurchaseError(err.message || 'Payment failed. Please try again.');
-      setPaymentStep('error');
-    } finally {
+      setPurchaseError(err.message || 'Failed to start checkout. Please try again.');
       setPurchasing(false);
     }
   };
@@ -309,7 +305,7 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button onClick={() => setShowBuyModal(false)} className="btn-ghost" disabled={purchasing}
                   style={{ flex: 1, padding: '0.8rem', justifyContent: 'center', opacity: purchasing ? 0.5 : 1 }}>
-                  {paymentStep === 'success' ? 'Done' : 'Cancel'}
+                  Cancel
                 </button>
                 <button
                   onClick={handleBuyClick}
@@ -319,13 +315,7 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                     flex: 2, padding: '0.8rem', fontSize: '0.82rem', justifyContent: 'center',
                     opacity: purchasing ? 0.7 : 1, cursor: purchasing ? 'wait' : 'pointer',
                   }}>
-                  {purchasing ? (
-                    paymentStep === 'creating' ? 'Creating payment...' :
-                    paymentStep === 'confirming' ? 'Processing...' :
-                    paymentStep === 'success' ? 'Success!' : 'Error'
-                  ) : (
-                    `Pay $${product.price}`
-                  )}
+                  {purchasing ? 'Redirecting to payment...' : `Pay $${product.price}`}
                 </button>
               </div>
             </div>

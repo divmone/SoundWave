@@ -145,6 +145,22 @@ struct PaymentIntentResponseTo
     }
 };
 
+struct CheckoutSessionResponseTo
+{
+    std::string sessionId;
+    std::string checkoutUrl;
+    std::string errorMessage;
+    
+    Json::Value toJson() const
+    {
+        Json::Value json;
+        if (!sessionId.empty()) json["sessionId"] = sessionId;
+        if (!checkoutUrl.empty()) json["checkoutUrl"] = checkoutUrl;
+        if (!errorMessage.empty()) json["errorMessage"] = errorMessage;
+        return json;
+    }
+};
+
 }
 
 }

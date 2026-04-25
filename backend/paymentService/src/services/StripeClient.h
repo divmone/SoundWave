@@ -27,9 +27,17 @@ public:
         bool success = false;
     };
     
+    struct CheckoutSessionResult {
+        std::string id;
+        std::string url;
+        std::string errorMessage;
+        bool success = false;
+    };
+
     PaymentIntentResult CreatePaymentIntent(int64_t amount, const std::string& currency, int32_t userId, int64_t productId);
     PaymentIntentResult ConfirmPaymentIntent(const std::string& paymentIntentId);
     RefundResult CreateRefund(const std::string& paymentIntentId, const std::string& reason = "");
+    CheckoutSessionResult CreateCheckoutSession(int64_t productId, const std::string& productTitle, int64_t amount, const std::string& currency, int32_t userId);
     Json::Value ParseWebhookPayload(const std::string& payload);
     StripeClient();
 private:

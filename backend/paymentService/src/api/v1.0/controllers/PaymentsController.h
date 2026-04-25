@@ -23,6 +23,7 @@ public:
         ADD_METHOD_TO(PaymentsController::GetUserPayments, "api/payment/user/{userId}", Get, "soundwavePayment::AuthCheckMiddleware");
         ADD_METHOD_TO(PaymentsController::CancelPayment, "api/payment/{id}/cancel", Post, "soundwavePayment::AuthCheckMiddleware");
         ADD_METHOD_TO(PaymentsController::RefundPayment, "api/payment/{id}/refund", Post, "soundwavePayment::AuthCheckMiddleware");
+        ADD_METHOD_TO(PaymentsController::CreateCheckoutSession, "api/payment/checkout", Post, "soundwavePayment::AuthCheckMiddleware");
     METHOD_LIST_END
 private:
     void CreatePayment(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback);
@@ -31,6 +32,7 @@ private:
     void GetUserPayments(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, const std::string& userId);
     void CancelPayment(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id);
     void RefundPayment(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id);
+    void CreateCheckoutSession(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback);
 };
 
 }

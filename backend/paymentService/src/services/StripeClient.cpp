@@ -4,6 +4,7 @@
 #include <drogon/HttpResponse.h>
 #include <cstring>
 #include <algorithm>
+#include <drogon/DrClassMap.h>
 
 namespace
 {
@@ -85,9 +86,11 @@ StripeClient::StripeClient()
     auto* secretKey = std::getenv("STRIPE_SECRET_KEY");
     if (!secretKey || strlen(secretKey) == 0)
     {
+        LOG_ERROR << "STRIPE_SECRET_KEY environment variable is not set";
         throw std::runtime_error("STRIPE_SECRET_KEY environment variable is not set");
     }
     m_secretKey = secretKey;
+    LOG_INFO << "StripeClient initialized with secret key prefix: " << m_secretKey.substr(0, 7) << "***";
     
     m_stripeClient = drogon::HttpClient::newHttpClient(STRIPE_HOST, nullptr, false, true);
 }
@@ -229,6 +232,41 @@ StripeClient::RefundResult StripeClient::CreateRefund(const std::string& payment
         result.id = response["id"].asString();
         result.status = response["status"].asString();
         result.success = (result.status == "succeeded");
+    }
+    
+return result;
+}
+
+StripeClient::CheckoutSessionResult StripeClient::CreateCheckoutSession(int64_t productId, const std::string& productTitle, int64_t amount, const std::string& currency, int32_t userId)
+{
+    CheckoutSessionResult result;
+    
+    std::string baseUrl = "https://soundwave.divmone.ru";
+    
+    Json::Value body;
+    body["mode"] = "payment";
+    body["success_url"] = baseUrl + "/?payment=success&session_id={CHECKOUT_SESSION_ID}";
+    body["cancel_url"] = baseUrl + "/?payment=cancelled";
+    body["line_items[0][price_data][currency]"] = currency;
+    body["line_items[0][price_data][unit_amount]"] = std::to_string(amount * 100);
+    body["line_items[0][price_data][product_data][name]"] = productTitle;
+    body["line_items[0][quantity]"] = "1";
+    body["metadata[user_id]"] = std::to_string(userId);
+    body["metadata[product_id]"] = std::to_string(productId);
+    body["metadata[product_title]"] = productTitle;
+    
+    auto response = executePost("/v1/checkout/sessions", body);
+    
+    if (response.isMember("id"))
+    {
+        result.id = response["id"].asString();
+        result.url = response["url"].asString();
+        result.success = true;
+    }
+    else if (response.isMember("error"))
+    {
+        result.errorMessage = response["error"]["message"].asString();
+        result.success = false;
     }
     
     return result;

@@ -20,25 +20,18 @@ void WebhookController::HandleStripeWebhook(const HttpRequestPtr& req, std::func
 
     try
     {
+        LOG_INFO << "Webhook received from Stripe";
         std::string payloadStr(req->getBody().data(), req->getBody().size());
         auto signature = req->getHeader("Stripe-Signature").c_str();
+        LOG_INFO << "Webhook signature present: " << (strlen(signature) > 0 ? "yes" : "no");
         
         auto stripeClient = StripeClient::create();
-        
-        if (false)
-        {
-            responseJson["error"] = "Invalid signature";
-            httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
-            httpResponse->setBody(Json::FastWriter().write(responseJson));
-            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
-            callback(httpResponse);
-            return;
-        }
         
         auto event = stripeClient->ParseWebhookPayload(payloadStr);
         
         if (!event.isMember("type"))
         {
+            LOG_INFO << "Webhook parsed, no type field - returning OK";
             responseJson["status"] = "received";
             httpResponse->setStatusCode(HttpStatusCode::k200OK);
             httpResponse->setBody(Json::FastWriter().write(responseJson));
@@ -48,6 +41,7 @@ void WebhookController::HandleStripeWebhook(const HttpRequestPtr& req, std::func
         }
         
         std::string eventType = event["type"].asString();
+        LOG_INFO << "Webhook event type: " << eventType;
         
         if (eventType == "payment_intent.succeeded")
         {
@@ -73,6 +67,30 @@ void WebhookController::HandleStripeWebhook(const HttpRequestPtr& req, std::func
             
             responseJson["status"] = "payment_failed";
             responseJson["error"] = errorMessage;
+            httpResponse->setStatusCode(HttpStatusCode::k200OK);
+        }
+        else if (eventType == "checkout.session.completed")
+        {
+            auto data = event["data"]["object"];
+            std::string sessionId = data["id"].asString();
+            int32_t userId = std::stoi(data["metadata"]["user_id"].asString());
+            int64_t productId = std::stoll(data["metadata"]["product_id"].asString());
+            std::string productTitle = data["metadata"]["product_title"].asString();
+            std::string amountTotal = data["amount_total"].asString();
+            
+            LOG_INFO << "Checkout session completed: sessionId=" << sessionId << " userId=" << userId << " productId=" << productId;
+            
+            try
+            {
+                auto paymentResponse = m_paymentService->CreateCheckoutPurchase(userId, productId, productTitle, amountTotal);
+                responseJson["status"] = "purchase_created";
+                responseJson["purchaseId"] = paymentResponse.id;
+            }
+            catch (const std::exception& e)
+            {
+                LOG_ERROR << "Failed to create purchase from checkout: " << e.what();
+                responseJson["status"] = "purchase_creation_failed";
+            }
             httpResponse->setStatusCode(HttpStatusCode::k200OK);
         }
         else

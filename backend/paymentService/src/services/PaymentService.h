@@ -37,6 +37,8 @@ public:
     bool CheckUserHasAccess(int32_t userId, int64_t productId);
     bool RefundPurchase(uint64_t id, const std::string& reason);
     std::string GetPaymentIntentClientSecret(int32_t userId, int64_t productId);
+    dto::CheckoutSessionResponseTo CreateCheckoutSession(int32_t userId, int64_t productId, const std::string& amount, const std::string& currency, const std::string& productTitle);
+    dto::PurchaseResponseTo CreateCheckoutPurchase(int32_t userId, int64_t productId, const std::string& productTitle, const std::string& amountPaid);
 
 private:
     dto::PaymentResponseTo enrichWithPaymentMethod(const dto::PaymentResponseTo& payment);

@@ -3,6 +3,7 @@ import { getUserProducts, deleteProduct, getProductAudioUrl } from '../api/servi
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import UploadModal from '../components/product/UploadModal';
+import PaymentMethodsPanel from '../components/payment/PaymentMethodsPanel';
 import { logoutUser } from '../api/services/authService';
 import { isAdminUser } from './AdminPage';
 
@@ -764,59 +765,11 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
             </div>
           )}
         </div>
-        {/* Payment methods section */}
-        <div style={{ marginTop: '2rem' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: '1rem',
-          }}>
-            <h2 style={{
-              fontFamily: 'var(--font-display)', fontWeight: 900,
-              fontSize: '1rem', color: 'var(--text)', margin: 0,
-            }}>Payment Methods</h2>
-            <button
-              className="btn-primary"
-              onClick={() => setPayModal(true)}
-              style={{ padding: '0.42rem 1.1rem', fontSize: '0.75rem' }}
-            >
-              + Add method
-            </button>
-          </div>
-
-          {methods.length === 0 ? (
-            <div style={{
-              padding: '2.5rem 2rem', textAlign: 'center',
-              background: 'var(--bg2)', border: '1px dashed var(--line2)',
-              borderRadius: 'var(--radius-lg)',
-            }}>
-              <div style={{ fontSize: '2rem', marginBottom: 10 }}>💳</div>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontWeight: 800,
-                fontSize: '1rem', color: 'var(--text)', marginBottom: 6,
-              }}>No payment methods</div>
-              <div style={{ color: 'var(--text3)', fontSize: '0.85rem', marginBottom: '1.2rem' }}>
-                Add a card or crypto wallet to make purchases
-              </div>
-              <button
-                className="btn-primary"
-                onClick={() => setPayModal(true)}
-                style={{ padding: '0.6rem 1.6rem', fontSize: '0.83rem' }}
-              >
-                + Add method
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {methods.map(m => (
-                <PaymentMethodRow key={m.id} method={m} onRemove={handleRemoveMethod} />
-              ))}
-            </div>
-          )}
-        </div>
+{/* Payment methods section */}
+          <PaymentMethodsPanel user={user} />
 
       </main>
 
-      {payModal && <AddPaymentModal onClose={() => setPayModal(false)} onAdd={handleAddMethod} />}
       <Footer />
     </div>
   );
