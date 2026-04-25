@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { storage } from '../api/httpClient';
@@ -14,16 +14,20 @@ export default function PaymentSuccessPage({ onNavigate }) {
   const [error, setError] = useState('');
   const [downloading, setDownloading] = useState(false);
   
-  const { user } = useAuth();
+  const { user, checking } = useAuth();
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
-    async function getPurchase() {
-      if (!user?.id) {
-        setError('Please log in to access your purchase');
-        setLoading(false);
-        return;
-      }
+    if (checking || fetchedRef.current) return;
+    if (!user?.id) {
+      setError('Please log in to access your purchase');
+      setLoading(false);
+      return;
+    }
 
+    fetchedRef.current = true;
+
+    async function getPurchase() {
       try {
         console.log('[PaymentSuccess] Fetching purchases for user:', user.id);
         const purchases = await storage.get(`/api/payment/purchases/user/${user.id}`);
@@ -45,7 +49,13 @@ export default function PaymentSuccessPage({ onNavigate }) {
     }
 
     getPurchase();
-  }, [user]);
+  }, [user, checking]);
+
+  useEffect(() => {
+    if (!loading && !error && productId) {
+      window.history.replaceState({}, '', '/?payment=verified');
+    }
+  }, [loading, error, productId]);
 
   const handleDownload = async () => {
     if (!productId) return;
