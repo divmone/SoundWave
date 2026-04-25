@@ -23,12 +23,15 @@ import LoginPage     from './LoginPage';
 import ProfilePage   from './ProfilePage';
 import AdminPage, { isAdminUser } from './AdminPage';
 import ProductPage   from './ProductPage';
+import PaymentSuccessPage from './PaymentSuccessPage';
 
 // Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
 function getInitialPage() {
   const params = new URLSearchParams(window.location.search);
   const state  = params.get('state');
   if ((state === 'google' || state === 'apple') && params.get('code')) return 'oauth-callback';
+  if (params.get('payment') === 'success') return 'payment-success';
+  if (params.get('payment') === 'cancel') return 'home';
   return 'home';
 }
 
@@ -125,6 +128,7 @@ export default function App() {
       <span style={{ color: 'var(--text2)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem' }}>Signing in...</span>
     </div>
   );
+  if (page === 'payment-success') return <PaymentSuccessPage onNavigate={handleNavigate} />;
   if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
   if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
   if (page === 'admin')       return isAdminUser(user) ? <AdminPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} /> : null;
