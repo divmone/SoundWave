@@ -33,7 +33,6 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
-    # command убран - сервис запускается нормально
 
   # ========== SOUNDS SERVICE ==========
   sounds-service:

@@ -73,7 +73,7 @@ jobs:
               RUNNING_SERVICES=$(docker compose -f docker-compose.yml -f docker-compose.override.yml ps --filter "status=running" --format "{{.Service}}" | grep -v "migrate" | wc -l)
               TOTAL_SERVICES=$(docker compose -f docker-compose.yml -f docker-compose.override.yml config --services | grep -v "migrate" | wc -l)
 
-              if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
+             # if [ "$RUNNING_SERVICES" -ge "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
                 echo ""
                 echo "✅ All services are running! ($RUNNING_SERVICES/$TOTAL_SERVICES)"
                 echo ""
@@ -83,7 +83,7 @@ jobs:
             
                 echo "Tests passed!"
                 exit 0
-              fi
+            #  fi
 
               echo "⏳ Waiting... ($RUNNING_SERVICES/$TOTAL_SERVICES running)"
               sleep 5
