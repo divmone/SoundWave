@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PySourceRootDetectionService">
+    <option name="sourcePathsSet">
+      <set>
+        <option value="$PROJECT_DIR$/backend/paymentService/cmake-build-debug/venv-utest/lib64/python3.13/site-packages" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/storage/filesystem/SoundDataRepository.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/services/SoundService.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/storage/database/SoundRepository.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/services/ProductService.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/api/v1.0/controllers/ProductsController.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/ProductTags.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/storage/database/TagRepository.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/Products.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/storage/database/ProductRepository.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/api/v1.0/controllers/TagsController.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/Databasechangelog.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/services/TagService.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/storage/database/ProductTagRepository.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/Tags.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/Databasechangeloglock.cc" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/services/SoundDataService.cpp" />
+        <option value="$PROJECT_DIR$/backend/soundsStorageService/src/models/Sounds.cc" />
+      </set>
+    </option>
+  </component>
+</project>

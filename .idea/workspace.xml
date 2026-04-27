@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppTypeConversionHintsOptions" type="string" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="SoundsStorageService" targetName="SoundsStorageService" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="9932" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;IdkWhatToWriteHereOhManItWasAlreadyUsed&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/divmone/SoundWave.git&quot;,
+    &quot;accountId&quot;: &quot;577b0689-c18b-4861-8c26-cd27ebada0c5&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;divmone&quot;,
+    &quot;repository&quot;: &quot;SoundWave&quot;
+  },
+  &quot;editorReviewEnabled&quot;: false
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/.github/workflows/deploy.yml" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/.github/workflows/tests.yml" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="1M5vk2ne" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2026" />
+    <option name="minorVersion" value="1" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3C1xYnP4QeL5m6S9VsJN0ZrioYe" />
+  <component name="ProjectStatusUIService">{
+  &quot;uiKindId&quot;: &quot;Widget&quot;
+}</component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "C/C++ File.main.cpp.executor": "Run",
+    "CMake Application.PaymentService.executor": "Run",
+    "CMake Application.SoundsStorageService.executor": "Debug",
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Remote Debug.Unnamed.executor": "Debug",
+    "Remote GDB Server.SoundsStorageService.executor": "Debug",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "cf.advertisement.text.overridden": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "super-puper-debugging",
+    "last_opened_file_path": "/home/dmitry/gdikvpi/SoundWave/backend/paymentService/src/models",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "CLionExternalConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/paymentService/src/models" />
+      <recent name="$PROJECT_DIR$/migrations/paymentService" />
+      <recent name="$PROJECT_DIR$/backend/paymentService/src" />
+      <recent name="$PROJECT_DIR$/backend/paymentService" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/paymentService/src" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Remote Debug.Unnamed">
+    <configuration name="Unnamed" type="CLion_Remote" version="1" remoteCommand="localhost:12345" symbolFile="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
+      <debugger kind="GDB" isBundled="true" />
+      <pathMapping remote=":/app" local="$PROJECT_DIR$/backend/soundsStorageService" />
+      <method v="2" />
+    </configuration>
+    <configuration name="SoundsStorageService" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SoundsStorageService" TARGET_NAME="SoundsStorageService" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SoundsStorageService" RUN_TARGET_NAME="SoundsStorageService">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.SoundsStorageService" />
+      <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+      <item itemvalue="Remote Debug.Unnamed" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="" />
+      <created>1775566928158</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775566928158</updated>
+      <workItem from="1775566932278" duration="1610000" />
+      <workItem from="1775568742869" duration="47000" />
+      <workItem from="1775578059680" duration="364000" />
+      <workItem from="1775578443231" duration="32000" />
+      <workItem from="1775578483203" duration="246000" />
+      <workItem from="1775578746764" duration="159000" />
+      <workItem from="1775578922061" duration="1431000" />
+      <workItem from="1775580364199" duration="2225000" />
+      <workItem from="1775594829735" duration="14000" />
+      <workItem from="1775596853871" duration="34000" />
+      <workItem from="1775597062923" duration="1329000" />
+      <workItem from="1775637193618" duration="1926000" />
+      <workItem from="1775645228611" duration="1007000" />
+      <workItem from="1775646246755" duration="72000" />
+      <workItem from="1775652869686" duration="830000" />
+      <workItem from="1775653809573" duration="1531000" />
+      <workItem from="1775656241527" duration="25000" />
+      <workItem from="1775672431799" duration="320000" />
+      <workItem from="1775678701959" duration="1554000" />
+      <workItem from="1775680279797" duration="1292000" />
+      <workItem from="1775681628995" duration="477000" />
+      <workItem from="1775684538531" duration="14000" />
+      <workItem from="1775725974992" duration="9074000" />
+      <workItem from="1775735485968" duration="375000" />
+      <workItem from="1775737406458" duration="358000" />
+      <workItem from="1775743272303" duration="5505000" />
+      <workItem from="1775749025027" duration="5747000" />
+      <workItem from="1775764992894" duration="8998000" />
+      <workItem from="1775836442650" duration="8884000" />
+      <workItem from="1775848071403" duration="7234000" />
+      <workItem from="1775856217766" duration="960000" />
+      <workItem from="1775876813426" duration="597000" />
+      <workItem from="1775883953359" duration="668000" />
+      <workItem from="1775885655834" duration="498000" />
+      <workItem from="1775888932232" duration="1308000" />
+      <workItem from="1775890465098" duration="4102000" />
+      <workItem from="1775896642139" duration="432000" />
+      <workItem from="1775906275474" duration="1499000" />
+      <workItem from="1775908021551" duration="308000" />
+      <workItem from="1775915773782" duration="4330000" />
+      <workItem from="1775920233463" duration="5184000" />
+      <workItem from="1775927658874" duration="339000" />
+      <workItem from="1775935330558" duration="1129000" />
+      <workItem from="1775936977530" duration="6728000" />
+      <workItem from="1775985121333" duration="11000" />
+      <workItem from="1775985340590" duration="111000" />
+      <workItem from="1775990882312" duration="481000" />
+      <workItem from="1775994806258" duration="548000" />
+      <workItem from="1776082863021" duration="13000" />
+      <workItem from="1776200173014" duration="1770000" />
+      <workItem from="1776350197164" duration="7000" />
+      <workItem from="1776433570114" duration="19000" />
+      <workItem from="1776532060593" duration="4162000" />
+      <workItem from="1776589897348" duration="6064000" />
+      <workItem from="1776606344617" duration="10082000" />
+      <workItem from="1776858690740" duration="103000" />
+      <workItem from="1777046260910" duration="1045000" />
+      <workItem from="1777047356866" duration="770000" />
+      <workItem from="1777048147241" duration="483000" />
+      <workItem from="1777048663585" duration="4076000" />
+      <workItem from="1777052975576" duration="293000" />
+      <workItem from="1777053320277" duration="6897000" />
+      <workItem from="1777062550184" duration="1276000" />
+      <workItem from="1777063843745" duration="8018000" />
+      <workItem from="1777071876281" duration="4172000" />
+      <workItem from="1777076205316" duration="6506000" />
+      <workItem from="1777082829793" duration="1640000" />
+      <workItem from="1777084501256" duration="2102000" />
+      <workItem from="1777086614821" duration="3889000" />
+      <workItem from="1777091123645" duration="2164000" />
+      <workItem from="1777101030061" duration="1782000" />
+      <workItem from="1777105437743" duration="479000" />
+      <workItem from="1777108498693" duration="7561000" />
+      <workItem from="1777145534586" duration="1248000" />
+      <workItem from="1777147529299" duration="7000" />
+      <workItem from="1777148737193" duration="918000" />
+      <workItem from="1777150181366" duration="3000" />
+      <workItem from="1777196740653" duration="59000" />
+      <workItem from="1777299412352" duration="2811000" />
+      <workItem from="1777305888215" duration="5997000" />
+    </task>
+    <task id="LOCAL-00043" summary="Поправил порядок аргументов команды докер композе">
+      <option name="closed" value="true" />
+      <created>1775924272288</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1775924272288</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Фикс (теперь не будет 2 workflow)">
+      <option name="closed" value="true" />
+      <created>1775924402018</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1775924402018</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Выпилил ненужное ожидаение сервисов и обновил пример env">
+      <option name="closed" value="true" />
+      <created>1775937980327</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1775937980327</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Еще обнова тестового деплоя без тестов">
+      <option name="closed" value="true" />
+      <created>1775938175153</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1775938175153</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Пробный запуск тестов Ростика">
+      <option name="closed" value="true" />
+      <created>1775939345214</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1775939345214</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Пробный запуск тестов Ростика">
+      <option name="closed" value="true" />
+      <created>1775939706789</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1775939706789</updated>
+    </task>
+    <task id="LOCAL-00049" summary="stupidddddity fix">
+      <option name="closed" value="true" />
+      <created>1775939892508</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1775939892508</updated>
+    </task>
+    <task id="LOCAL-00050" summary="More fix">
+      <option name="closed" value="true" />
+      <created>1775940081294</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1775940081295</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Тестам плохо">
+      <option name="closed" value="true" />
+      <created>1775940283619</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1775940283619</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Пробный простой тест">
+      <option name="closed" value="true" />
+      <created>1775940614745</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1775940614745</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Удалил тесты бруно. Добавил простенкий тест на питоне">
+      <option name="closed" value="true" />
+      <created>1775942317086</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1775942317086</updated>
+    </task>
+    <task id="LOCAL-00054" summary="fix">
+      <option name="closed" value="true" />
+      <created>1775942450601</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1775942450601</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Факапчк исправлен">
+      <option name="closed" value="true" />
+      <created>1775943079448</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1775943079448</updated>
+    </task>
+    <task id="LOCAL-00056" summary="поменял название файла с тестами">
+      <option name="closed" value="true" />
+      <created>1775943386949</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1775943386949</updated>
+    </task>
+    <task id="LOCAL-00057" summary="add template for payment service">
+      <option name="closed" value="true" />
+      <created>1776533695645</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1776533695645</updated>
+    </task>
+    <task id="LOCAL-00058" summary="я сломал git">
+      <option name="closed" value="true" />
+      <created>1777048047045</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1777048047045</updated>
+    </task>
+    <task id="LOCAL-00059" summary="какойто коммит">
+      <option name="closed" value="true" />
+      <created>1777053042504</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1777053042504</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Пробная починка гита">
+      <option name="closed" value="true" />
+      <created>1777053370765</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1777053370765</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Добавил локальное отключение проверки авторизации в сервисе звуков">
+      <option name="closed" value="true" />
+      <created>1777058573683</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1777058573683</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Поправил тестовый деплой под прошлый коммит">
+      <option name="closed" value="true" />
+      <created>1777058629890</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1777058629890</updated>
+    </task>
+    <task id="LOCAL-00063" summary="фикс тестового деплоя два">
+      <option name="closed" value="true" />
+      <created>1777058837719</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1777058837719</updated>
+    </task>
+    <task id="LOCAL-00064" summary="убавил число потоков">
+      <option name="closed" value="true" />
+      <created>1777059137324</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1777059137324</updated>
+    </task>
+    <task id="LOCAL-00065" summary="вернул сервис оплаты в докер композ. начинаем разработку его.">
+      <option name="closed" value="true" />
+      <created>1777059437350</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1777059437350</updated>
+    </task>
+    <task id="LOCAL-00066" summary="пробный фикс долгого деплоя">
+      <option name="closed" value="true" />
+      <created>1777059716991</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1777059716991</updated>
+    </task>
+    <task id="LOCAL-00067" summary="пробный фикс долгого деплоя">
+      <option name="closed" value="true" />
+      <created>1777060087682</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1777060087682</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Отмена userver. Опять. Снова.">
+      <option name="closed" value="true" />
+      <created>1777064365352</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1777064365353</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Начата разработка сервиса оплаты">
+      <option name="closed" value="true" />
+      <created>1777066041406</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1777066041406</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Новые контроллеры">
+      <option name="closed" value="true" />
+      <created>1777073914661</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1777073914662</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Сервис оплаты собирается.">
+      <option name="closed" value="true" />
+      <created>1777073937550</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1777073937550</updated>
+    </task>
+    <task id="LOCAL-00072" summary="Упс">
+      <option name="closed" value="true" />
+      <created>1777074127683</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1777074127683</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Упс">
+      <option name="closed" value="true" />
+      <created>1777074142582</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1777074142582</updated>
+    </task>
+    <task id="LOCAL-00074" summary="Микрофикс под удаление не нужных папок">
+      <option name="closed" value="true" />
+      <created>1777074458993</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1777074458993</updated>
+    </task>
+    <task id="LOCAL-00075" summary="проба">
+      <option name="closed" value="true" />
+      <created>1777077588434</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1777077588434</updated>
+    </task>
+    <task id="LOCAL-00076" summary="временно отключел проверку старта всех сервисов на тестовом сервере. там не хочет стартовать сервис авторизации. ну один фиг выключена его проверка так что фиг с ним">
+      <option name="closed" value="true" />
+      <created>1777079159933</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1777079159933</updated>
+    </task>
+    <task id="LOCAL-00077" summary="какойто фронтенд, какоето прикручивание бэка">
+      <option name="closed" value="true" />
+      <created>1777083354980</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1777083354981</updated>
+    </task>
+    <task id="LOCAL-00078" summary="какойто фронтенд, какоето прикручивание бэка">
+      <option name="closed" value="true" />
+      <created>1777084084955</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1777084084955</updated>
+    </task>
+    <task id="LOCAL-00079" summary="Исправил случайно поставленный таб в sql запросе авторищации">
+      <option name="closed" value="true" />
+      <created>1777084814125</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1777084814126</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Промежуточный фикс">
+      <option name="closed" value="true" />
+      <created>1777085735917</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1777085735917</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Пробная работа оплаты">
+      <option name="closed" value="true" />
+      <created>1777088773782</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1777088773783</updated>
+    </task>
+    <task id="LOCAL-00082" summary="Пробная работа оплаты. Доьавил файлы на фронт">
+      <option name="closed" value="true" />
+      <created>1777088975899</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1777088975899</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Доработка покупки звука">
+      <option name="closed" value="true" />
+      <created>1777090139825</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1777090139825</updated>
+    </task>
+    <task id="LOCAL-00084" summary="Доработка покупки звука">
+      <option name="closed" value="true" />
+      <created>1777090198708</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1777090198708</updated>
+    </task>
+    <task id="LOCAL-00085" summary="Микрофикс артефакта вайбкодинга">
+      <option name="closed" value="true" />
+      <created>1777090345759</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1777090345759</updated>
+    </task>
+    <task id="LOCAL-00086" summary="фикс постоянной покупки одного товара">
+      <option name="closed" value="true" />
+      <created>1777092318167</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1777092318167</updated>
+    </task>
+    <task id="LOCAL-00087" summary="фикс постоянной покупки одного товара">
+      <option name="closed" value="true" />
+      <created>1777092875865</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1777092875865</updated>
+    </task>
+    <task id="LOCAL-00088" summary="фикс постоянной покупки одного товара">
+      <option name="closed" value="true" />
+      <created>1777093104491</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1777093104491</updated>
+    </task>
+    <task id="LOCAL-00089" summary="получилось подебажить свой сервис звуков. ВНИМАЕНИЕ НА ДЕБАГ СИМВОЛЫ БИНАРЯ В ДОКЕРЕ. их маппить надо&#10;см. диалог с дипсиком https://chat.deepseek.com/share/oobe4vh8xdnm077brd">
+      <option name="closed" value="true" />
+      <created>1777310453117</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1777310453118</updated>
+    </task>
+    <task id="LOCAL-00090" summary="дебаг с маппингом /app на папку сервиса&#10;открыты gdbserver порты для всех сервисов">
+      <option name="closed" value="true" />
+      <created>1777311450242</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1777311450242</updated>
+    </task>
+    <task id="LOCAL-00091" summary="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver">
+      <option name="closed" value="true" />
+      <created>1777311869211</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1777311869212</updated>
+    </task>
+    <option name="localTasksCounter" value="92" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="nginx.conf" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.template" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
+    <isAutomaticBootstrapAfterUpdate value="false" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/backend/paymentService" />
+    </ignored-roots>
+    <MESSAGE value="Добавил локальное отключение проверки авторизации в сервисе звуков" />
+    <MESSAGE value="Поправил тестовый деплой под прошлый коммит" />
+    <MESSAGE value="фикс тестового деплоя два" />
+    <MESSAGE value="убавил число потоков" />
+    <MESSAGE value="вернул сервис оплаты в докер композ. начинаем разработку его." />
+    <MESSAGE value="пробный фикс долгого деплоя" />
+    <MESSAGE value="Отмена userver. Опять. Снова." />
+    <MESSAGE value="Начата разработка сервиса оплаты" />
+    <MESSAGE value="Новые контроллеры" />
+    <MESSAGE value="Сервис оплаты собирается." />
+    <MESSAGE value="Упс" />
+    <MESSAGE value="Микрофикс под удаление не нужных папок" />
+    <MESSAGE value="проба" />
+    <MESSAGE value="временно отключел проверку старта всех сервисов на тестовом сервере. там не хочет стартовать сервис авторизации. ну один фиг выключена его проверка так что фиг с ним" />
+    <MESSAGE value="какойто фронтенд, какоето прикручивание бэка" />
+    <MESSAGE value="Исправил случайно поставленный таб в sql запросе авторищации" />
+    <MESSAGE value="Промежуточный фикс" />
+    <MESSAGE value="Пробная работа оплаты" />
+    <MESSAGE value="Пробная работа оплаты. Доьавил файлы на фронт" />
+    <MESSAGE value="Доработка покупки звука" />
+    <MESSAGE value="Микрофикс артефакта вайбкодинга" />
+    <MESSAGE value="фикс постоянной покупки одного товара" />
+    <MESSAGE value="получилось подебажить свой сервис звуков. ВНИМАЕНИЕ НА ДЕБАГ СИМВОЛЫ БИНАРЯ В ДОКЕРЕ. их маппить надо&#10;см. диалог с дипсиком https://chat.deepseek.com/share/oobe4vh8xdnm077brd" />
+    <MESSAGE value="дебаг с маппингом /app на папку сервиса&#10;открыты gdbserver порты для всех сервисов" />
+    <MESSAGE value="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
+    <option name="LAST_COMMIT_MESSAGE" value="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/backend/soundsStorageService/src/middleware/AuthCheckMiddleware.h</url>
+          <line>44</line>
+          <properties>
+            <option name="hitCountValue" value="1" />
+          </properties>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/backend/soundsStorageService/src/api/v1.0/controllers/ProductsController.cc</url>
+          <line>91</line>
+          <properties>
+            <option name="hitCountValue" value="1" />
+          </properties>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
