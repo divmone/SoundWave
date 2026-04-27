@@ -5,7 +5,6 @@ backend/authService/configs/config_vars.yaml
 .env.test
 .env.prod
 build/
-.idea/
 .vscode/
 
 node_modules
