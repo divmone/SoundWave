@@ -1,12 +1,14 @@
 services:
 
-# ========== AUTH SERVICE ==========
+  # ========== AUTH SERVICE ==========
   auth-service:
     build:
       context: ./backend/authService
       dockerfile: Dockerfile
       args:
         BUILD_TYPE: Debug
+    ports:
+      - "12346:12345"  # gdbserver (разные порты для каждого сервиса)
     environment:
       - BUILD_TYPE=Debug
     stdin_open: true
@@ -14,6 +16,10 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/authService:/app/src:ro
 
   # ========== SOUNDS SERVICE ==========
   sounds-service:
@@ -28,6 +34,8 @@ services:
       - BUILD_TYPE=Debug
       - LOG_LEVEL=debug
       - ENVIRONMENT=development
+    stdin_open: true
+    tty: true
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -45,6 +53,8 @@ services:
       dockerfile: Dockerfile
       args:
         BUILD_TYPE: Debug
+    ports:
+      - "12347:12345"  # gdbserver
     environment:
       - BUILD_TYPE=Debug
     stdin_open: true
@@ -52,6 +62,10 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/paymentService:/app/src:ro
 
   # ========== COMMENT SERVICE ==========
   comment-service:
@@ -60,6 +74,8 @@ services:
       dockerfile: Dockerfile
       args:
         BUILD_TYPE: Debug
+    ports:
+      - "12348:12345"  # gdbserver
     environment:
       - BUILD_TYPE=Debug
     stdin_open: true
@@ -67,4 +83,10 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/commentService:/app/src:ro
 
+volumes:
+  sounds_data:

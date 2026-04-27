@@ -39,14 +39,20 @@ COPY CMakeLists.txt /build/
 COPY src /build/src
 COPY config /build/config
 
-# 4. Сборка проекта
+# маппинг дебаг символов. страшно очень страшно.
+# ну в clion по идее теперь маппить ничего не надо, оно само зарабоает по идее
 RUN mkdir -p /build/build && cd /build/build && \
     echo "CMake build type: ${BUILD_TYPE}" && \
-    cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && \
+    if [ "${BUILD_TYPE}" = "Debug" ]; then \
+        cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+                 -DCMAKE_CXX_FLAGS="-g -O0 -fdebug-prefix-map=/build=/app"; \
+    else \
+        cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}; \
+    fi && \
     make -j$(nproc)
 
 # ============================================
-# STAGE 2: Runtime (исправленный)
+# STAGE 2: Runtime
 # ============================================
 FROM ubuntu:22.04
 
@@ -82,13 +88,13 @@ RUN chmod +x /app/SoundsStorageService
 
 COPY config /app/config
 
+# Копируем исходники в /app/src (теперь пути в символах будут совпадать)
 COPY --from=builder /build/src /app/src
 
 EXPOSE 8080
 
 CMD if [ "$BUILD_TYPE" = "Debug" ]; then \
         echo "Starting gdbserver on port 12345" && \
-        echo "Debug symbols mapped from /build to /app" && \
         gdbserver :12345 /app/SoundsStorageService; \
     else \
         /app/SoundsStorageService; \
