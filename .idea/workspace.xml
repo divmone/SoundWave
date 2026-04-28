@@ -31,14 +31,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="добавил .idea в git">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/commentService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/commentService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/mailService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/mailService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/paymentService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/paymentService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/soundsStorageService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/soundsStorageService/Dockerfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,44 +115,44 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "C/C++ File.main.cpp.executor": "Run",
-    "CMake Application.PaymentService.executor": "Run",
-    "CMake Application.SoundsStorageService.executor": "Debug",
-    "Docker.backend/authService/Dockerfile builder.executor": "Run",
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Remote Debug.Docker Debug authService .executor": "Debug",
-    "Remote Debug.Docker Debug soundStorageService.executor": "Debug",
-    "Remote Debug.Docker Debug soundStorageServuce.executor": "Debug",
-    "Remote Debug.Unnamed.executor": "Debug",
-    "Remote GDB Server.SoundsStorageService.executor": "Debug",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "RunOnceActivity.west.config.association.type.startup.service": "true",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "super-puper-debugging",
-    "last_opened_file_path": "/home/dmitry/gdikvpi/SoundWave/backend/paymentService/src/models",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "CLionExternalConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;C/C++ File.main.cpp.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.PaymentService.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.SoundsStorageService.executor&quot;: &quot;Debug&quot;,
+    &quot;Docker.backend/authService/Dockerfile builder.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Remote Debug.Docker Debug authService .executor&quot;: &quot;Debug&quot;,
+    &quot;Remote Debug.Docker Debug soundStorageService.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote Debug.Docker Debug soundStorageServuce.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote Debug.Unnamed.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote GDB Server.SoundsStorageService.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;super-puper-debugging&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dmitry/gdikvpi/SoundWave/backend/paymentService/src/models&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CLionExternalConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/backend/paymentService/src/models" />
@@ -173,15 +167,15 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Remote Debug.Docker Debug authService ">
-    <configuration name="Docker Debug authService " type="CLion_Remote" version="1" remoteCommand="tcp:localhost:12346" symbolFile="$PROJECT_DIR$/backend/authService/db_test.debug" sysroot="/">
+  <component name="RunManager" selected="Remote Debug.Docker Debug soundStorageService">
+    <configuration name="Docker Debug authService " type="CLion_Remote" version="1" remoteCommand="tcp:localhost:12346" symbolFile="./backend/authService/db_test.debug" sysroot="/">
       <debugger kind="GDB" isBundled="true" />
-      <pathMapping remote=":/app/src" local="$PROJECT_DIR$/backend/authService/src" />
+      <pathMapping remote=":/app" local="./backend/authService" />
       <method v="2" />
     </configuration>
-    <configuration name="Docker Debug soundStorageService" type="CLion_Remote" version="1" remoteCommand="localhost:12345" symbolFile="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
+    <configuration name="Docker Debug soundStorageService" type="CLion_Remote" version="1" remoteCommand="localhost:12345" symbolFile="./backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
       <debugger kind="GDB" isBundled="true" />
-      <pathMapping remote=":/app" local="$PROJECT_DIR$/backend/soundsStorageService" />
+      <pathMapping remote=":/app" local="./backend/soundsStorageService" />
       <method v="2" />
     </configuration>
     <configuration name="SoundsStorageService" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="SoundsStorageService" TARGET_NAME="SoundsStorageService" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="SoundsStorageService" RUN_TARGET_NAME="SoundsStorageService">
@@ -196,7 +190,9 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
     <configuration name="backend/authService/Dockerfile builder" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
@@ -322,15 +318,9 @@
       <workItem from="1777196740653" duration="59000" />
       <workItem from="1777299412352" duration="2811000" />
       <workItem from="1777305888215" duration="9687000" />
-      <workItem from="1777371197499" duration="5527000" />
-    </task>
-    <task id="LOCAL-00045" summary="Выпилил ненужное ожидаение сервисов и обновил пример env">
-      <option name="closed" value="true" />
-      <created>1775937980327</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1775937980327</updated>
+      <workItem from="1777371197499" duration="5822000" />
+      <workItem from="1777377996143" duration="816000" />
+      <workItem from="1777378849986" duration="6000" />
     </task>
     <task id="LOCAL-00046" summary="Еще обнова тестового деплоя без тестов">
       <option name="closed" value="true" />
@@ -716,7 +706,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777311991271</updated>
     </task>
-    <option name="localTasksCounter" value="94" />
+    <task id="LOCAL-00094" summary="Дебаг usever пробная версия. надо подлатать все докерфайлы, поставить везде tree и gdb">
+      <option name="closed" value="true" />
+      <created>1777377013740</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1777377013741</updated>
+    </task>
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -747,7 +745,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/backend/paymentService" />
     </ignored-roots>
-    <MESSAGE value="фикс тестового деплоя два" />
     <MESSAGE value="убавил число потоков" />
     <MESSAGE value="вернул сервис оплаты в докер композ. начинаем разработку его." />
     <MESSAGE value="пробный фикс долгого деплоя" />
@@ -772,7 +769,8 @@
     <MESSAGE value="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
     <MESSAGE value="попробую сделать папку idea вне gitignore чтобы у всех были таргеты удаленного дебага. не факт что сработает" />
     <MESSAGE value="добавил .idea в git" />
-    <option name="LAST_COMMIT_MESSAGE" value="добавил .idea в git" />
+    <MESSAGE value="Дебаг usever пробная версия. надо подлатать все докерфайлы, поставить везде tree и gdb" />
+    <option name="LAST_COMMIT_MESSAGE" value="Дебаг usever пробная версия. надо подлатать все докерфайлы, поставить везде tree и gdb" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
