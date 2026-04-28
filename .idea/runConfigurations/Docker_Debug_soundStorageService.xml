@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Debug soundStorageService" type="CLion_Remote" version="1" remoteCommand="tcp:localhost:12345" symbolFile="./backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
+    <debugger kind="GDB" isBundled="true" />
+    <pathMapping remote=":/app" local="./backend/soundsStorageService" />
+    <method v="2">
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Copy soundsStorage binary from docker" />
+    </method>
+  </configuration>
+</component>

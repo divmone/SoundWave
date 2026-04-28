@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Debug authService" type="CLion_Remote" version="1" remoteCommand="tcp:localhost:12346" symbolFile="./backend/authService/db_test.debug" sysroot="/">
+    <debugger kind="GDB" isBundled="true" />
+    <pathMapping remote=":/app" local="./backend/authService" />
+    <method v="2">
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Copy auth binary from docker" />
+    </method>
+  </configuration>
+</component>
