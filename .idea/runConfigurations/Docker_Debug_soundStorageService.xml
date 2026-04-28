@@ -3,7 +3,7 @@
     <debugger kind="GDB" isBundled="true" />
     <pathMapping remote=":/app" local="./backend/soundsStorageService" />
     <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Copy soundsStorage binary from docker" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Copy debug binaries from docker" />
     </method>
   </configuration>
 </component>
