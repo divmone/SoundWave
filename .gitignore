@@ -6,6 +6,9 @@ backend/authService/configs/config_vars.yaml
 .env.prod
 build/
 .vscode/
+*.debug
+.idea/workspace.xml
+.idea/usage.statistics.xml
 
 node_modules
 .DS_Store

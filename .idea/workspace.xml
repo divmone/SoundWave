@@ -31,8 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="">
+    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="работает дебаг маппинг с auth и sounds">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" beforeDir="false" afterPath="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -320,15 +321,9 @@
       <workItem from="1777305888215" duration="9687000" />
       <workItem from="1777371197499" duration="5822000" />
       <workItem from="1777377996143" duration="816000" />
-      <workItem from="1777378849986" duration="6000" />
-    </task>
-    <task id="LOCAL-00046" summary="Еще обнова тестового деплоя без тестов">
-      <option name="closed" value="true" />
-      <created>1775938175153</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1775938175153</updated>
+      <workItem from="1777378849986" duration="535000" />
+      <workItem from="1777379426326" duration="6000" />
+      <workItem from="1777379673783" duration="2000" />
     </task>
     <task id="LOCAL-00047" summary="Пробный запуск тестов Ростика">
       <option name="closed" value="true" />
@@ -714,7 +709,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777377013741</updated>
     </task>
-    <option name="localTasksCounter" value="95" />
+    <task id="LOCAL-00095" summary="работает дебаг маппинг с auth и sounds">
+      <option name="closed" value="true" />
+      <created>1777379139922</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1777379139923</updated>
+    </task>
+    <option name="localTasksCounter" value="96" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -745,7 +748,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/backend/paymentService" />
     </ignored-roots>
-    <MESSAGE value="убавил число потоков" />
     <MESSAGE value="вернул сервис оплаты в докер композ. начинаем разработку его." />
     <MESSAGE value="пробный фикс долгого деплоя" />
     <MESSAGE value="Отмена userver. Опять. Снова." />
@@ -770,7 +772,8 @@
     <MESSAGE value="попробую сделать папку idea вне gitignore чтобы у всех были таргеты удаленного дебага. не факт что сработает" />
     <MESSAGE value="добавил .idea в git" />
     <MESSAGE value="Дебаг usever пробная версия. надо подлатать все докерфайлы, поставить везде tree и gdb" />
-    <option name="LAST_COMMIT_MESSAGE" value="Дебаг usever пробная версия. надо подлатать все докерфайлы, поставить везде tree и gdb" />
+    <MESSAGE value="работает дебаг маппинг с auth и sounds" />
+    <option name="LAST_COMMIT_MESSAGE" value="работает дебаг маппинг с auth и sounds" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
