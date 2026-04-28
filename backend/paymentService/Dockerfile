@@ -9,6 +9,8 @@ ENV BUILD_TYPE=${BUILD_TYPE}
 
 RUN apt-get update && apt-get install -y \
     build-essential cmake ninja-build g++ libpq-dev libssl-dev libcurl4-openssl-dev \
+    gdb \
+    tree \
     git uuid-dev zlib1g-dev libjsoncpp-dev && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/drogonframework/drogon.git && \

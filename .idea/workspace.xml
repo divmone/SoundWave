@@ -31,7 +31,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
+    <list default="true" id="82dcffb9-b942-448c-aafb-814033a74329" name="Changes" comment="добавил .idea в git">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/authService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/commentService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/commentService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/mailService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/mailService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/paymentService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/paymentService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/soundsStorageService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/soundsStorageService/Dockerfile" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,7 +49,7 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="9932" />
+    <option name="cachedIndexableFilesCount" value="9931" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileTemplateManagerImpl">
@@ -119,8 +127,12 @@
     "C/C++ File.main.cpp.executor": "Run",
     "CMake Application.PaymentService.executor": "Run",
     "CMake Application.SoundsStorageService.executor": "Debug",
+    "Docker.backend/authService/Dockerfile builder.executor": "Run",
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Remote Debug.Docker Debug authService .executor": "Debug",
+    "Remote Debug.Docker Debug soundStorageService.executor": "Debug",
+    "Remote Debug.Docker Debug soundStorageServuce.executor": "Debug",
     "Remote Debug.Unnamed.executor": "Debug",
     "Remote GDB Server.SoundsStorageService.executor": "Debug",
     "RunOnceActivity.MCP Project settings loaded": "true",
@@ -161,8 +173,13 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Remote Debug.Unnamed">
-    <configuration name="Unnamed" type="CLion_Remote" version="1" remoteCommand="localhost:12345" symbolFile="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
+  <component name="RunManager" selected="Remote Debug.Docker Debug authService ">
+    <configuration name="Docker Debug authService " type="CLion_Remote" version="1" remoteCommand="tcp:localhost:12346" symbolFile="$PROJECT_DIR$/backend/authService/db_test.debug" sysroot="/">
+      <debugger kind="GDB" isBundled="true" />
+      <pathMapping remote=":/app/src" local="$PROJECT_DIR$/backend/authService/src" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Docker Debug soundStorageService" type="CLion_Remote" version="1" remoteCommand="localhost:12345" symbolFile="$PROJECT_DIR$/backend/soundsStorageService/SoundsStorageService.debug" sysroot="/">
       <debugger kind="GDB" isBundled="true" />
       <pathMapping remote=":/app" local="$PROJECT_DIR$/backend/soundsStorageService" />
       <method v="2" />
@@ -172,14 +189,24 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile" />
+      <method v="2" />
+    </configuration>
+    <configuration name="backend/authService/Dockerfile builder" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="imageTag" value="ghcr.iouserver-frameworkubuntu-22.04-userverv2.15_builder" />
+          <option name="buildCliOptions" value="--target builder" />
+          <option name="buildOnly" value="true" />
+          <option name="sourceFilePath" value="backend/authService/Dockerfile" />
+        </settings>
       </deployment>
       <method v="2" />
     </configuration>
@@ -193,12 +220,14 @@
     </configuration>
     <list>
       <item itemvalue="CMake Application.SoundsStorageService" />
+      <item itemvalue="Docker.backend/authService/Dockerfile builder" />
       <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-      <item itemvalue="Remote Debug.Unnamed" />
+      <item itemvalue="Remote Debug.Docker Debug authService " />
+      <item itemvalue="Remote Debug.Docker Debug soundStorageService" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.backend/authService/Dockerfile builder" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
@@ -292,23 +321,8 @@
       <workItem from="1777150181366" duration="3000" />
       <workItem from="1777196740653" duration="59000" />
       <workItem from="1777299412352" duration="2811000" />
-      <workItem from="1777305888215" duration="5997000" />
-    </task>
-    <task id="LOCAL-00043" summary="Поправил порядок аргументов команды докер композе">
-      <option name="closed" value="true" />
-      <created>1775924272288</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1775924272288</updated>
-    </task>
-    <task id="LOCAL-00044" summary="Фикс (теперь не будет 2 workflow)">
-      <option name="closed" value="true" />
-      <created>1775924402018</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1775924402018</updated>
+      <workItem from="1777305888215" duration="9687000" />
+      <workItem from="1777371197499" duration="5527000" />
     </task>
     <task id="LOCAL-00045" summary="Выпилил ненужное ожидаение сервисов и обновил пример env">
       <option name="closed" value="true" />
@@ -686,7 +700,23 @@
       <option name="project" value="LOCAL" />
       <updated>1777311869212</updated>
     </task>
-    <option name="localTasksCounter" value="92" />
+    <task id="LOCAL-00092" summary="попробую сделать папку idea вне gitignore чтобы у всех были таргеты удаленного дебага. не факт что сработает">
+      <option name="closed" value="true" />
+      <created>1777311976510</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1777311976510</updated>
+    </task>
+    <task id="LOCAL-00093" summary="добавил .idea в git">
+      <option name="closed" value="true" />
+      <created>1777311991271</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1777311991271</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -717,8 +747,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/backend/paymentService" />
     </ignored-roots>
-    <MESSAGE value="Добавил локальное отключение проверки авторизации в сервисе звуков" />
-    <MESSAGE value="Поправил тестовый деплой под прошлый коммит" />
     <MESSAGE value="фикс тестового деплоя два" />
     <MESSAGE value="убавил число потоков" />
     <MESSAGE value="вернул сервис оплаты в докер композ. начинаем разработку его." />
@@ -742,7 +770,9 @@
     <MESSAGE value="получилось подебажить свой сервис звуков. ВНИМАЕНИЕ НА ДЕБАГ СИМВОЛЫ БИНАРЯ В ДОКЕРЕ. их маппить надо&#10;см. диалог с дипсиком https://chat.deepseek.com/share/oobe4vh8xdnm077brd" />
     <MESSAGE value="дебаг с маппингом /app на папку сервиса&#10;открыты gdbserver порты для всех сервисов" />
     <MESSAGE value="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
-    <option name="LAST_COMMIT_MESSAGE" value="Внёс аналогичные изменения во все докерфайлы. сейчас попробуем дебаг userver" />
+    <MESSAGE value="попробую сделать папку idea вне gitignore чтобы у всех были таргеты удаленного дебага. не факт что сработает" />
+    <MESSAGE value="добавил .idea в git" />
+    <option name="LAST_COMMIT_MESSAGE" value="добавил .idea в git" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -762,6 +792,21 @@
             <option name="hitCountValue" value="1" />
           </properties>
           <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/backend/authService/src/handlers/auth/google_auth.cpp</url>
+          <line>25</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/backend/authService/src/handlers/auth/logout.cpp</url>
+          <line>23</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/backend/soundsStorageService/src/api/v1.0/controllers/ProductsController.cc</url>
+          <line>20</line>
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -1,4 +1,3 @@
-
 # ============================================
 # STAGE 1: Builder
 # ============================================
@@ -12,22 +11,21 @@ WORKDIR /app
 
 COPY CMakeLists.txt .
 COPY cmake ./cmake
+COPY src ./src
+COPY configs ./configs
+
+#RUN find /usr -name "userver" -type d 2>/dev/null | head -5
 
 RUN cmake -B build \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DUSERVER_FEATURE_POSTGRESQL=ON \
-    -G Ninja \
-    && cmake --build build --parallel $(nproc) \
-    || true
-
-COPY src ./src
-COPY configs ./configs
+    -G Ninja || true
 
 RUN if [ "${BUILD_TYPE}" = "Debug" ]; then \
         cmake -B build \
             -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
             -DUSERVER_FEATURE_POSTGRESQL=ON \
-            -DCMAKE_CXX_FLAGS="-g -O0 -fdebug-prefix-map=/app=." \
+            -DCMAKE_CXX_FLAGS="-g -O0 -fdebug-prefix-map=/app=/app" \
             -G Ninja; \
     else \
         cmake -B build \
@@ -38,9 +36,9 @@ RUN if [ "${BUILD_TYPE}" = "Debug" ]; then \
     cmake --build build --parallel $(nproc) && \
     cmake --install build --prefix /install
 
-RUN ldd /install/bin/authService \
+RUN ldd /install/bin/db_test \
     | grep -oP '(?<=> )/[^ ]+' \
-    | xargs -I{} cp --parents {} /install
+    | xargs -I{} cp --parents {} /install || true
 
 # ============================================
 # STAGE 2: Runtime
@@ -58,15 +56,26 @@ RUN if [ "$BUILD_TYPE" = "Debug" ]; then \
         apt-get update && apt-get install -y gdbserver; \
     fi
 
-COPY --from=builder /install/bin/authService /usr/local/bin/authService
-COPY --from=builder /install/etc/authService /etc/authService
-COPY --from=builder /install/lib /usr/lib
+RUN mkdir -p /app/config
+WORKDIR /app
+
+COPY --from=builder /install/bin/db_test /app/db_test
+COPY --from=builder /install/etc/db_test /app/config
+COPY --from=builder /install/lib/* /usr/local/lib/
+RUN ldconfig
+
+# ВАЖНО: Копируем исходники сервиса в контейнер (как во втором сервисе!)
 COPY --from=builder /app/src /app/src
+
+RUN chmod +x /app/db_test
 
 EXPOSE 8080
 
+ENV DB_CONNECTION=""
+
 CMD if [ "$BUILD_TYPE" = "Debug" ]; then \
-        gdbserver :12345 /usr/local/bin/authService; \
+        echo "Starting gdbserver on port 12345" && \
+        gdbserver :12345 /app/db_test -c /app/config/static_config.yaml --config_vars /app/config/config_vars.yaml; \
     else \
-        /usr/local/bin/authService -c /etc/authService/static_config.yaml --config_vars /etc/authService/config_vars.yaml; \
+        /app/db_test -c /app/config/static_config.yaml --config_vars /app/config/config_vars.yaml; \
     fi

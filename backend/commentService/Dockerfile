@@ -48,7 +48,7 @@ RUN if [ "${BUILD_TYPE}" = "Debug" ]; then \
 
 RUN ldd /install/bin/commentService \
     | grep -oP '(?<=> )/[^ ]+' \
-    | xargs -I{} cp --parents {} /install
+    | xargs -I{} cp --parents {} /install || true
 
 # ============================================
 # STAGE 2: Runtime
@@ -68,16 +68,20 @@ RUN if [ "$BUILD_TYPE" = "Debug" ]; then \
 
 COPY --from=builder /install/bin/commentService /usr/local/bin/commentService
 COPY --from=builder /install/etc/commentService /etc/commentService
-COPY --from=builder /install/lib /usr/lib
+COPY --from=builder /install/lib/* /usr/local/lib/
+RUN ldconfig
+
 COPY --from=builder /app/src /app/src
 
 EXPOSE 8080
+
+ENV MONGO_URI=""
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8080/ping || exit 1
 
 CMD if [ "$BUILD_TYPE" = "Debug" ]; then \
-        gdbserver :12345 /usr/local/bin/commentService; \
+        gdbserver :12345 /usr/local/bin/commentService -c /etc/commentService/static_config.yaml --config_vars /etc/commentService/config_vars.yaml; \
     else \
         /usr/local/bin/commentService -c /etc/commentService/static_config.yaml --config_vars /etc/commentService/config_vars.yaml; \
     fi

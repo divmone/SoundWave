@@ -34,9 +34,9 @@ RUN if [ "${BUILD_TYPE}" = "Debug" ]; then \
     cmake --build build --parallel $(nproc) && \
     cmake --install build --prefix /install
 
-RUN ldd /install/bin/mailService \
+RUN ldd /install/bin/db_test \
     | grep -oP '(?<=> )/[^ ]+' \
-    | xargs -I{} cp --parents {} /install
+    | xargs -I{} cp --parents {} /install || true
 
 # ============================================
 # STAGE 2: Runtime
@@ -47,22 +47,26 @@ ARG BUILD_TYPE=Release
 ENV BUILD_TYPE=${BUILD_TYPE}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl \
+    ca-certificates libpq5 curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN if [ "$BUILD_TYPE" = "Debug" ]; then \
         apt-get update && apt-get install -y gdbserver; \
     fi
 
-COPY --from=builder /install/bin/mailService /usr/local/bin/mailService
-COPY --from=builder /install/etc/mailService /etc/mailService
-COPY --from=builder /install/lib /usr/lib
+COPY --from=builder /install/bin/db_test /usr/local/bin/db_test
+COPY --from=builder /install/etc/db_test /etc/db_test
+COPY --from=builder /install/lib/* /usr/local/lib/
+RUN ldconfig
+
 COPY --from=builder /app/src /app/src
 
 EXPOSE 8080
 
+ENV DB_CONNECTION=""
+
 CMD if [ "$BUILD_TYPE" = "Debug" ]; then \
-        gdbserver :12345 /usr/local/bin/mailService; \
+        gdbserver :12345 /usr/local/bin/db_test -c /etc/db_test/static_config.yaml --config_vars /etc/db_test/config_vars.yaml; \
     else \
-        /usr/local/bin/mailService -c /etc/mailService/static_config.yaml --config_vars /etc/mailService/config_vars.yaml; \
+        /usr/local/bin/db_test -c /etc/db_test/static_config.yaml --config_vars /etc/db_test/config_vars.yaml; \
     fi
