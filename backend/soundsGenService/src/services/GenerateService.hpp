@@ -1,0 +1,27 @@
+//
+// Created by divmone on 4/30/2026.
+//
+
+#pragma once
+
+#include <userver/components/component_base.hpp>
+#include <userver/clients/http/client.hpp>
+
+using namespace userver;
+
+namespace shop::services {
+    class GenerateService final: public components::ComponentBase{
+    public:
+        static constexpr std::string_view kName = "service-generate";
+        GenerateService(const components::ComponentConfig&, const components::ComponentContext&);
+
+        std::string generateSound(const std::string &);
+
+        std::string getTaskStatus(const std::string &) const;
+        static yaml_config::Schema GetStaticConfigSchema();
+    private:
+        clients::http::Client& httpClient;
+        std::string apiKey;
+    };
+}
+

@@ -5,7 +5,6 @@
 #include "SendService.h"
 
 #include <userver/components/component_config.hpp>
-#include <userver/components/component_config.hpp>
 #include <userver/components/component_context.hpp>
 #include <userver/clients/http/component.hpp>
 #include <userver/formats/json/serialize.hpp>
