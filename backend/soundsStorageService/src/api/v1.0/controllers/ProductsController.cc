@@ -292,6 +292,54 @@ void ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<v
     callback(httpResponse);
 }
 
+void ProductsController::GetSoundPreview(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
+{
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    auto product = m_productService->Read(id);
+    auto sound = m_soundService->Read(product.soundId);
+
+    std::string extension = sound.filename.substr(sound.filename.find_last_of('.') + 1);
+    int32_t durationSeconds = sound.durationSeconds;
+
+    if (durationSeconds <= 0)
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Invalid sound duration";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    std::vector<char> previewData;
+    if (!m_soundDataService->GetSoundPreviewChunk(previewData, sound.id, sound.userId, extension, durationSeconds))
+    {
+        Json::Value errorResponse;
+        errorResponse["message"] = "Failed to generate preview";
+        httpResponse->setBody(Json::FastWriter().write(errorResponse));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+        callback(httpResponse);
+        return;
+    }
+
+    size_t previewSize = previewData.size();
+    size_t totalSize = m_soundDataService->GetSoundFileSize(sound.id, sound.userId, extension);
+
+    httpResponse->setBody(std::string(previewData.begin(), previewData.end()));
+    httpResponse->setContentTypeString(sound.mimeType.empty() ? "audio/wav" : sound.mimeType);
+    httpResponse->addHeader("Access-Control-Allow-Origin", "*");
+    httpResponse->addHeader("Accept-Ranges", "bytes");
+    httpResponse->addHeader("X-Preview-Bytes", std::to_string(previewSize));
+    httpResponse->addHeader("X-Total-Bytes", std::to_string(totalSize));
+    httpResponse->addHeader("X-Preview-Duration", "5");
+    httpResponse->setStatusCode(HttpStatusCode::k200OK);
+
+    callback(httpResponse);
+}
+
 void ProductsController::GetSoundsByTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id)
 {
     Json::Value responseJson;

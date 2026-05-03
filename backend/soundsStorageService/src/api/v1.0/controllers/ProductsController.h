@@ -28,12 +28,13 @@ public:
         ADD_METHOD_TO(ProductsController::GetSoundsAmount, "api/v1.0/sounds/amount", Get);
         ADD_METHOD_TO(ProductsController::GetPageOfSounds, "api/v1.0/sounds/pages/{pageNum}", Get);
         ADD_METHOD_TO(ProductsController::GetSound, "api/v1.0/sounds/{id}", Get);
-        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get,);
+        ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get);
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get);
-        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post,  "soundwaveSounds::AuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put,                     "soundwaveSounds::AuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete,                "soundwaveSounds::AuthCheckMiddleware");
-        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get);
+        ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post, "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put, "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete, "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get, "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::GetSoundPreview, "api/v1.0/sounds/{id}/preview", Get);
     METHOD_LIST_END
 private:
     void GetSoundsAmount(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);
@@ -45,6 +46,7 @@ private:
     void EditSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void DeleteSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void GetSoundData(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
+    void GetSoundPreview(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
 };
 
 }

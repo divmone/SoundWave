@@ -57,3 +57,8 @@ export async function purchaseProduct(_id, _params) {
 export function getProductAudioUrl(id) {
   return `${BASE}/${id}/data`;
 }
+
+// ── Получить превью (первые 5 секунд, binary) ─────────────
+export function getProductPreviewUrl(id) {
+  return `${BASE}/${id}/preview`;
+}

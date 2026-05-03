@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getProductAudioUrl } from '../api/services/productsService';
-
-const MAX_PREVIEW_SECONDS = 3;
+import { getProductPreviewUrl } from '../api/services/productsService';
 
 const manager = {
   audio: null,
@@ -9,17 +7,14 @@ const manager = {
   analyser: null,
   stopCurrent: null,
   currentId: null,
-  previewTimeout: null,
 
   play(id, url, onStop, onAnalyser, onDuration) {
     if (this.stopCurrent) this.stopCurrent();
     if (this.audio) { this.audio.pause(); this.audio = null; }
     if (this.audioCtx) { this.audioCtx.close(); this.audioCtx = null; this.analyser = null; }
-    if (this.previewTimeout) { clearTimeout(this.previewTimeout); this.previewTimeout = null; }
 
     this.currentId = id;
 
-    // crossOrigin must be set before src for WebAudio API to work
     const audio = new Audio();
     audio.crossOrigin = 'anonymous';
     audio.src = url;
@@ -39,7 +34,6 @@ const manager = {
       this.currentId = null;
     };
 
-    // Set up WebAudio synchronously (before play)
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = ctx.createAnalyser();
@@ -51,7 +45,6 @@ const manager = {
       this.audioCtx = ctx;
       this.analyser = analyser;
       onAnalyser(analyser);
-      // iOS: resume must be called synchronously within user gesture
       if (ctx.state === 'suspended') ctx.resume();
     } catch {
       onAnalyser(null);
@@ -64,17 +57,9 @@ const manager = {
         this.audio = null;
         this.stopCurrent = null;
       });
-
-    // Stop after MAX_PREVIEW_SECONDS seconds
-    this.previewTimeout = setTimeout(() => {
-      console.log('[useAudioPlayer] Preview limit reached, stopping...');
-      this.stop();
-      onStop();
-    }, MAX_PREVIEW_SECONDS * 1000);
   },
 
   stop() {
-    if (this.previewTimeout) { clearTimeout(this.previewTimeout); this.previewTimeout = null; }
     if (this.stopCurrent) this.stopCurrent();
     if (this.audio) { this.audio.pause(); this.audio = null; }
     if (this.audioCtx) { this.audioCtx.close(); this.audioCtx = null; }
@@ -108,7 +93,7 @@ export function useAudioPlayer(productId) {
     } else {
       manager.play(
         idRef.current,
-        getProductAudioUrl(productId),
+        getProductPreviewUrl(productId),
         () => { setPlaying(false); setAnalyser(null); },
         setAnalyser,
         setDuration,

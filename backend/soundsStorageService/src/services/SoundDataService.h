@@ -22,8 +22,10 @@ public:
 
     bool SaveSoundFile(const HttpFile& file, uint64_t fileId, uint64_t userId);
     bool GetSoundFile(std::vector<char>& outData, uint64_t fileId, uint64_t userId, std::string_view extension);
+    bool GetSoundPreviewChunk(std::vector<char>& outData, uint64_t fileId, uint64_t userId, std::string_view extension, int32_t durationSeconds);
     bool DeleteSoundFile(uint64_t fileId, uint64_t userId, std::string_view extension);
     bool SoundFileExists(uint64_t fileId, uint64_t userId, std::string_view extension);
+    size_t GetSoundFileSize(uint64_t fileId, uint64_t userId, std::string_view extension);
     std::string GetSoundFilePath(uint64_t fileId, uint64_t userId, std::string_view extension) const;
 
 private:

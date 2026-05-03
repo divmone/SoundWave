@@ -20,8 +20,10 @@ public:
 
     bool AddFile(const std::vector<char>& data, uint64_t fileId, uint64_t userId, const std::string& extension);
     bool GetFile(std::vector<char>& outData, uint64_t fileId, uint64_t userId, const std::string& extension);
+    bool GetFileChunk(std::vector<char>& outData, uint64_t fileId, uint64_t userId, const std::string& extension, size_t byteCount);
     bool RemoveFile(uint64_t fileId, uint64_t userId, const std::string& extension);
     bool FileExists(uint64_t fileId, uint64_t userId, const std::string& extension);
+    size_t GetFileSize(uint64_t fileId, uint64_t userId, const std::string& extension);
     std::string GetFilePath(uint64_t fileId, uint64_t userId, const std::string& extension) const;
 
 private:

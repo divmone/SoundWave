@@ -50,6 +50,44 @@ bool SoundDataService::GetSoundFile(std::vector<char>& outData, uint64_t fileId,
     return m_repository->GetFile(outData, fileId, userId, std::string(extension));
 }
 
+bool SoundDataService::GetSoundPreviewChunk(std::vector<char>& outData, uint64_t fileId, uint64_t userId, std::string_view extension, int32_t durationSeconds)
+{
+    if (extension.empty() || durationSeconds <= 0)
+    {
+        return false;
+    }
+
+    size_t totalFileSize = m_repository->GetFileSize(fileId, userId, std::string(extension));
+    if (totalFileSize == 0)
+    {
+        return false;
+    }
+
+    constexpr int32_t previewSeconds = 5;
+    size_t previewBytes;
+
+    if (durationSeconds <= previewSeconds)
+    {
+        previewBytes = totalFileSize;
+    }
+    else
+    {
+        previewBytes = static_cast<size_t>(static_cast<double>(previewSeconds) / durationSeconds * totalFileSize);
+    }
+
+    return m_repository->GetFileChunk(outData, fileId, userId, std::string(extension), previewBytes);
+}
+
+size_t SoundDataService::GetSoundFileSize(uint64_t fileId, uint64_t userId, std::string_view extension)
+{
+    if (extension.empty())
+    {
+        return 0;
+    }
+
+    return m_repository->GetFileSize(fileId, userId, std::string(extension));
+}
+
 bool SoundDataService::DeleteSoundFile(uint64_t fileId, uint64_t userId, std::string_view extension)
 {
     if (extension.empty())

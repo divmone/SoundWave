@@ -107,6 +107,66 @@ bool SoundDataRepository::GetFile(std::vector<char>& outData, uint64_t fileId, u
     }
 }
 
+bool SoundDataRepository::GetFileChunk(std::vector<char>& outData, uint64_t fileId, uint64_t userId, const std::string& extension, size_t byteCount)
+{
+    std::shared_lock<std::shared_mutex> lock(m_mutex);
+
+    try
+    {
+        std::string fullPath = GetFullPath(fileId, userId, extension);
+        LOG_INFO << __FILE__ << " GetFileChunk: " << std::filesystem::absolute(fullPath).string() << " bytes=" << byteCount;
+
+        if (!std::filesystem::exists(fullPath))
+        {
+            LOG_INFO << __FILE__ << "GetFileChunk: NOT FOUND";
+            return false;
+        }
+
+        std::ifstream file(fullPath, std::ios::binary);
+        if (!file.is_open())
+        {
+            LOG_INFO << __FILE__ << __LINE__ << "Failed to open file " << fullPath;
+            return false;
+        }
+
+        file.seekg(0, std::ios::end);
+        size_t fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        size_t readSize = std::min(byteCount, fileSize);
+        outData.resize(readSize);
+        file.read(outData.data(), readSize);
+        file.close();
+
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
+        return false;
+    }
+}
+
+size_t SoundDataRepository::GetFileSize(uint64_t fileId, uint64_t userId, const std::string& extension)
+{
+    std::shared_lock<std::shared_mutex> lock(m_mutex);
+
+    try
+    {
+        std::string fullPath = GetFullPath(fileId, userId, extension);
+        if (!std::filesystem::exists(fullPath))
+        {
+            return 0;
+        }
+        return std::filesystem::file_size(fullPath);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_INFO << __FILE__ << __LINE__ << "Exception thrown " << std::string(e.what());
+        return 0;
+    }
+}
+
 bool SoundDataRepository::RemoveFile(uint64_t fileId, uint64_t userId, const std::string& extension)
 {
     std::unique_lock<std::shared_mutex> lock(m_mutex);
