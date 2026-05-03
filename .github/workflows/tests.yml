@@ -25,6 +25,14 @@ jobs:
             set -e
             cd /root/SoundWave || exit 1
             
+            
+            #############
+            ВРЕМЕННО
+            
+            exit 0
+            
+            ВРЕМЕННО
+            ##########
             # Правильно получаем имя ветки для push события
             BRANCH="${GITHUB_REF_NAME:-${{ github.ref_name }}}"
             echo "🚀 Deploying branch: $BRANCH"

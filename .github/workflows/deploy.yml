@@ -21,7 +21,7 @@ jobs:
             git pull origin main
 
             docker compose -f docker-compose.yml -f docker-compose.override.prod.yml down
-            docker compose -f docker-compose.yml -f docker-compose.override.prod.yml --env-file .env.prod up --build -d
+            docker compose -f docker-compose.yml -f docker-compose.override.prod.yml --env-file  .env.prod --parallel 1 up --build -d
             docker image prune -f
 
       - name: Rollback on failure
