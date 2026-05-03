@@ -6,4 +6,5 @@
 
     <include file="V1__init_schema.sql" relativeToChangelogFile="true"/>
     <include file="V2__add_indexes.sql" relativeToChangelogFile="true"/>
+    <include file="V3__add_ai_slop_table.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
