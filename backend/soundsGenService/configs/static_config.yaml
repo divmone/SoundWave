@@ -35,6 +35,15 @@ components_manager:
             load-enabled: $is_testing
             fs-task-processor: fs-task-processor
 
+        postgres-db-1:
+            dbconnection#env: DB_CONNECTION
+            blocking_task_processor: fs-task-processor
+            dns_resolver: async
+            sync-start: true
+            connlimit_mode: manual
+
+        generate-repository: {}
+
         handler-generate:
             path: /generate
             method: POST
@@ -42,6 +51,11 @@ components_manager:
 
         handler-status:
             path: /generate/status/{id}
+            method: GET
+            task_processor: main-task-processor
+
+        handler-info:
+            path: /generate/info/{id}
             method: GET
             task_processor: main-task-processor
 

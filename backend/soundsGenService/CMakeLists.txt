@@ -7,6 +7,7 @@ include(DownloadUserver)
 find_package(
     userver
     COMPONENTS core #
+    postgresql
     QUIET
 )
 if(NOT userver_FOUND)
@@ -24,10 +25,15 @@ add_library(
         src/handlers/GenerateHandler.cpp
         src/services/GenerateService.cpp
         src/handlers/StatusHandler.cpp
+        src/handlers/InfoHandler.cpp
+        src/repositories/GenerateRepository.cpp
+        src/repositories/GenerateRepository.hpp
+        src/models/GeneratedSoundInfo.hpp
 )
+
 target_link_libraries(
     ${PROJECT_NAME}_objs
-    PUBLIC userver::core #
+    PUBLIC userver::core
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

@@ -64,11 +64,24 @@ std::string shop::services::GenerateService::getTaskStatus(const std::string &ta
 
     const auto bodyToJson = formats::json::FromString(response->body());
     const auto status = bodyToJson["data"]["status"].As<std::string>();
-    return status; 
+    return status;
 }
 
 std::string shop::services::GenerateService::getTaskInfo(
-    const std::string &) const {
+    const std::string &taskId) const {
+
+    const auto response = httpClient
+      .CreateRequest()
+      .get("https://api.sunoapi.org/api/v1/generate/record-info?taskId=" + taskId)
+      .headers({{"Authorization", apiKey}})
+      .timeout(std::chrono::seconds(10))
+      .perform();
+
+    if (!response || response->status_code() != http::StatusCode::kOk) {
+        throw server::handlers::ClientError();
+    }
+
+    return response->body();
 }
 
 yaml_config::Schema shop::services::GenerateService::GetStaticConfigSchema() {
