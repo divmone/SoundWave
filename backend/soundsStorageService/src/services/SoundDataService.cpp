@@ -30,7 +30,7 @@ bool SoundDataService::SaveSoundFile(const HttpFile& file, uint64_t fileId, uint
     return m_repository->AddFile(data, fileId, userId, extStr);
 }
 
-bool SoundDataService::SaveSoundFileFromUrl(const std::string& url, uint64_t fileId, uint64_t userId)
+    bool SoundDataService::SaveSoundFileFromUrl(const std::string& url, uint64_t fileId, uint64_t userId)
 {
     if (url.empty())
     {
@@ -52,15 +52,13 @@ bool SoundDataService::SaveSoundFileFromUrl(const std::string& url, uint64_t fil
         return false;
     }
 
-    std::string hostString = scheme + "://" + host;
-
-    auto client = HttpClient::newHttpClient(hostString);
+    auto client = HttpClient::newHttpClient("http://nginx");
 
     auto req = HttpRequest::newHttpRequest();
     req->setMethod(Get);
-    req->setPath(path);
+    req->setPath("/external-proxy" + path);
 
-    auto [result, response] = client->sendRequest(req, 30.0);
+    auto [result, response] = client->sendRequest(req, 60.0);
 
     if (result == ReqResult::Ok && response)
     {
@@ -85,16 +83,6 @@ bool SoundDataService::SaveSoundFileFromUrl(const std::string& url, uint64_t fil
 
             LOG_ERROR << "Empty response body";
             return false;
-        }
-
-        if (statusCode == 301 || statusCode == 302 || statusCode == 307 || statusCode == 308)
-        {
-            auto location = response->getHeader("Location");
-            if (!location.empty())
-            {
-                LOG_INFO << "Following redirect to: " << location;
-                return SaveSoundFileFromUrl(location, fileId, userId);
-            }
         }
 
         LOG_ERROR << "HTTP status: " << statusCode;
