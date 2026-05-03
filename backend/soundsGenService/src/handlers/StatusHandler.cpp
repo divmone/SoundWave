@@ -17,7 +17,10 @@ std::string StatusHandler::HandleRequestThrow(
     const server::http::HttpRequest &request,
     server::request::RequestContext &context) const {
 
-    const auto& statusId = request.GetArg("id");
+    const auto statusId = request.GetPathArg("id");
+    if (!statusId.data() || statusId.empty()) {
+        throw server::handlers::ClientError();
+    }
 
     const auto status = generateService.getTaskStatus(statusId);
 

@@ -1,9 +1,9 @@
-worker-threads: 4
-worker-fs-threads: 2
+worker-threads: 2
+worker-fs-threads: 1
 logger-level: info
 
 is-testing: false
 
 server-port: 8080
 
-suno-api-key#env: SUNO_API_KEY
+suno-api-key: 59d14869dc100cad05b658c9358cdc2e

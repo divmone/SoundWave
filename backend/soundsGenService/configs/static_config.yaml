@@ -30,30 +30,10 @@ components_manager:
             defaults:
                 HTTP_CLIENT_CONNECTION_POOL_SIZE: 1000
 
-        testsuite-support: {}
-
-        congestion-control:
-
         http-client:
         http-client-core:
             load-enabled: $is_testing
             fs-task-processor: fs-task-processor
-
-        dns-client:
-            fs-task-processor: fs-task-processor
-
-        tests-control:
-            load-enabled: $is-testing
-            path: /tests/{action}
-            method: POST
-            task_processor: main-task-processor
-
-        handler-ping:
-            path: /ping
-            method: GET
-            task_processor: main-task-processor
-            throttling_enabled: false
-            url_trailing_slash: strict-match
 
         handler-generate:
             path: /generate
