@@ -41,6 +41,7 @@ public:
         {
             entity.setIsPublished(dto.isPublished.value());
         }
+        entity.setIsAiSlop(dto.isAiSlop);
         return entity;
     }
 
@@ -84,6 +85,7 @@ public:
         dto.tagNames = tagNames;
         dto.createdAt = entity.getValueOfCreatedAt().toFormattedString(false);
         dto.updatedAt = entity.getValueOfUpdatedAt().toFormattedString(false);
+        dto.isAiSlop = entity.getValueOfIsAiSlop();
         return dto;
     }
 

@@ -25,6 +25,7 @@ public:
     std::vector<std::string> tagNames;
     std::string createdAt;
     std::string updatedAt;
+    bool isAiSlop;
 
     Json::Value toJson() const
     {
@@ -52,6 +53,7 @@ public:
         json["tagNames"] = tagNamesArray;
         json["createdAt"] = createdAt;
         json["updatedAt"] = updatedAt;
+        json["isAiSlop"] = isAiSlop;
         return json;
     }
 };
