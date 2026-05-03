@@ -55,6 +55,7 @@ class Products
         static const std::string _is_published;
         static const std::string _created_at;
         static const std::string _updated_at;
+        static const std::string _is_ai_slop;
     };
 
     static const int primaryKeyNumber;
@@ -202,8 +203,17 @@ class Products
     ///Set the value of the column updated_at
     void setUpdatedAt(const ::trantor::Date &pUpdatedAt) noexcept;
 
+    /**  For column is_ai_slop  */
+    ///Get the value of the column is_ai_slop, returns the default value if the column is null
+    const bool &getValueOfIsAiSlop() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<bool> &getIsAiSlop() const noexcept;
+    ///Set the value of the column is_ai_slop
+    void setIsAiSlop(const bool &pIsAiSlop) noexcept;
+    void setIsAiSlopToNull() noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 11;  }
+
+    static size_t getColumnNumber() noexcept {  return 12;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -236,6 +246,7 @@ class Products
     std::shared_ptr<bool> isPublished_;
     std::shared_ptr<::trantor::Date> createdAt_;
     std::shared_ptr<::trantor::Date> updatedAt_;
+    std::shared_ptr<bool> isAiSlop_;
     struct MetaData
     {
         const std::string colName_;
@@ -247,7 +258,7 @@ class Products
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[11]={ false };
+    bool dirtyFlag_[12]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -319,6 +330,12 @@ class Products
         sql += "updated_at,";
         ++parametersCount;
         if(!dirtyFlag_[10])
+        {
+            needSelection=true;
+        }
+        sql += "is_ai_slop,";
+        ++parametersCount;
+        if(!dirtyFlag_[11])
         {
             needSelection=true;
         }
@@ -397,6 +414,15 @@ class Products
             sql +="default,";
         }
         if(dirtyFlag_[10])
+        {
+            n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        else
+        {
+            sql +="default,";
+        }
+        if(dirtyFlag_[11])
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
             sql.append(placeholderStr, n);
