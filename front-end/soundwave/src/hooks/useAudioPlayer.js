@@ -25,6 +25,19 @@ const manager = {
       if (isFinite(audio.duration)) onDuration(audio.duration);
     });
 
+    audio.addEventListener('timeupdate', () => {
+      if (audio.currentTime >= 10) {
+        audio.pause();
+        audio.currentTime = 0;
+        onStop();
+        onAnalyser(null);
+        this.audio = null;
+        this.stopCurrent = null;
+        this.analyser = null;
+        this.currentId = null;
+      }
+    });
+
     audio.onended = () => {
       onStop();
       onAnalyser(null);

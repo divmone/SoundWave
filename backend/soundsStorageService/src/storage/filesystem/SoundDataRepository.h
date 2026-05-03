@@ -21,6 +21,7 @@ public:
     bool AddFile(const std::vector<char>& data, uint64_t fileId, uint64_t userId, const std::string& extension);
     bool GetFile(std::vector<char>& outData, uint64_t fileId, uint64_t userId, const std::string& extension);
     bool GetFileChunk(std::vector<char>& outData, uint64_t fileId, uint64_t userId, const std::string& extension, size_t byteCount);
+    std::function<size_t(char*, size_t)> GetFilePreviewStreamCallback(uint64_t fileId, uint64_t userId, const std::string& extension, size_t byteLimit);
     bool RemoveFile(uint64_t fileId, uint64_t userId, const std::string& extension);
     bool FileExists(uint64_t fileId, uint64_t userId, const std::string& extension);
     size_t GetFileSize(uint64_t fileId, uint64_t userId, const std::string& extension);

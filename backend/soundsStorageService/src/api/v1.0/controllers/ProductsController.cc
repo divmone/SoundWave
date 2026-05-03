@@ -292,6 +292,7 @@ void ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<v
     callback(httpResponse);
 }
 
+
 void ProductsController::GetSoundPreview(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
@@ -313,6 +314,35 @@ void ProductsController::GetSoundPreview(const HttpRequestPtr& req, std::functio
         return;
     }
 
+    // For m4a - return full file
+    if (extension == "m4a")
+    {
+        std::vector<char> fullData;
+        if (!m_soundDataService->GetSoundFile(fullData, sound.id, sound.userId, extension))
+        {
+            Json::Value errorResponse;
+            errorResponse["message"] = "Failed to load audio file";
+            httpResponse->setBody(Json::FastWriter().write(errorResponse));
+            httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+            httpResponse->setStatusCode(HttpStatusCode::k404NotFound);
+            callback(httpResponse);
+            return;
+        }
+
+        size_t totalSize = fullData.size();
+
+        httpResponse->setBody(std::string(fullData.begin(), fullData.end()));
+        httpResponse->setContentTypeString(sound.mimeType.empty() ? "audio/mp4" : sound.mimeType);
+        httpResponse->addHeader("Access-Control-Allow-Origin", "*");
+        httpResponse->addHeader("Accept-Ranges", "bytes");
+        httpResponse->addHeader("X-Total-Bytes", std::to_string(totalSize));
+        httpResponse->addHeader("X-Preview-Duration", std::to_string(durationSeconds));
+        httpResponse->setStatusCode(HttpStatusCode::k200OK);
+        callback(httpResponse);
+        return;
+    }
+
+    // For other formats - return 10 second preview
     std::vector<char> previewData;
     if (!m_soundDataService->GetSoundPreviewChunk(previewData, sound.id, sound.userId, extension, durationSeconds))
     {
@@ -334,7 +364,7 @@ void ProductsController::GetSoundPreview(const HttpRequestPtr& req, std::functio
     httpResponse->addHeader("Accept-Ranges", "bytes");
     httpResponse->addHeader("X-Preview-Bytes", std::to_string(previewSize));
     httpResponse->addHeader("X-Total-Bytes", std::to_string(totalSize));
-    httpResponse->addHeader("X-Preview-Duration", "5");
+    httpResponse->addHeader("X-Preview-Duration", "10");
     httpResponse->setStatusCode(HttpStatusCode::k200OK);
 
     callback(httpResponse);
