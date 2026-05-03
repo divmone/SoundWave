@@ -1,52 +1,81 @@
-# Build stage
+# ============================================
+# STAGE 1: Builder
+# ============================================
+ARG BUILD_TYPE=Release
+
 FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v2.15 AS builder
+ARG BUILD_TYPE
+ENV BUILD_TYPE=${BUILD_TYPE}
 
 WORKDIR /app
 
-# Сначала копируем только файлы с зависимостями
 COPY CMakeLists.txt .
 COPY cmake ./cmake
-
-# Собираем зависимости (этот слой будет кэшироваться, пока не изменится CMakeLists.txt или cmake/)
-RUN cmake -B build-release \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
-    -G Ninja \
-    && cmake --build build-release --parallel $(nproc) \
-    || true  # Может упасть из-за отсутствия исходников, игнорируем
-
-# Теперь копируем исходники
 COPY src ./src
 COPY configs ./configs
 
-# Собираем проект (будет пересобираться только при изменении src/)
-RUN cmake -B build-release \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DUSERVER_FEATURE_POSTGRESQL=ON \
-    -G Ninja \
-    && cmake --build build-release --parallel $(nproc) \
-    && cmake --install build-release --prefix /install
+#RUN find /usr -name "userver" -type d 2>/dev/null | head -5
 
-# Collect all shared library dependencies
+RUN cmake -B build \
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -DUSERVER_FEATURE_POSTGRESQL=ON \
+    -G Ninja || true
+
+RUN if [ "${BUILD_TYPE}" = "Debug" ]; then \
+        cmake -B build \
+            -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+            -DUSERVER_FEATURE_POSTGRESQL=ON \
+            -DCMAKE_CXX_FLAGS="-g -O0 -fdebug-prefix-map=/app=/app" \
+            -G Ninja; \
+    else \
+        cmake -B build \
+            -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+            -DUSERVER_FEATURE_POSTGRESQL=ON \
+            -G Ninja; \
+    fi && \
+    cmake --build build --parallel $(nproc) && \
+    cmake --install build --prefix /install
+
 RUN ldd /install/bin/db_test \
     | grep -oP '(?<=> )/[^ ]+' \
-    | xargs -I{} cp --parents {} /install
+    | xargs -I{} cp --parents {} /install || true
 
-# Runtime stage
-FROM ubuntu:22.04 AS runtime
+# ============================================
+# STAGE 2: Runtime
+# ============================================
+FROM ubuntu:22.04
+
+ARG BUILD_TYPE=Release
+ENV BUILD_TYPE=${BUILD_TYPE}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    libpq5 \
-    curl \
+    ca-certificates libpq5 curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install/bin/db_test /usr/local/bin/db_test
-COPY --from=builder /install/etc/db_test /etc/db_test
-COPY --from=builder /install/lib /usr/lib
+RUN if [ "$BUILD_TYPE" = "Debug" ]; then \
+        apt-get update && apt-get install -y gdbserver; \
+    fi
+
+RUN mkdir -p /app/config
+WORKDIR /app
+
+COPY --from=builder /install/bin/db_test /app/db_test
+COPY --from=builder /install/etc/db_test /app/config
+COPY --from=builder /install/lib/* /usr/local/lib/
+RUN ldconfig
+
+# ВАЖНО: Копируем исходники сервиса в контейнер (как во втором сервисе!)
+COPY --from=builder /app/src /app/src
+
+RUN chmod +x /app/db_test
 
 EXPOSE 8080
 
 ENV DB_CONNECTION=""
 
-CMD ["db_test", "-c", "/etc/db_test/static_config.yaml", "--config_vars", "/etc/db_test/config_vars.yaml"]
+CMD if [ "$BUILD_TYPE" = "Debug" ]; then \
+        echo "Starting gdbserver on port 12345" && \
+        gdbserver :12345 /app/db_test -c /app/config/static_config.yaml --config_vars /app/config/config_vars.yaml; \
+    else \
+        /app/db_test -c /app/config/static_config.yaml --config_vars /app/config/config_vars.yaml; \
+    fi
