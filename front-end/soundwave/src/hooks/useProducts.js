@@ -4,7 +4,7 @@ import { getUserById } from '../api/services/authService';
 
 const PAGE_SIZE = 9;
 
-export function useProducts(category, search, page = 1, refreshKey = 0) {
+export function useProducts(search, page = 1, refreshKey = 0) {
   const [data,    setData]    = useState([]);
   const [total,   setTotal]   = useState(0);
   const [loading, setLoading] = useState(true);
@@ -16,16 +16,6 @@ export function useProducts(category, search, page = 1, refreshKey = 0) {
     try {
       const res   = await getProducts({ page });
       let items   = res?.items ?? [];
-
-      // ── Фильтрация по тегу/категории на фронте ─────────
-      // Бэк не поддерживает фильтрацию, делаем сами
-      if (category && category !== 'all') {
-        const cat = category.toLowerCase();
-        items = items.filter(p =>
-          (p.tagNames ?? []).some(t => t.toLowerCase() === cat) ||
-          (p.description ?? '').toLowerCase().includes(cat)
-        );
-      }
 
       // ── Поиск по заголовку/тегам ────────────────────────
       if (search && search.trim()) {
@@ -59,7 +49,7 @@ export function useProducts(category, search, page = 1, refreshKey = 0) {
     } finally {
       setLoading(false);
     }
-  }, [page, category, search, refreshKey]);
+   }, [page, search, refreshKey]);
 
   useEffect(() => { load(); }, [load]);
 

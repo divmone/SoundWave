@@ -9,9 +9,9 @@ export default function EmptyState({ search, onReset }) {
       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.1rem', marginBottom: 8 }}>
         No sounds found
       </div>
-      <div style={{ color: 'var(--text2)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
-        {search ? `No results for "${search}"` : 'Try a different category'}
-      </div>
+       <div style={{ color: 'var(--text2)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+         {search ? `No results for "${search}"` : 'No sounds available'}
+       </div>
       <button className="btn-ghost" onClick={onReset} style={{ fontSize: '0.82rem', padding: '0.65rem 1.8rem' }}>
         Clear filters
       </button>

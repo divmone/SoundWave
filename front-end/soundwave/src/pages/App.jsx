@@ -39,7 +39,6 @@ export default function App() {
   const [debugOpen,      setDebugOpen]      = useState(false);
   const [page,           setPage]           = useState(getInitialPage);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [category,       setCategory]       = useState('all');
   const [search,         setSearch]         = useState('');
   const [modal,          setModal]          = useState(false);
   const [oauthError,     setOauthError]     = useState('');
@@ -48,7 +47,7 @@ export default function App() {
   const oauthDone = useRef(false);
 
   const { user, login, logout, checking }      = useAuth();
-  const { data: products, total, loading, refresh } = useProducts(category, search, currentPage, refreshKey);
+  const { data: products, total, loading, refresh } = useProducts(search, currentPage, refreshKey);
 
   const handleNavigate = (target) => {
     if (target === 'home') setRefreshKey(k => k + 1);
@@ -61,11 +60,11 @@ export default function App() {
   };
 
   const PAGE_SIZE    = 9;
-  const isFiltered   = category !== 'all' || !!search.trim();
+  const isFiltered   = !!search.trim();
   const totalPages   = isFiltered || products.length >= total ? 1 : Math.ceil(total / PAGE_SIZE);
   const { data: stats }             = useStats();
 
-  useEffect(() => { stopAll(); setCurrentPage(1); }, [category, search]);
+  useEffect(() => { stopAll(); setCurrentPage(1); }, [search]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -154,17 +153,15 @@ export default function App() {
 
         <section>
           <FilterTabs
-            active={category}
-            onChange={setCategory}
-            count={loading ? '…' : products.length}
-          />
+             count={loading ? '…' : products.length}
+           />
 
           {loading ? (
             <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
               {[...Array(9)].map((_, i) => <CardSkeleton key={i} />)}
             </div>
           ) : products.length === 0 ? (
-            <EmptyState search={search} onReset={() => { setCategory('all'); setSearch(''); }} />
+            <EmptyState search={search} onReset={() => { setSearch(''); }} />
           ) : (
             <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
               {products.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}

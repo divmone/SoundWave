@@ -1,12 +1,3 @@
-export const CATEGORIES = [
-  { id: 'all',         label: 'All Sounds',   emoji: '✨' },
-  { id: 'alerts',      label: 'Alerts',       emoji: '🔔' },
-  { id: 'transitions', label: 'Transitions',  emoji: '🌊' },
-  { id: 'jingles',     label: 'Jingles',      emoji: '🎵' },
-  { id: 'ui',          label: 'UI Sounds',    emoji: '⬡'  },
-  { id: 'stingers',    label: 'Stingers',     emoji: '⚡' },
-];
-
 export const ROLES = [
   { id: 'buyer',   emoji: '🎧', title: 'Buyer',   desc: 'Browse & buy sounds' },
   { id: 'creator', emoji: '🎤', title: 'Creator', desc: 'Upload & sell sounds' },
