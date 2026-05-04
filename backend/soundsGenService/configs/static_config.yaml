@@ -59,5 +59,10 @@ components_manager:
             method: GET
             task_processor: main-task-processor
 
+        handler-add-sound:
+            path: /generate/add/{id}
+            method: POST
+            task_processor: main-task-processor
+
         service-generate:
             api-key: $suno-api-key

@@ -20,6 +20,7 @@ namespace shop::services {
         std::string getTaskStatus(const std::string &) const;
         std::string getTaskInfo(const std::string &) const;
 
+        std::string addGeneratedSound(const std::string&);
         static yaml_config::Schema GetStaticConfigSchema();
     private:
         clients::http::Client& httpClient;

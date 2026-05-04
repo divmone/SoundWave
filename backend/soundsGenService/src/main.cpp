@@ -6,9 +6,13 @@
 #include <userver/congestion_control/component.hpp>
 #include <userver/server/handlers/ping.hpp>
 #include <userver/server/handlers/tests_control.hpp>
+#include <userver/storages/postgres/component.hpp>
 #include <userver/testsuite/testsuite_support.hpp>
 #include <userver/utils/daemon_run.hpp>
+
+#include "handlers/AddSoundHandler.hpp"
 #include "handlers/GenerateHandler.hpp"
+#include "handlers/InfoHandler.hpp"
 #include "handlers/StatusHandler.hpp"
 #include "services/GenerateService.hpp"
 
@@ -19,6 +23,8 @@ int main(int argc, char* argv[]) {
             .Append<userver::components::Postgres>("postgres-db-1")
             .Append<shop::services::GenerateService>("service-generate")
             .Append<GenerateHandler>("handler-generate")
+            .Append<InfoHandler>("handler-info")
+            .Append<AddSoundHandler>("handler-add-sound")
             .Append<StatusHandler>("handler-status")
         ;
 

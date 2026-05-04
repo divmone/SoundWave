@@ -19,7 +19,7 @@ std::string GenerateHandler::HandleRequestThrow(
     const auto& body = request.RequestBody();
     const auto& json = formats::json::FromString(body);
     const auto& prompt = json["prompt"].As<std::string>();
-
+//TODO !!!!!!!!!!!AUTH CHECK!!!!!!!!!!!!!
     const auto id = generateService.generateSound(prompt);
     return id;
 }

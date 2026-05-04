@@ -6,4 +6,4 @@ is-testing: false
 
 server-port: 8080
 
-suno-api-key: 59d14869dc100cad05b658c9358cdc2e
+suno-api-key#env: SUNO_API_KEY

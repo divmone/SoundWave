@@ -77,11 +77,35 @@ std::string shop::services::GenerateService::getTaskInfo(
       .timeout(std::chrono::seconds(10))
       .perform();
 
-    if (!response || response->status_code() != http::StatusCode::kOk) {
+    if (!response || response->status_code() != http::StatusCode::OK) {
         throw server::handlers::ClientError();
     }
 
     return response->body();
+}
+
+std::string shop::services::GenerateService::addGeneratedSound(
+    const std::string &trackId) {
+    const auto taskInfo = getTaskInfo(trackId);
+    const auto json = formats::json::FromString(taskInfo);
+    const auto response = httpClient
+                                                .CreateRequest()
+                                                .post("http://sound-service:8080")
+                                                .headers({{"Content-Type", "application/json"}})
+                                                .timeout(std::chrono::seconds(1))
+                                                .perform();
+
+    if (response->status_code() != http::StatusCode::OK) {
+        throw server::handlers::ClientError();
+    }
+
+    const auto& responseJson = formats::json::FromString(response->body());
+    const auto& soundId = responseJson["soundId"].As<std::string>();
+    if (soundId.empty()) {
+        throw server::handlers::ClientError();
+    }
+
+
 }
 
 yaml_config::Schema shop::services::GenerateService::GetStaticConfigSchema() {

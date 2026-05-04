@@ -173,11 +173,11 @@ curl -X POST http://localhost:8080/api/v1.0/sounds/user/123/upload \
 
 **Успешный ответ (200 OK):**
 ```json
-{
-    "message": "Sound uploaded successfully",
-    "productId": 1,
-    "soundId": 1001
-}
+    {
+        "message": "Sound uploaded successfully",
+        "productId": 1,
+        "soundId": 1001
+    }
 ```
 
 **Ошибки:**
