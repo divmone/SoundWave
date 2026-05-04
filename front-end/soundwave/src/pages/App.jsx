@@ -5,6 +5,7 @@ import { useProducts }  from '../hooks/useProducts';
 import { useStats }     from '../hooks/useStats';
 import { useAuth }      from '../hooks/useAuth';
 import { logoutUser, loginWithGoogle, loginWithApple } from '../api/services/authService';
+import { getProduct } from '../api/services/productsService';
 import { stopAll } from '../hooks/useAudioPlayer';
 import { parseOAuthCallback } from '../utils/oauthUtils';
 
@@ -26,14 +27,30 @@ import AdminPage, { isAdminUser } from './AdminPage';
 import ProductPage   from './ProductPage';
 import PaymentSuccessPage from './PaymentSuccessPage';
 
-// Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
+const KNOWN_PAGES = ['home','login','profile','admin','product','payment-success','oauth-callback'];
+
 function getInitialPage() {
   const params = new URLSearchParams(window.location.search);
   const state  = params.get('state');
   if ((state === 'google' || state === 'apple') && params.get('code')) return 'oauth-callback';
   if (params.get('payment') === 'success') return 'payment-success';
   if (params.get('payment') === 'cancel') return 'home';
+
+  const path = window.location.pathname.replace(/^\/+/, '').split('/')[0];
+  if (KNOWN_PAGES.includes(path)) return path || 'home';
   return 'home';
+}
+
+function getInitialProductId() {
+  const path = window.location.pathname.replace(/^\/+/, '').split('/');
+  if (path[0] === 'product' && path[1]) return path[1];
+  return null;
+}
+
+function pathForPage(page, productId) {
+  if (page === 'home')    return '/';
+  if (page === 'product' && productId) return `/product/${productId}`;
+  return `/${page}`;
 }
 
 export default function App() {
@@ -56,12 +73,19 @@ export default function App() {
 
   const handleNavigate = (target) => {
     if (target === 'home') setRefreshKey(k => k + 1);
+    if (target !== 'product') setSelectedProduct(null);
     setPage(target);
+    window.history.pushState({ page: target }, '', pathForPage(target));
   };
 
   const handleOpenProduct = (product) => {
     setSelectedProduct(product);
     setPage('product');
+    window.history.pushState(
+      { page: 'product', productId: product.id },
+      '',
+      pathForPage('product', product.id),
+    );
   };
 
   const PAGE_SIZE    = 9;
@@ -79,15 +103,55 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // ── seed initial history state ─────────────────────────
+  useEffect(() => {
+    if (!window.history.state) {
+      const initialProductId = getInitialProductId();
+      const seedState = page === 'product'
+        ? { page, productId: initialProductId }
+        : { page };
+      window.history.replaceState(seedState, '', pathForPage(page, initialProductId));
+    }
+
+    if (page === 'product' && !selectedProduct) {
+      const pid = getInitialProductId();
+      if (pid) getProduct(pid).then(p => p && setSelectedProduct(p)).catch(() => setPage('home'));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── browser back/forward ───────────────────────────────
+  useEffect(() => {
+    const onPop = (e) => {
+      const next = e.state?.page ?? 'home';
+      stopAll();
+      if (next === 'product') {
+        const pid = e.state?.productId;
+        if (pid) {
+          getProduct(pid)
+            .then(p => { if (p) { setSelectedProduct(p); setPage('product'); } else { setPage('home'); } })
+            .catch(() => setPage('home'));
+        } else {
+          setPage('home');
+        }
+      } else {
+        setSelectedProduct(null);
+        setPage(next);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const handleLogout = async () => {
     await logoutUser();
     logout();
-    setPage('home');
+    handleNavigate('home');
   };
 
   const handleOAuthSuccess = (u) => {
     login(u);
-    setPage('home');
+    handleNavigate('home');
   };
 
   // ── OAuth callback handling ────────────────────────────
@@ -100,7 +164,7 @@ export default function App() {
 
     if (!callback || callback.error) {
       setOauthError(callback?.error || 'OAuth failed');
-      setPage('login');
+      handleNavigate('login');
       return;
     }
 
@@ -114,7 +178,7 @@ export default function App() {
       .then(data => handleOAuthSuccess(data.user))
       .catch(err  => {
         setOauthError(err.message || 'OAuth failed');
-        setPage('login');
+        handleNavigate('login');
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -155,7 +219,7 @@ export default function App() {
         flex: 1, maxWidth: 1360, width: '100%',
         margin: '0 auto', padding: '0 2rem', boxSizing: 'border-box',
       }}>
-        <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : setPage('login')} />
+        <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : handleNavigate('login')} />
 
         <section>
           <FilterTabs
@@ -274,7 +338,7 @@ export default function App() {
         </section>
 
         <StatsBar stats={stats} />
-        <CTASection onUploadClick={() => user ? setModal(true) : setPage('login')} />
+        <CTASection onUploadClick={() => user ? setModal(true) : handleNavigate('login')} />
       </main>
 
       <Footer />
