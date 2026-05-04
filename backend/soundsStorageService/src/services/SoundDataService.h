@@ -30,6 +30,7 @@ using namespace drogon;
         std::string GetSoundFilePath(uint64_t fileId, uint64_t userId, std::string_view extension) const;
 
     private:
+        HttpClientPtr m_client;
         std::shared_ptr<SoundDataRepository> m_repository;
         std::string ExtractExtensionFromUrl(const std::string& url) const;
         bool IsValidAudioExtension(const std::string& extension) const;
