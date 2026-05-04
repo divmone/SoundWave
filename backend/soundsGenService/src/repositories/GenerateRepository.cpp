@@ -36,7 +36,7 @@ namespace shop::repositories {
         pg_cluster->Execute(
        userver::storages::postgres::ClusterHostType::kMaster,
        "UPDATE sound_generations "
-       "SET response = $2::jsonb, status = 'completed', updated_at = now(), sound_id = $3::uuid "
+       "SET response = $2::jsonb, status = 'completed', updated_at = now(), sound_id = $3 "
        "WHERE task_id = $1",
        taskId, responseJson, soundId
    );
@@ -47,7 +47,7 @@ namespace shop::repositories {
     GeneratedSoundInfo GenerateRepository::getInfoBySoundid(const std::string &soundId) {
         const auto result = pg_cluster->Execute(
        userver::storages::postgres::ClusterHostType::kSlave,
-       "SELECT prompt, response FROM generation_tasks WHERE sound_id = $1::uuid",
+       "SELECT prompt, response::text AS response FROM sound_generations WHERE sound_id = $1",
        soundId
    );
 

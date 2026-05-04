@@ -39,3 +39,9 @@ export async function getTaskStatus(taskId) {
 export async function addGeneratedSound(taskId) {
   return call('POST', `${BASE}/add/${encodeURIComponent(taskId)}`);
 }
+
+export async function getGenerationInfo(soundId) {
+  const text = await call('GET', `${BASE}/info/${encodeURIComponent(soundId)}`);
+  try { return JSON.parse(text); }
+  catch { return null; }
+}

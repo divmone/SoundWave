@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { startGeneration, getTaskStatus, addGeneratedSound } from '../../api/services/generateService';
 
 const POLL_INTERVAL_MS = 5000;
-const POLL_TIMEOUT_MS  = 5 * 60 * 1000;
+const POLL_TIMEOUT_MS  = 10 * 60 * 1000;
 
 const inp = {
   width: '100%', padding: '0.8rem 1.1rem',

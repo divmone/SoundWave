@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Waveform from './Waveform';
 import { getProductAudioUrl } from '../../api/services/productsService';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { createCheckoutSession } from '../../api/services/paymentService';
+import { getGenerationInfo } from '../../api/services/generateService';
 
 function StarRating({ rating }) {
   return (
@@ -25,7 +26,17 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseError, setPurchaseError] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
   const { playing, toggle, analyser, duration } = useAudioPlayer(product.id);
+
+  useEffect(() => {
+    if (!product.isAiSlop) return;
+    let cancelled = false;
+    getGenerationInfo(product.id)
+      .then(info => { if (!cancelled) setAiPrompt(info?.prompt ?? ''); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [product.id, product.isAiSlop]);
 
   const fmtDuration = (s) => {
     if (!s) return null;
@@ -245,6 +256,24 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
             }}>{t}</span>
           ))}
         </div>
+
+        {/* AI prompt */}
+        {product.isAiSlop && aiPrompt && (
+          <div style={{
+            padding: '8px 10px', marginBottom: '1rem',
+            background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)',
+            borderRadius: 8, fontSize: '0.72rem', color: 'var(--text2)',
+            fontStyle: 'italic', lineHeight: 1.4,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: '0.6rem', fontStyle: 'normal',
+              color: 'var(--violet)', marginRight: 6, letterSpacing: '0.1em',
+            }}>PROMPT</span>
+            «{aiPrompt}»
+          </div>
+        )}
 
         {/* Downloads */}
         {!!product.downloadCount && (
