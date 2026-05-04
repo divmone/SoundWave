@@ -5,10 +5,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DownloadUserver)
 
 find_package(
-        userver
-        COMPONENTS core #
-        postgresql
-        QUIET
+    userver
+    COMPONENTS core #
+    postgresql
+    QUIET
 )
 if(NOT userver_FOUND)
     # Tries TRY_DIR first, falls back to downloading userver from GitHub using CPM.
@@ -21,37 +21,25 @@ userver_setup_environment()
 include_directories(src)
 
 add_library(
-        ${PROJECT_NAME}_objs OBJECT
-        src/handlers/auth/google_auth.cpp
-        src/repositories/user_repository.cpp
-        src/services/auth_service.cpp
-        src/handlers/auth/logout.cpp
-        src/handlers/users/users.cpp
-        src/handlers/auth/me.cpp
-#        src/handlers/auth/apple_auth.cpp
-#        src/handlers/auth/apple_auth.hpp
-#        src/handlers/purchase_methods/PurchseMethodsGet.cpp
-#        src/handlers/purchase_methods/PurchseMethodsGet.hpp
-#        src/handlers/purchase_methods/PurchaseMethodsPost.cpp
-#        src/handlers/purchase_methods/PurchaseMethodsPost.hpp
-#        src/handlers/purchase_methods/PurchaseMethodsDelete.cpp
-#        src/handlers/purchase_methods/PurchaseMethodsDelete.hpp
-#        src/services/purchase_methods_service.cpp
-#        src/services/purchase_methods_service.hpp
-#        src/repositories/purchase_methods_repository.cpp
-#        src/repositories/purchase_methods_repository.hpp
-)
-target_link_libraries(
-        ${PROJECT_NAME}_objs
-        PUBLIC userver::core
-        userver::postgresql
+    ${PROJECT_NAME}_objs OBJECT
+        src/handlers/GenerateHandler.cpp
+        src/services/GenerateService.cpp
+        src/handlers/StatusHandler.cpp
+        src/handlers/AddSoundHandler.cpp
+        src/handlers/InfoHandler.cpp
+        src/repositories/GenerateRepository.cpp
+        src/models/GeneratedSoundInfo.hpp
 )
 
-# The Service
+target_link_libraries(
+    ${PROJECT_NAME}_objs
+    PUBLIC userver::core
+    userver::postgresql
+)
+
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
 
-# Functional testing
 userver_testsuite_add_simple()
 
 # Install

@@ -21,7 +21,6 @@ components_manager:
                 default:
                     file_path: '@stderr'
                     level: $logger-level
-                    format: tskv
                     overflow_behavior: discard  # Drop logs if the system is too busy to write them down.
 
         # Dynamic config options. Cache is disabled, updates are disabled.
@@ -30,18 +29,13 @@ components_manager:
             # See userver "dynamic config" docs for what configs exist.
             defaults:
                 HTTP_CLIENT_CONNECTION_POOL_SIZE: 1000
-                POSTGRES_DEFAULT_COMMAND_CONTROL:
-                    network_timeout_ms: 750
-                    statement_timeout_ms: 500
-
-
-        congestion-control:
-
-        dns-client:
-            fs-task-processor: fs-task-processor
 
         http-client:
         http-client-core:
+            load-enabled: $is_testing
+            fs-task-processor: fs-task-processor
+
+        dns-client:
             fs-task-processor: fs-task-processor
 
         testsuite-support:
@@ -54,56 +48,29 @@ components_manager:
             sync-start: true
             connlimit_mode: manual
 
-        handler-auth-google:
-            path: /auth/google
+        repository-generate: {}
+
+        handler-generate:
+            path: /generate
             method: POST
             task_processor: main-task-processor
 
-        auth-service:
-            google-client-id#env: GOOGLE_CLIENT_ID
-            google-client-secret#env: GOOGLE_CLIENT_SECRET
-#            apple-team-id#env: APPLE_TEAM_ID
-#            apple-key-id#env: APPLE_KEY_ID
-#            apple-client-id#env: APPLE_CLIENT_ID
-#            apple-private-key-path#env: APPLE_PRIVATE_KEY_PATH
+        handler-status:
+            path: /generate/task/status/{id}
+            method: GET
+            task_processor: main-task-processor
 
-        user-repository: {}
+        handler-info:
+            path: /generate/info/{id}
+            method: GET
+            task_processor: main-task-processor
 
-        # purchaseMethods-repository: {}
-
-        # purchase-methods-service: {}
-
-        handler-logout:
-            path: /auth/logout
+        handler-add-sound:
+            path: /generate/add/{id}
             method: POST
             task_processor: main-task-processor
 
-        handler-user:
-            path: /users/{id}
-            method: GET
-            task_processor: main-task-processor
-
-        handler-me:
-            path: /auth/me
-            method: GET
-            task_processor: main-task-processor
-
-#        handler-auth-apple:
-#            path: /auth/apple/callback
-#            method: POST
-#            task_processor: main-task-processor
-
-        # handlers-purchase-methods-get:
-        #     path: /purchaseMethods/{userID}
-        #     method: GET
-        #     task_processor: main-task-processor
-
-        # handlers-purchase-methods-post:
-        #     path: /purchaseMethods/{userID}
-        #     method: POST
-        #     task_processor: main-task-processor
-
-        # handlers-purchase-methods-delete:
-        #     path: /purchaseMethods/{userID}
-        #     method: DELETE
-        #     task_processor: main-task-processor
+        service-generate:
+            api-key: $suno-api-key
+            auth-service-url: http://auth-service:8080
+            sounds-service-url: http://sounds-service:8080

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  generate-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: soundwave-generate
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=generate-postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=soundwaveAiSounds
+      - DB_CONNECTION=postgresql://postgres:postgres@postgres:5432/soundwaveAiSounds
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  soundwave-network:
+    driver: bridge
