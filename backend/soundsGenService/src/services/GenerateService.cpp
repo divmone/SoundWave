@@ -17,7 +17,11 @@ shop::services::GenerateService::GenerateService(
     const components::ComponentContext &context)
     : ComponentBase(config, context)
       , httpClient(context.FindComponent<components::HttpClient>("http-client").GetHttpClient())
-      , apiKey("Bearer " + config["api-key"].As<std::string>())  {
+      , apiKey("Bearer " + config["api-key"].As<std::string>())
+      , repository_(context.FindComponent<repositories::GenerateRepository>("repository-generate"))
+      , auth_url_(config["auth-service-url"].As<std::string>())
+      , sounds_url_(config["sounds-service-url"].As<std::string>())
+{
 }
 
 std::string shop::services::GenerateService::generateSound(
@@ -47,7 +51,12 @@ std::string shop::services::GenerateService::generateSound(
         throw server::handlers::ClientError();
     }
 
-    return response->body();
+    const auto& jsonResponse = formats::json::FromString(response->body());
+    const auto& taskId = jsonResponse["data"]["taskId"].As<std::string>();
+
+    repository_.insertTask(taskId, prompt);
+
+    return taskId;
 }
 
 std::string shop::services::GenerateService::getTaskStatus(const std::string &taskId) const {
@@ -85,14 +94,25 @@ std::string shop::services::GenerateService::getTaskInfo(
 }
 
 std::string shop::services::GenerateService::addGeneratedSound(
-    const std::string &trackId) {
-    const auto taskInfo = getTaskInfo(trackId);
-    const auto json = formats::json::FromString(taskInfo);
+    const std::string &taskId, const std::string &token) {
+
+    const auto id = getIdByToken(token);
+
+    const auto taskInfo = getTaskInfo(taskId);
+    const auto jsonTaskInfo = formats::json::FromString(taskInfo);
+
+    const auto& audioUrl = jsonTaskInfo["data"]["response"]["sunoData"][0]["audioUrl"].As<std::string>();
+
+    formats::json::ValueBuilder dataJson;
+    dataJson["soundUrl"] = audioUrl;
+
     const auto response = httpClient
                                                 .CreateRequest()
-                                                .post("http://sound-service:8080")
-                                                .headers({{"Content-Type", "application/json"}})
-                                                .timeout(std::chrono::seconds(1))
+                                                .post(sounds_url_ + "/api/v1.0/sounds/user/" + id + "/uploadAiSound")
+                                                .headers({{"Content-Type", "application/json"},
+                                                            {"Authorization", "Bearer " + token}})
+                                                .data(formats::json::ToString(dataJson.ExtractValue()))
+                                                .timeout(std::chrono::seconds(30))
                                                 .perform();
 
     if (response->status_code() != http::StatusCode::OK) {
@@ -105,7 +125,9 @@ std::string shop::services::GenerateService::addGeneratedSound(
         throw server::handlers::ClientError();
     }
 
+    repository_.updateTaskResponse(taskId, taskInfo, soundId);
 
+    return soundId;
 }
 
 yaml_config::Schema shop::services::GenerateService::GetStaticConfigSchema() {
@@ -118,5 +140,31 @@ properties:
     api-key:
         type: string
         description: Api key for Suno
+    auth-service-url:
+        type: string
+        description: Auth service base URL
+    sounds-service-url:
+        type: string
+        description: Sounds service base URL
 )");
+}
+
+GeneratedSoundInfo shop::services::GenerateService::
+getInfoBySoundId(const std::string &soundId) {
+    return repository_.getInfoBySoundid(soundId);
+}
+
+std::string shop::services::GenerateService::getIdByToken(
+    const std::string &token) const {
+    const auto response = httpClient.CreateRequest()
+    .get(auth_url_ + "/auth/me")
+    .headers({{"Authorization", "Bearer " + token}})
+    .timeout(std::chrono::seconds{5})
+    .perform();
+
+    if (response->status_code() != 200) return "";
+
+    const auto json = formats::json::FromString(response->body());
+    return std::to_string(json["id"].As<int64_t>());
+
 }

@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS sound_generations (
 );
 
 -- changeset divmone:2
-CREATE INDEX idx_generation_tasks_task_id ON generation_tasks(task_id);
+CREATE INDEX idx_sound_generations_task_id ON sound_generations(task_id);
 
--- changeset divmone:3
+-- changeset divmone:3 splitStatements:false endDelimiter:\n/
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -25,6 +25,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- changeset divmone:4
-CREATE TRIGGER trg_generation_tasks_updated_at
-BEFORE UPDATE ON generation_tasks
+CREATE TRIGGER trg_sound_generations_updated_at
+BEFORE UPDATE ON sound_generations
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();

@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <string>
+
 struct GeneratedSoundInfo {
     std::string soundId;
-    std::string imageUrl;
+    std::string response;
     std::string prompt;
 };

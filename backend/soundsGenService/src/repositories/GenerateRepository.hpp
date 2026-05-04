@@ -6,6 +6,7 @@
 
 #include <userver/components/component_base.hpp>
 #include <userver/storages/postgres/cluster.hpp>
+#include <models/GeneratedSoundInfo.hpp>
 
 namespace shop::repositories {
     class GenerateRepository final :public userver::components::ComponentBase  {
@@ -17,7 +18,10 @@ namespace shop::repositories {
             const userver::components::ComponentContext &context
         );
 
-        void addSoundInfo(const std::string&);
+        void insertTask(const std::string& taskId, const std::string& prompt);
+        void updateTaskResponse(const std::string& taskId, const std::string& responseJson, const std::string& soundId);
+
+        GeneratedSoundInfo getInfoBySoundid(const std::string&);
     private:
         userver::storages::postgres::ClusterPtr pg_cluster;
     };

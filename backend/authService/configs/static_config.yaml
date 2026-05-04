@@ -62,10 +62,10 @@ components_manager:
         auth-service:
             google-client-id#env: GOOGLE_CLIENT_ID
             google-client-secret#env: GOOGLE_CLIENT_SECRET
-            apple-team-id#env: APPLE_TEAM_ID
-            apple-key-id#env: APPLE_KEY_ID
-            apple-client-id#env: APPLE_CLIENT_ID
-            apple-private-key-path#env: APPLE_PRIVATE_KEY_PATH
+#            apple-team-id#env: APPLE_TEAM_ID
+#            apple-key-id#env: APPLE_KEY_ID
+#            apple-client-id#env: APPLE_CLIENT_ID
+#            apple-private-key-path#env: APPLE_PRIVATE_KEY_PATH
 
         user-repository: {}
 
@@ -88,10 +88,10 @@ components_manager:
             method: GET
             task_processor: main-task-processor
 
-        handler-auth-apple:
-            path: /auth/apple/callback
-            method: POST
-            task_processor: main-task-processor
+#        handler-auth-apple:
+#            path: /auth/apple/callback
+#            method: POST
+#            task_processor: main-task-processor
 
         # handlers-purchase-methods-get:
         #     path: /purchaseMethods/{userID}

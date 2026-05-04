@@ -21,5 +21,7 @@ std::string GenerateHandler::HandleRequestThrow(
     const auto& prompt = json["prompt"].As<std::string>();
 //TODO !!!!!!!!!!!AUTH CHECK!!!!!!!!!!!!!
     const auto id = generateService.generateSound(prompt);
-    return id;
+    formats::json::ValueBuilder result;
+    result["taskId"] = id;
+    return formats::json::ToString(result.ExtractValue());
 }

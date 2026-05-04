@@ -16,5 +16,13 @@ AddSoundHandler::AddSoundHandler(const components::ComponentConfig &config,
 std::string AddSoundHandler::HandleRequestThrow(
     const server::http::HttpRequest &request,
     server::request::RequestContext &context) const {
-    return HttpHandlerBase::HandleRequestThrow(request, context);
+
+    const auto& taskId = request.GetPathArg("id");
+    const auto& rawToken = request.GetHeader("Authorization");
+    std::string token;
+    if (!rawToken.empty() &&  rawToken.substr(0, 7) == "Bearer ") {
+        token = rawToken.substr(7);
+    }
+
+    return generateService.addGeneratedSound(taskId, token);
 }

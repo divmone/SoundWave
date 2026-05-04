@@ -20,8 +20,11 @@ int main(int argc, char* argv[]) {
     auto component_list =
         userver::components::MinimalServerComponentList()
             .AppendComponentList(userver::clients::http::ComponentList())
+            .Append<userver::clients::dns::Component>("dns-client")
+            .Append<userver::components::TestsuiteSupport>()
             .Append<userver::components::Postgres>("postgres-db-1")
             .Append<shop::services::GenerateService>("service-generate")
+            .Append<shop::repositories::GenerateRepository>("repository-generate")
             .Append<GenerateHandler>("handler-generate")
             .Append<InfoHandler>("handler-info")
             .Append<AddSoundHandler>("handler-add-sound")

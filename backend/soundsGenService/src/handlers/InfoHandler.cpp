@@ -16,5 +16,15 @@ InfoHandler::InfoHandler(const components::ComponentConfig &config,
 std::string InfoHandler::HandleRequestThrow(
     const server::http::HttpRequest &request,
     server::request::RequestContext &context) const {
-    return HttpHandlerBase::HandleRequestThrow(request, context);
+
+    const auto& soundId = request.GetPathArg("id");
+
+    const auto soundInfo = generateService.getInfoBySoundId(soundId);
+
+    formats::json::ValueBuilder result;
+    result["soundId"] = soundId;
+    result["prompt"] = soundInfo.prompt;
+    result["response"] = soundInfo.response;
+
+    return userver::formats::json::ToString(result.ExtractValue());;
 }

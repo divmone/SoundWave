@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12...3.31)
-project(soundsGenService CXX)
+project(db_test CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DownloadUserver)
@@ -25,15 +25,16 @@ add_library(
         src/handlers/GenerateHandler.cpp
         src/services/GenerateService.cpp
         src/handlers/StatusHandler.cpp
+        src/handlers/AddSoundHandler.cpp
         src/handlers/InfoHandler.cpp
         src/repositories/GenerateRepository.cpp
-        src/repositories/GenerateRepository.hpp
         src/models/GeneratedSoundInfo.hpp
 )
 
 target_link_libraries(
     ${PROJECT_NAME}_objs
     PUBLIC userver::core
+    userver::postgresql
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

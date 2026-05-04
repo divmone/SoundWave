@@ -18,6 +18,7 @@ import EmptyState   from '../components/EmptyState';
 import StatsBar     from '../components/StatsBar';
 import CTASection   from '../components/CTASection';
 import UploadModal  from '../components/product/UploadModal';
+import GenerateModal from '../components/product/GenerateModal';
 
 import LoginPage     from './LoginPage';
 import ProfilePage   from './ProfilePage';
@@ -41,6 +42,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [search,         setSearch]         = useState('');
   const [modal,          setModal]          = useState(false);
+  const [generateModal,  setGenerateModal]  = useState(false);
   const [oauthError,     setOauthError]     = useState('');
   const [currentPage,    setCurrentPage]    = useState(1);
   const [refreshKey,     setRefreshKey]     = useState(0);
@@ -48,6 +50,9 @@ export default function App() {
 
   const { user, login, logout, checking }      = useAuth();
   const { data: products, total, loading, refresh } = useProducts(search, currentPage, refreshKey);
+
+  const regularProducts = products.filter(p => !p.isAiSlop);
+  const aiProducts      = products.filter(p =>  p.isAiSlop);
 
   const handleNavigate = (target) => {
     if (target === 'home') setRefreshKey(k => k + 1);
@@ -137,6 +142,7 @@ export default function App() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
       {modal && <UploadModal onClose={() => setModal(false)} user={user} onSuccess={refresh} />}
+      {generateModal && <GenerateModal onClose={() => setGenerateModal(false)} onSuccess={refresh} />}
 
       <Header
         onUploadClick={() => user ? setModal(true) : handleNavigate('login')}
@@ -163,9 +169,46 @@ export default function App() {
           ) : products.length === 0 ? (
             <EmptyState search={search} onReset={() => { setSearch(''); }} />
           ) : (
-            <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-              {products.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
-            </div>
+            <>
+              {regularProducts.length > 0 && (
+                <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+                  {regularProducts.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
+                </div>
+              )}
+
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                margin: '1.5rem 0 1rem',
+              }}>
+                <span style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 800,
+                  fontSize: '1.1rem', letterSpacing: '0.02em',
+                  color: 'var(--text)',
+                }}>
+                  AI generated
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.72rem',
+                  color: 'var(--violet)', padding: '2px 8px',
+                  border: '1px solid var(--violet)', borderRadius: 'var(--radius-pill)',
+                }}>
+                  {aiProducts.length}
+                </span>
+                <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+                <button
+                  className="btn-primary"
+                  onClick={() => user ? setGenerateModal(true) : handleNavigate('login')}
+                  style={{ padding: '0.55rem 1rem', fontSize: '0.78rem' }}
+                >
+                  ✨ Generate
+                </button>
+              </div>
+              {aiProducts.length > 0 && (
+                <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+                  {aiProducts.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
+                </div>
+              )}
+            </>
           )}
 
           {totalPages > 1 && (
