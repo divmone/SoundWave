@@ -155,20 +155,12 @@ std::string shop::services::GenerateService::addGeneratedSound(
             .timeout(std::chrono::seconds(30))
             .perform();
 
-    LOG_ERROR() << jsonTaskInfo["data"]["response"]["sunoData"][0][
-                   "audioUrl"].As<std::string>();
-    LOG_ERROR() << audioUrl;
-    LOG_ERROR() << metadata;
-
-    LOG_ERROR() << "sounds-service " << response->status_code()
-               << " body=" << response->body();
-
     if (response->status_code() != http::StatusCode::OK) {
         throw server::handlers::ClientError();
     }
 
     const auto &responseJson = formats::json::FromString(response->body());
-    const auto soundId = std::to_string(responseJson["soundId"].As<int64_t>());
+    const auto soundId = std::to_string(responseJson["productId"].As<int64_t>());
 
     if (soundId.empty()) {
         throw server::handlers::ClientError();
