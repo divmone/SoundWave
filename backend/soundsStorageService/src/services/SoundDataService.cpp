@@ -7,7 +7,7 @@ namespace soundwaveSounds
 {
 
 SoundDataService::SoundDataService(std::shared_ptr<SoundDataRepository> repository)
-    : m_repository(repository)
+    : m_client(HttpClient::newHttpClient("http://nginx")), m_repository(repository)
 {
 }
 
@@ -52,13 +52,12 @@ bool SoundDataService::SaveSoundFile(const HttpFile& file, uint64_t fileId, uint
         return false;
     }
 
-    auto client = HttpClient::newHttpClient("http://nginx");
 
     auto req = HttpRequest::newHttpRequest();
     req->setMethod(Get);
     req->setPath("/external-proxy" + path);
 
-    auto [result, response] = client->sendRequest(req, 60.0);
+    auto [result, response] = m_client->sendRequest(req, 60.0);
 
     if (result == ReqResult::Ok && response)
     {
