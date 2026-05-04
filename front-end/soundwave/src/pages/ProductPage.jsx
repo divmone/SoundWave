@@ -5,6 +5,7 @@ import CommentsSection from '../components/product/CommentsSection';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { getProductAudioUrl } from '../api/services/productsService';
 import { createCheckoutSession, checkPurchaseAccess } from '../api/services/paymentService';
+import { getGenerationInfo } from '../api/services/generateService';
 
 function StarRating({ rating }) {
   return (
@@ -28,7 +29,17 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
   const [purchasing, setPurchasing] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [purchaseError, setPurchaseError] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
   const audioUrl = getProductAudioUrl(product.id);
+
+  useEffect(() => {
+    if (!product.isAiSlop) return;
+    let cancelled = false;
+    getGenerationInfo(product.id)
+      .then(info => { if (!cancelled) setAiPrompt(info?.prompt ?? ''); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [product.id, product.isAiSlop]);
 
   useEffect(() => {
     if (user) {
@@ -231,6 +242,30 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                 fontFamily: 'var(--font-mono)',
               }}>{t}</span>
             ))}
+          </div>
+        )}
+
+        {/* AI prompt */}
+        {product.isAiSlop && aiPrompt && (
+          <div style={{
+            marginBottom: '2rem',
+            padding: '1.1rem 1.3rem',
+            background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.25)',
+            borderRadius: 'var(--radius-lg)',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
+              color: 'var(--violet)', letterSpacing: '0.18em',
+              fontWeight: 800, marginBottom: 8, textTransform: 'uppercase',
+            }}>
+              ✨ AI prompt
+            </div>
+            <div style={{
+              fontSize: '0.95rem', color: 'var(--text)', lineHeight: 1.6,
+              fontStyle: 'italic', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+            }}>
+              «{aiPrompt}»
+            </div>
           </div>
         )}
 

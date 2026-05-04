@@ -257,21 +257,21 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
           ))}
         </div>
 
-        {/* AI prompt */}
+        {/* AI prompt (короткая версия — полная на странице звука) */}
         {product.isAiSlop && aiPrompt && (
           <div style={{
-            padding: '8px 10px', marginBottom: '1rem',
+            padding: '6px 10px', marginBottom: '1rem',
             background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)',
             borderRadius: 8, fontSize: '0.72rem', color: 'var(--text2)',
-            fontStyle: 'italic', lineHeight: 1.4,
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
+            fontStyle: 'italic',
+            display: 'flex', alignItems: 'center', gap: 6,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             <span style={{
               fontFamily: 'var(--font-mono)', fontSize: '0.6rem', fontStyle: 'normal',
-              color: 'var(--violet)', marginRight: 6, letterSpacing: '0.1em',
+              color: 'var(--violet)', letterSpacing: '0.1em', flexShrink: 0,
             }}>PROMPT</span>
-            «{aiPrompt}»
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>«{aiPrompt}»</span>
           </div>
         )}
 
