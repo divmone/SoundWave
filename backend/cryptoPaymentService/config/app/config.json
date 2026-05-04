@@ -1,0 +1,29 @@
+{
+    "listeners": [
+        {
+            "address": "0.0.0.0",
+            "port": 8080,
+            "https": false
+        }
+    ],
+    "app": {
+        "threads_num": 2,
+        "document_root": "http",
+        "implicit_page": "index.html",
+        "client_max_body_size": "10M"
+    },
+    "db_clients": [
+        {
+            "name": "default",
+            "rdbms": "postgresql",
+            "host": "payment-postgres",
+            "port": 5432,
+            "dbname": "soundwavePayment",
+            "user": "myuser",
+            "passwd": "mypassword",
+            "is_fast": false,
+            "connection_number": 1,
+            "auto_batch": false
+        }
+    ]
+}
