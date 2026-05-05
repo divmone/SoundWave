@@ -18,6 +18,7 @@ const std::string Transactions::Cols::_product_id = "\"product_id\"";
 const std::string Transactions::Cols::_state = "\"state\"";
 const std::string Transactions::Cols::_amount = "\"amount\"";
 const std::string Transactions::Cols::_txhash = "\"txhash\"";
+const std::string Transactions::Cols::_user_id = "\"user_id\"";
 const std::string Transactions::primaryKeyName = "id";
 const bool Transactions::hasPrimaryKey = true;
 const std::string Transactions::tableName = "\"transactions\"";
@@ -27,7 +28,8 @@ const std::vector<typename Transactions::MetaData> Transactions::metaData_={
 {"product_id","int64_t","bigint",8,1,0,1},
 {"state","std::string","USER-DEFINED",0,0,0,0},
 {"amount","int32_t","integer",4,0,0,0},
-{"txhash","std::string","character varying",52,0,0,0}
+{"txhash","std::string","character varying",128,0,0,0},
+{"user_id","int64_t","bigint",8,0,0,1}
 };
 const std::string &Transactions::getColumnName(size_t index) noexcept(false)
 {
@@ -58,11 +60,15 @@ Transactions::Transactions(const Row &r, const ssize_t indexOffset) noexcept
         {
             txhash_=std::make_shared<std::string>(r["txhash"].as<std::string>());
         }
+        if(!r["user_id"].isNull())
+        {
+            userId_=std::make_shared<int64_t>(r["user_id"].as<int64_t>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 5 > r.size())
+        if(offset + 6 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -93,13 +99,18 @@ Transactions::Transactions(const Row &r, const ssize_t indexOffset) noexcept
         {
             txhash_=std::make_shared<std::string>(r[index].as<std::string>());
         }
+        index = offset + 5;
+        if(!r[index].isNull())
+        {
+            userId_=std::make_shared<int64_t>(r[index].as<int64_t>());
+        }
     }
 
 }
 
 Transactions::Transactions(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -142,6 +153,14 @@ Transactions::Transactions(const Json::Value &pJson, const std::vector<std::stri
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
             txhash_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
+        }
+    }
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            userId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[5]].asInt64());
         }
     }
 }
@@ -188,12 +207,20 @@ Transactions::Transactions(const Json::Value &pJson) noexcept(false)
             txhash_=std::make_shared<std::string>(pJson["txhash"].asString());
         }
     }
+    if(pJson.isMember("user_id"))
+    {
+        dirtyFlag_[5]=true;
+        if(!pJson["user_id"].isNull())
+        {
+            userId_=std::make_shared<int64_t>((int64_t)pJson["user_id"].asInt64());
+        }
+    }
 }
 
 void Transactions::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -236,6 +263,14 @@ void Transactions::updateByMasqueradedJson(const Json::Value &pJson,
             txhash_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            userId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[5]].asInt64());
+        }
+    }
 }
 
 void Transactions::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -276,6 +311,14 @@ void Transactions::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["txhash"].isNull())
         {
             txhash_=std::make_shared<std::string>(pJson["txhash"].asString());
+        }
+    }
+    if(pJson.isMember("user_id"))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson["user_id"].isNull())
+        {
+            userId_=std::make_shared<int64_t>((int64_t)pJson["user_id"].asInt64());
         }
     }
 }
@@ -395,6 +438,23 @@ void Transactions::setTxhashToNull() noexcept
     dirtyFlag_[4] = true;
 }
 
+const int64_t &Transactions::getValueOfUserId() const noexcept
+{
+    static const int64_t defaultValue = int64_t();
+    if(userId_)
+        return *userId_;
+    return defaultValue;
+}
+const std::shared_ptr<int64_t> &Transactions::getUserId() const noexcept
+{
+    return userId_;
+}
+void Transactions::setUserId(const int64_t &pUserId) noexcept
+{
+    userId_ = std::make_shared<int64_t>(pUserId);
+    dirtyFlag_[5] = true;
+}
+
 void Transactions::updateId(const uint64_t id)
 {
 }
@@ -404,7 +464,8 @@ const std::vector<std::string> &Transactions::insertColumns() noexcept
     static const std::vector<std::string> inCols={
         "state",
         "amount",
-        "txhash"
+        "txhash",
+        "user_id"
     };
     return inCols;
 }
@@ -444,6 +505,17 @@ void Transactions::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[5])
+    {
+        if(getUserId())
+        {
+            binder << getValueOfUserId();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Transactions::updateColumns() const
@@ -460,6 +532,10 @@ const std::vector<std::string> Transactions::updateColumns() const
     if(dirtyFlag_[4])
     {
         ret.push_back(getColumnName(4));
+    }
+    if(dirtyFlag_[5])
+    {
+        ret.push_back(getColumnName(5));
     }
     return ret;
 }
@@ -493,6 +569,17 @@ void Transactions::updateArgs(drogon::orm::internal::SqlBinder &binder) const
         if(getTxhash())
         {
             binder << getValueOfTxhash();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[5])
+    {
+        if(getUserId())
+        {
+            binder << getValueOfUserId();
         }
         else
         {
@@ -543,6 +630,14 @@ Json::Value Transactions::toJson() const
     {
         ret["txhash"]=Json::Value();
     }
+    if(getUserId())
+    {
+        ret["user_id"]=(Json::Int64)getValueOfUserId();
+    }
+    else
+    {
+        ret["user_id"]=Json::Value();
+    }
     return ret;
 }
 
@@ -555,7 +650,7 @@ Json::Value Transactions::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 5)
+    if(pMasqueradingVector.size() == 6)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -612,6 +707,17 @@ Json::Value Transactions::toMasqueradedJson(
                 ret[pMasqueradingVector[4]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[5].empty())
+        {
+            if(getUserId())
+            {
+                ret[pMasqueradingVector[5]]=(Json::Int64)getValueOfUserId();
+            }
+            else
+            {
+                ret[pMasqueradingVector[5]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -655,6 +761,14 @@ Json::Value Transactions::toMasqueradedJson(
     {
         ret["txhash"]=Json::Value();
     }
+    if(getUserId())
+    {
+        ret["user_id"]=(Json::Int64)getValueOfUserId();
+    }
+    else
+    {
+        ret["user_id"]=Json::Value();
+    }
     return ret;
 }
 
@@ -685,13 +799,23 @@ bool Transactions::validateJsonForCreation(const Json::Value &pJson, std::string
         if(!validJsonOfField(4, "txhash", pJson["txhash"], err, true))
             return false;
     }
+    if(pJson.isMember("user_id"))
+    {
+        if(!validJsonOfField(5, "user_id", pJson["user_id"], err, true))
+            return false;
+    }
+    else
+    {
+        err="The user_id column cannot be null";
+        return false;
+    }
     return true;
 }
 bool Transactions::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                       const std::vector<std::string> &pMasqueradingVector,
                                                       std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         err = "Bad masquerading vector";
         return false;
@@ -737,6 +861,19 @@ bool Transactions::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[5].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[5]))
+          {
+              if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, true))
+                  return false;
+          }
+        else
+        {
+            err="The " + pMasqueradingVector[5] + " column cannot be null";
+            return false;
+        }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -777,13 +914,18 @@ bool Transactions::validateJsonForUpdate(const Json::Value &pJson, std::string &
         if(!validJsonOfField(4, "txhash", pJson["txhash"], err, false))
             return false;
     }
+    if(pJson.isMember("user_id"))
+    {
+        if(!validJsonOfField(5, "user_id", pJson["user_id"], err, false))
+            return false;
+    }
     return true;
 }
 bool Transactions::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                     const std::vector<std::string> &pMasqueradingVector,
                                                     std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         err = "Bad masquerading vector";
         return false;
@@ -817,6 +959,11 @@ bool Transactions::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
       {
           if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+      {
+          if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, false))
               return false;
       }
     }
@@ -907,11 +1054,23 @@ bool Transactions::validJsonOfField(size_t index,
                 return false;
             }
             if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
-                .from_bytes(pJson.asCString()).size() > 52)
+                .from_bytes(pJson.asCString()).size() > 128)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
-                    " field (the maximum value is 52)";
+                    " field (the maximum value is 128)";
+                return false;
+            }
+            break;
+        case 5:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
