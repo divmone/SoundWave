@@ -26,8 +26,9 @@ import ProfilePage   from './ProfilePage';
 import AdminPage, { isAdminUser } from './AdminPage';
 import ProductPage   from './ProductPage';
 import PaymentSuccessPage from './PaymentSuccessPage';
+import ClickerPage   from './ClickerPage';
 
-const KNOWN_PAGES = ['home','login','profile','admin','product','payment-success','oauth-callback'];
+const KNOWN_PAGES = ['home','login','profile','admin','product','payment-success','oauth-callback','clicker'];
 
 function getInitialPage() {
   const params = new URLSearchParams(window.location.search);
@@ -200,6 +201,7 @@ export default function App() {
   if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
   if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
   if (page === 'admin')       return isAdminUser(user) ? <AdminPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} /> : null;
+  if (page === 'clicker')     return <ClickerPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} onGenerated={refresh} />;
   if (page === 'product' && selectedProduct) return <ProductPage product={selectedProduct} user={user} onNavigate={handleNavigate} onLogout={handleLogout} />;
 
   // ── Main marketplace ───────────────────────────────────
@@ -261,7 +263,7 @@ export default function App() {
                 <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
                 <button
                   className="btn-primary"
-                  onClick={() => user ? setGenerateModal(true) : handleNavigate('login')}
+                  onClick={() => handleNavigate(user ? 'clicker' : 'login')}
                   style={{ padding: '0.55rem 1rem', fontSize: '0.78rem' }}
                 >
                   ✨ Generate
