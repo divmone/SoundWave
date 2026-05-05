@@ -7,7 +7,7 @@ import { useClicks } from '../hooks/useClicks';
 export const GENERATE_COST = 100;
 
 const TAP_IMAGE = '/clicker.jpg';
-const TAP_SOUND = '/sound.mp3';
+const TAP_SOUND = '/sounds.mp3';
 
 export default function ClickerPage({ user, onNavigate, onLogout, onGenerated }) {
   const { count, add, spend } = useClicks();
