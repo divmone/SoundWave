@@ -346,7 +346,7 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
       )}
 
       {/* ══════════════ CARD ══════════════ */}
-      <div style={{ animation: `cardIn 0.5s cubic-bezier(.22,.68,0,1.1) ${delay}s both` }}>
+      <div style={{ animation: `cardIn 0.5s cubic-bezier(.22,.68,0,1.1) ${delay}s both`, minWidth: 0, maxWidth: '100%' }}>
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -359,6 +359,7 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
           padding: '1.25rem',
           cursor: 'pointer',
           overflow: 'hidden',
+          minWidth: 0, maxWidth: '100%',
           transition: 'background 0.25s, border-color 0.25s, box-shadow 0.3s, transform 0.3s, border-radius 0.2s',
           transform: hovered ? 'translateY(-6px)' : 'none',
           boxShadow: hovered
