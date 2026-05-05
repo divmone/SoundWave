@@ -224,6 +224,7 @@ export default function App() {
       }}>
         <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : handleNavigate('login')} />
 
+
         <section>
           <FilterTabs
              count={loading ? '…' : products.length}
