@@ -26,6 +26,15 @@
           "MaintenanceDB": "${PAYMENT_DB_NAME}",
           "Username": "${POSTGRES_USER}",
           "PassFile": "${POSTGRES_PASSWORD}"
+        },
+        "4": {
+          "Name": "Crypto Payment DB",
+          "Group": "Servers",
+          "Host": "crypto-payment-postgres",
+          "Port": 5432,
+          "MaintenanceDB": "${CRYPTO_PAYMENT_DB_NAME}",
+          "Username": "${POSTGRES_USER}",
+          "PassFile": "${POSTGRES_PASSWORD}"
         }
     }
 }
