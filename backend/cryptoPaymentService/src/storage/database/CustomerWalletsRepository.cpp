@@ -24,7 +24,7 @@ namespace soundwaveCryptoPayment
             response.userId = dto.userId;
             response.wallet = dto.wallet;
 
-            return std::vector<CustomerWalletResponseTo>{response};
+            return std::vector<CustomerWalletResponseTo> { response };
         }
         catch (const std::exception& e)
         {
@@ -53,6 +53,10 @@ namespace soundwaveCryptoPayment
             }
 
             return result;
+        }
+        catch (const UnexpectedRows& e)
+        {
+            return {};
         }
         catch (const std::exception& e)
         {
@@ -84,7 +88,7 @@ namespace soundwaveCryptoPayment
                 return DatabaseError::NotFound;
             }
 
-            return std::vector<CustomerWalletResponseTo>{};
+            return {};
         }
         catch (const std::exception& e)
         {

@@ -9,8 +9,6 @@
 namespace soundwaveCryptoPayment
 {
 
-CustomerWalletsService::CustomerWalletsService() = default;
-
 void CustomerWalletsService::ValidateWallet(const std::string& wallet)
 {
     if (wallet.empty())
@@ -18,7 +16,7 @@ void CustomerWalletsService::ValidateWallet(const std::string& wallet)
         throw ValidationException("Wallet address cannot be empty");
     }
 
-    if (wallet.length() > 128)
+    if (wallet.length() > 42)
     {
         throw ValidationException("Wallet address exceeds maximum length");
     }
@@ -35,7 +33,7 @@ std::variant<std::vector<CustomerWalletResponseTo>, DatabaseError>
 {
     LOG_DEBUG << "Getting wallets for user: " << userId;
 
-    auto result = m_repository.GetWallets(userId);
+    auto result = m_repository->GetWallets(userId);
 
     if (std::holds_alternative<DatabaseError>(result))
     {
@@ -51,24 +49,20 @@ std::variant<std::vector<CustomerWalletResponseTo>, DatabaseError>
 }
 
 std::variant<CustomerWalletResponseTo, DatabaseError>
-    CustomerWalletsService::AddWallet(uint64_t userId, const std::string& wallet)
+    CustomerWalletsService::AddWallet(const CustomerWalletRequestTo& dto)
 {
-    LOG_DEBUG << "Adding wallet for user: " << userId;
+    LOG_DEBUG << "Adding wallet for user: " << dto.userId;
 
-    ValidateWallet(wallet);
+    ValidateWallet(dto.wallet);
 
-    CustomerWalletRequestTo dto;
-    dto.userId = userId;
-    dto.wallet = wallet;
-
-    auto result = m_repository.AddWallet(dto);
+    auto result = m_repository->AddWallet(dto);
 
     if (std::holds_alternative<DatabaseError>(result))
     {
         auto err = std::get<DatabaseError>(result);
         if (err == DatabaseError::DatabaseError)
         {
-            LOG_ERROR << "Failed to add wallet for user " << userId;
+            LOG_ERROR << "Failed to add wallet for user " << dto.userId;
         }
         return err;
     }
@@ -83,26 +77,22 @@ std::variant<CustomerWalletResponseTo, DatabaseError>
 }
 
 std::variant<bool, DatabaseError>
-    CustomerWalletsService::DeleteWallet(uint64_t userId, const std::string& wallet)
+    CustomerWalletsService::DeleteWallet(const CustomerWalletRequestTo& dto)
 {
-    LOG_DEBUG << "Deleting wallet for user: " << userId;
+    LOG_DEBUG << "Deleting wallet for user: " << dto.userId;
 
-    ValidateWallet(wallet);
+    ValidateWallet(dto.wallet);
 
-    CustomerWalletRequestTo dto;
-    dto.userId = userId;
-    dto.wallet = wallet;
-
-    auto result = m_repository.DeleteWallet(dto);
+    auto result = m_repository->DeleteWallet(dto);
 
     if (std::holds_alternative<DatabaseError>(result))
     {
         auto err = std::get<DatabaseError>(result);
         if (err == DatabaseError::NotFound)
         {
-            throw NotFoundException("Wallet not found for user " + std::to_string(userId));
+            throw NotFoundException("Wallet not found for user " + std::to_string(dto.userId));
         }
-        LOG_ERROR << "Failed to delete wallet for user " << userId;
+        LOG_ERROR << "Failed to delete wallet for user " << dto.userId;
         return err;
     }
 

@@ -20,8 +20,8 @@ const bool CustomerWallets::hasPrimaryKey = true;
 const std::string CustomerWallets::tableName = "\"customer_wallets\"";
 
 const std::vector<typename CustomerWallets::MetaData> CustomerWallets::metaData_={
-{"user_id","int64_t","bigint",8,1,1,1},
-{"wallet","std::string","character varying",32,0,1,1}
+{"user_id","int64_t","bigint",8,0,1,1},
+{"wallet","std::string","character varying",42,0,1,1}
 };
 const std::string &CustomerWallets::getColumnName(size_t index) noexcept(false)
 {
@@ -201,6 +201,7 @@ typename CustomerWallets::PrimaryKeyType CustomerWallets::getPrimaryKey() const
 const std::vector<std::string> &CustomerWallets::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
+        "user_id",
         "wallet"
     };
     return inCols;
@@ -208,6 +209,17 @@ const std::vector<std::string> &CustomerWallets::insertColumns() noexcept
 
 void CustomerWallets::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
+    if(dirtyFlag_[0])
+    {
+        if(getUserId())
+        {
+            binder << getValueOfUserId();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
     if(dirtyFlag_[1])
     {
         if(getWallet())
@@ -224,6 +236,10 @@ void CustomerWallets::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 const std::vector<std::string> CustomerWallets::updateColumns() const
 {
     std::vector<std::string> ret;
+    if(dirtyFlag_[0])
+    {
+        ret.push_back(getColumnName(0));
+    }
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
@@ -233,6 +249,17 @@ const std::vector<std::string> CustomerWallets::updateColumns() const
 
 void CustomerWallets::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
+    if(dirtyFlag_[0])
+    {
+        if(getUserId())
+        {
+            binder << getValueOfUserId();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
     if(dirtyFlag_[1])
     {
         if(getWallet())
@@ -329,6 +356,11 @@ bool CustomerWallets::validateJsonForCreation(const Json::Value &pJson, std::str
         if(!validJsonOfField(0, "user_id", pJson["user_id"], err, true))
             return false;
     }
+    else
+    {
+        err="The user_id column cannot be null";
+        return false;
+    }
     if(pJson.isMember("wallet"))
     {
         if(!validJsonOfField(1, "wallet", pJson["wallet"], err, true))
@@ -358,6 +390,11 @@ bool CustomerWallets::validateMasqueradedJsonForCreation(const Json::Value &pJso
               if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
                   return false;
           }
+        else
+        {
+            err="The " + pMasqueradingVector[0] + " column cannot be null";
+            return false;
+        }
       }
       if(!pMasqueradingVector[1].empty())
       {
@@ -456,11 +493,6 @@ bool CustomerWallets::validJsonOfField(size_t index,
                 err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if(isForCreation)
-            {
-                err="The automatic primary key cannot be set";
-                return false;
-            }
             if(!pJson.isInt64())
             {
                 err="Type error in the "+fieldName+" field";
@@ -479,11 +511,11 @@ bool CustomerWallets::validJsonOfField(size_t index,
                 return false;
             }
             if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
-                .from_bytes(pJson.asCString()).size() > 32)
+                .from_bytes(pJson.asCString()).size() > 42)
             {
                 err="String length exceeds limit for the " +
                     fieldName +
-                    " field (the maximum value is 32)";
+                    " field (the maximum value is 42)";
                 return false;
             }
             break;

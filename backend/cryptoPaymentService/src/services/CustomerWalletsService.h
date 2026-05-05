@@ -21,14 +21,14 @@ namespace soundwaveCryptoPayment
 class CustomerWalletsService
 {
 public:
-    CustomerWalletsService();
+    CustomerWalletsService(std::shared_ptr<CustomerWalletsRepository> repository) : m_repository(repository) {};
 
     std::variant<std::vector<CustomerWalletResponseTo>, DatabaseError> GetWallets(uint64_t userId);
-    std::variant<CustomerWalletResponseTo, DatabaseError> AddWallet(uint64_t userId, const std::string& wallet);
-    std::variant<bool, DatabaseError> DeleteWallet(uint64_t userId, const std::string& wallet);
+    std::variant<CustomerWalletResponseTo, DatabaseError> AddWallet(const CustomerWalletRequestTo& dto);
+    std::variant<bool, DatabaseError> DeleteWallet(const CustomerWalletRequestTo& dto);
 
 private:
-    CustomerWalletsRepository m_repository;
+    std::shared_ptr<CustomerWalletsRepository> m_repository;
 
     void ValidateWallet(const std::string& wallet);
 };

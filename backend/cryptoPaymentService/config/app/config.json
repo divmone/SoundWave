@@ -7,20 +7,20 @@
         }
     ],
     "app": {
-        "threads_num": 2,
+        "threads_num": 1,
         "document_root": "http",
         "implicit_page": "index.html",
-        "client_max_body_size": "100M"
+        "client_max_body_size": "10M"
     },
     "db_clients": [
         {
             "name": "default",
             "rdbms": "postgresql",
-            "host": "sounds-postgres",
+            "host": "localhost",
             "port": 5432,
-            "dbname": "soundwaveSounds",
-            "user": "myuser",
-            "passwd": "mypassword",
+            "dbname": "soundwaveCryptoPayment",
+            "user": "postgres",
+            "passwd": "postgres",
             "is_fast": false,
             "connection_number": 1,
             "auto_batch": false

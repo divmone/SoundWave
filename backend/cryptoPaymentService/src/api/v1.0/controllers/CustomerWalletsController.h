@@ -16,9 +16,9 @@ using namespace drogon;
 
 class CustomerWalletsController : public drogon::HttpController<CustomerWalletsController, false> {
 private:
-
+    std::unique_ptr<CustomerWalletsService> m_service;
 public:
-    explicit CustomerWalletsController();
+    CustomerWalletsController(std::unique_ptr<CustomerWalletsService> service);
     METHOD_LIST_BEGIN
     ADD_METHOD_TO(CustomerWalletsController::GetCustomerWallets,
                         "api/v1.0/customerWallets/{userId}", Get,

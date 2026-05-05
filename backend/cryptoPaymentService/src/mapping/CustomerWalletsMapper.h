@@ -15,7 +15,7 @@ namespace soundwaveCryptoPayment
     static CustomerWallets toEntity(const CustomerWalletRequestTo& dto)
     {
         CustomerWallets entity;
-        entity.setIserId(static_cast<int64_t>(dto.userId));
+        entity.setUserId(static_cast<int64_t>(dto.userId));
         entity.setWallet(dto.wallet);
         return entity;
     }
@@ -23,7 +23,7 @@ namespace soundwaveCryptoPayment
     static CustomerWalletResponseTo toResponse(const CustomerWallets& entity)
     {
         CustomerWalletResponseTo dto;
-        dto.userId = static_cast<std::uint64_t>(entity.getValueOfIserId());
+        dto.userId = static_cast<std::uint64_t>(entity.getValueOfUserId());
         dto.wallet = entity.getValueOfWallet();
         return dto;
     }

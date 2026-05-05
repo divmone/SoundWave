@@ -2,9 +2,8 @@
 
 -- changeset divmone:1 splitStatements:false
 CREATE TABLE IF NOT EXISTS customer_wallets (
-    iser_id BIGSERIAL NOT NULL,
-    wallet VARCHAR(32),
-
+    user_id BIGINT NOT NULL,
+    wallet VARCHAR(42)
 );
 
 ALTER TABLE customer_wallets

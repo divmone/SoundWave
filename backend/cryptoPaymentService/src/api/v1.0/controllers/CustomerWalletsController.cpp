@@ -9,13 +9,18 @@
 #include <exceptions/NotFoundException.h>
 #include <exceptions/DatabaseException.h>
 #include <trantor/utils/Logger.h>
+#include <dto/requests/CustomerWalletRequestTo.h>
 
 namespace soundwaveCryptoPayment
 {
 
 using namespace drogon;
 
-CustomerWalletsController::CustomerWalletsController() = default;
+CustomerWalletsController::CustomerWalletsController(std::unique_ptr<CustomerWalletsService> service)
+    : m_service(std::move(service))
+{
+
+}
 
 void CustomerWalletsController::GetCustomerWallets(
     const HttpRequestPtr& req,
@@ -26,7 +31,7 @@ void CustomerWalletsController::GetCustomerWallets(
 
     try
     {
-        auto result = m_service.GetWallets(userId);
+        auto result = m_service->GetWallets(userId);
 
         if (std::holds_alternative<DatabaseError>(result))
         {
@@ -47,9 +52,9 @@ void CustomerWalletsController::GetCustomerWallets(
         response->setContentTypeCode(CT_APPLICATION_JSON);
 
         Json::Value body(Json::arrayValue);
-        for (const auto& w : wallets)
+        for (auto& wallet : wallets)
         {
-            body.append(w.toJson());
+            body.append(wallet.wallet);
         }
 
         response->setBody(body.toStyledString());
@@ -84,7 +89,11 @@ void CustomerWalletsController::AddCustomerWallet(
 
         std::string wallet = (*json)["wallet"].asString();
 
-        auto result = m_service.AddWallet(userId, wallet);
+        CustomerWalletRequestTo dto;
+        dto.userId = userId;
+        dto.wallet = wallet;
+
+        auto result = m_service->AddWallet(dto);
 
         if (std::holds_alternative<DatabaseError>(result))
         {
@@ -157,7 +166,11 @@ void CustomerWalletsController::DeleteCustomerWallet(
 
         std::string wallet = (*json)["wallet"].asString();
 
-        auto result = m_service.DeleteWallet(userId, wallet);
+        CustomerWalletRequestTo dto;
+        dto.userId = userId;
+        dto.wallet = wallet;
+
+        auto result = m_service->DeleteWallet(dto);
 
         if (std::holds_alternative<DatabaseError>(result))
         {
