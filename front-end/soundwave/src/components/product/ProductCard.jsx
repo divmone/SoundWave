@@ -454,13 +454,16 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
             borderRadius: 8, fontSize: '0.72rem', color: 'var(--text2)',
             fontStyle: 'italic',
             display: 'flex', alignItems: 'center', gap: 6,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            minWidth: 0, maxWidth: '100%', overflow: 'hidden',
           }}>
             <span style={{
               fontFamily: 'var(--font-mono)', fontSize: '0.6rem', fontStyle: 'normal',
               color: 'var(--violet)', letterSpacing: '0.1em', flexShrink: 0,
             }}>PROMPT</span>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>«{aiPrompt}»</span>
+            <span style={{
+              flex: 1, minWidth: 0,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>«{aiPrompt}»</span>
           </div>
         )}
 

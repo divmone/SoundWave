@@ -245,7 +245,7 @@ export default function App() {
               )}
 
               <div style={{
-                display: 'flex', alignItems: 'center', gap: 12,
+                display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
                 margin: '1.5rem 0 1rem',
               }}>
                 <span style={{
