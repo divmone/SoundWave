@@ -3,8 +3,12 @@
 -- changeset divmone:1 splitStatements:false
 CREATE TABLE IF NOT EXISTS customer_wallets (
     iser_id BIGSERIAL NOT NULL,
-    wallet VARCHAR(32)
+    wallet VARCHAR(32),
+
 );
+
+ALTER TABLE customer_wallets
+ADD PRIMARY KEY (user_id, wallet);
 
 -- changeset divmone:2 splitStatements:false
 CREATE TYPE STATE_TYPE AS ENUM ('pending', 'declined', 'approved');

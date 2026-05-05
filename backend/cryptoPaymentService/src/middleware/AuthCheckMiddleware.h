@@ -8,7 +8,7 @@
 #include <drogon/HttpAppFramework.h>
 #include <drogon/HttpClient.h>
 
-namespace soundwavePayment
+namespace soundwaveCryptoPayment
 {
     using namespace drogon;
 
