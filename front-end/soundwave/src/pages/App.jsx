@@ -28,7 +28,7 @@ import ProductPage   from './ProductPage';
 import PaymentSuccessPage from './PaymentSuccessPage';
 import ClickerPage   from './ClickerPage';
 
-const KNOWN_PAGES = ['home','login','profile','admin','product','payment-success','oauth-callback','clicker'];
+const URL_KNOWN_PAGES = ['profile', 'admin', 'clicker', 'product'];
 
 function getInitialPage() {
   const params = new URLSearchParams(window.location.search);
@@ -38,7 +38,7 @@ function getInitialPage() {
   if (params.get('payment') === 'cancel') return 'home';
 
   const path = window.location.pathname.replace(/^\/+/, '').split('/')[0];
-  if (KNOWN_PAGES.includes(path)) return path || 'home';
+  if (URL_KNOWN_PAGES.includes(path)) return path;
   return 'home';
 }
 
@@ -76,7 +76,9 @@ export default function App() {
     if (target === 'home') setRefreshKey(k => k + 1);
     if (target !== 'product') setSelectedProduct(null);
     setPage(target);
-    window.history.pushState({ page: target }, '', pathForPage(target));
+    if (target !== 'login') {
+      window.history.pushState({ page: target }, '', pathForPage(target));
+    }
   };
 
   const handleOpenProduct = (product) => {
@@ -106,12 +108,11 @@ export default function App() {
 
   // ── seed initial history state ─────────────────────────
   useEffect(() => {
-    if (!window.history.state) {
-      const initialProductId = getInitialProductId();
-      const seedState = page === 'product'
-        ? { page, productId: initialProductId }
-        : { page };
-      window.history.replaceState(seedState, '', pathForPage(page, initialProductId));
+    const skipSeed = ['login', 'oauth-callback', 'payment-success'];
+    if (!window.history.state && !skipSeed.includes(page)) {
+      const pid = page === 'product' ? getInitialProductId() : null;
+      const seedState = pid ? { page, productId: pid } : { page };
+      window.history.replaceState(seedState, '', pathForPage(page, pid));
     }
 
     if (page === 'product' && !selectedProduct) {
