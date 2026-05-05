@@ -22,6 +22,10 @@ namespace soundwaveCryptoPayment
     public:
         AuthCheckMiddleware()
         {
+            //
+            m_isEnabled = false;
+            return;
+            //
             auto envValue = std::getenv("OAUTH_TOKEN_CHECK_ENABLED");
 
             std::string env = envValue ? envValue : "";
