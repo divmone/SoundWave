@@ -1,0 +1,92 @@
+services:
+
+  # ========== AUTH SERVICE ==========
+  auth-service:
+    build:
+      context: ./backend/authService
+      dockerfile: Dockerfile
+      args:
+        BUILD_TYPE: Debug
+    ports:
+      - "12346:12345"  # gdbserver (разные порты для каждого сервиса)
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/authService:/app/src:ro
+
+  # ========== SOUNDS SERVICE ==========
+  sounds-service:
+    build:
+      context: ./backend/soundsStorageService
+      dockerfile: Dockerfile
+      args:
+        BUILD_TYPE: Debug
+    ports:
+      - "12345:12345"  # gdbserver
+    environment:
+      - BUILD_TYPE=Debug
+      - LOG_LEVEL=debug
+      - ENVIRONMENT=development
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - sounds_data:/data/sounds
+      - ./backend/soundsStorageService/config:/app/config:ro
+      - ./backend/soundsStorageService:/app/src:ro
+
+  # ========== PAYMENT SERVICE ==========
+  payment-service:
+    build:
+      context: backend/paymentService
+      dockerfile: Dockerfile
+      args:
+        BUILD_TYPE: Debug
+    ports:
+      - "12347:12345"  # gdbserver
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/paymentService:/app/src:ro
+
+  # ========== COMMENT SERVICE ==========
+  comment-service:
+    build:
+      context: ./backend/commentService
+      dockerfile: Dockerfile
+      args:
+        BUILD_TYPE: Debug
+    ports:
+      - "12348:12345"  # gdbserver
+    environment:
+      - BUILD_TYPE=Debug
+    stdin_open: true
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ./backend/commentService:/app/src:ro
+
+volumes:
+  sounds_data:

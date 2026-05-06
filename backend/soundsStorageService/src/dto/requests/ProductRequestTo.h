@@ -24,6 +24,7 @@ public:
     std::optional<int64_t> downloadCount;
     std::optional<bool> isPublished;
     std::vector<uint64_t> tagIds;
+    bool isAiSlop = false;
 
     void validate() const
     {

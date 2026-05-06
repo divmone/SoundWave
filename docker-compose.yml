@@ -24,6 +24,28 @@ services:
 
   ######################################################
 
+  generate-postgres:
+    image: postgres:15
+    container_name: soundwave-generate-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${GENERATE_DB_NAME:-soundwaveAiSounds}
+    expose:
+      - "5432"
+    volumes:
+      - generate_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${GENERATE_DB_NAME:-soundwaveAiSounds}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  ######################################################
+
   sounds-postgres:
     image: postgres:15
     container_name: soundwave-sounds-postgres
@@ -149,6 +171,22 @@ services:
       - soundwave-network
 
   ######################################################
+  migrate-generated-sounds:
+    image: liquibase/liquibase:4.27
+    command: >
+      --url=jdbc:postgresql://generate-postgres:5432/soundwaveAiSounds
+      --username=${POSTGRES_USER:-postgres}
+      --password=${POSTGRES_PASSWORD:-postgres}
+      --changelog-file=db.changelog-master.xml
+      --search-path=/liquibase/changelog
+      update
+    volumes:
+      - ./migrations/aiGenService:/liquibase/changelog
+    depends_on:
+      generate-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
 
   migrate-crypto-payment:
     image: liquibase/liquibase:4.27
@@ -191,6 +229,36 @@ services:
       auth-postgres:
         condition: service_healthy
       migrate-auth:
+        condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  ######################################################
+  generate-service:
+    build:
+      context: ./backend/soundsGenService
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - DB_HOST=generate-postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=${GENERATE_DB_NAME:-soundwaveAiSounds}
+      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@generate-postgres:5432/${GENERATE_DB_NAME:-soundwaveAiSounds}
+      - CPU_LIMIT=${GENERATE_CPU_LIMIT:-4c}
+      - LOG_LEVEL=${GENERATE_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - SUNO_API_KEY=${SUNO_API_KEY}
+    depends_on:
+      generate-postgres:
+        condition: service_healthy
+      migrate-generated-sounds:
         condition: service_completed_successfully
     dns:
       - 8.8.8.8
@@ -426,6 +494,7 @@ volumes:
   auth_postgres_data:
   sounds_postgres_data:
   payment_postgres_data:
+  generate_postgres_data:
   sounds_data:
   frontend_dist:
   pgadmin_data:

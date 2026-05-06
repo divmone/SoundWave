@@ -31,6 +31,7 @@ public:
         ADD_METHOD_TO(ProductsController::GetUserSounds, "api/v1.0/sounds/user/{userId}", Get);
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/by-tags", Get);
         ADD_METHOD_TO(ProductsController::UploadSound, "api/v1.0/sounds/user/{userId}/upload", Post, "soundwaveSounds::AuthCheckMiddleware");
+        ADD_METHOD_TO(ProductsController::UploadAiSound, "api/v1.0/sounds/user/{userId}/uploadAiSound", Post, "soundwaveSounds::AuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::EditSound, "api/v1.0/sounds/{id}", Put, "soundwaveSounds::AuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::DeleteSound, "api/v1.0/sounds/{id}", Delete, "soundwaveSounds::AuthCheckMiddleware");
         ADD_METHOD_TO(ProductsController::GetSoundData, "api/v1.0/sounds/{id}/data", Get, "soundwaveSounds::AuthCheckMiddleware");
@@ -43,6 +44,7 @@ private:
     void GetSoundsByTags(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void GetUserSounds(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t userId);
     void UploadSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t userId);
+    void UploadAiSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t userId);
     void EditSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void DeleteSound(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);
     void GetSoundData(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, uint64_t id);

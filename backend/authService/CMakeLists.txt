@@ -28,8 +28,8 @@ add_library(
         src/handlers/auth/logout.cpp
         src/handlers/users/users.cpp
         src/handlers/auth/me.cpp
-        src/handlers/auth/apple_auth.cpp
-        src/handlers/auth/apple_auth.hpp
+#        src/handlers/auth/apple_auth.cpp
+#        src/handlers/auth/apple_auth.hpp
 #        src/handlers/purchase_methods/PurchseMethodsGet.cpp
 #        src/handlers/purchase_methods/PurchseMethodsGet.hpp
 #        src/handlers/purchase_methods/PurchaseMethodsPost.cpp

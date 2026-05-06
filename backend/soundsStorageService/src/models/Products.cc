@@ -24,6 +24,7 @@ const std::string Products::Cols::_download_count = "\"download_count\"";
 const std::string Products::Cols::_is_published = "\"is_published\"";
 const std::string Products::Cols::_created_at = "\"created_at\"";
 const std::string Products::Cols::_updated_at = "\"updated_at\"";
+const std::string Products::Cols::_is_ai_slop = "\"is_ai_slop\"";
 const std::string Products::primaryKeyName = "id";
 const bool Products::hasPrimaryKey = true;
 const std::string Products::tableName = "\"products\"";
@@ -39,7 +40,8 @@ const std::vector<typename Products::MetaData> Products::metaData_={
 {"download_count","int64_t","bigint",8,0,0,0},
 {"is_published","bool","boolean",1,0,0,0},
 {"created_at","::trantor::Date","timestamp without time zone",0,0,0,1},
-{"updated_at","::trantor::Date","timestamp without time zone",0,0,0,1}
+{"updated_at","::trantor::Date","timestamp without time zone",0,0,0,1},
+{"is_ai_slop","bool","boolean",1,0,0,0}
 };
 const std::string &Products::getColumnName(size_t index) noexcept(false)
 {
@@ -130,11 +132,15 @@ Products::Products(const Row &r, const ssize_t indexOffset) noexcept
                 updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
+        if(!r["is_ai_slop"].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(r["is_ai_slop"].as<bool>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 11 > r.size())
+        if(offset + 12 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -231,13 +237,18 @@ Products::Products(const Row &r, const ssize_t indexOffset) noexcept
                 updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
+        index = offset + 11;
+        if(!r[index].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(r[index].as<bool>());
+        }
     }
 
 }
 
 Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 11)
+    if(pMasqueradingVector.size() != 12)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -364,6 +375,14 @@ Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMa
                 }
                 updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
+        }
+    }
+    if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson[pMasqueradingVector[11]].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(pJson[pMasqueradingVector[11]].asBool());
         }
     }
 }
@@ -494,12 +513,20 @@ Products::Products(const Json::Value &pJson) noexcept(false)
             }
         }
     }
+    if(pJson.isMember("is_ai_slop"))
+    {
+        dirtyFlag_[11]=true;
+        if(!pJson["is_ai_slop"].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(pJson["is_ai_slop"].asBool());
+        }
+    }
 }
 
 void Products::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 11)
+    if(pMasqueradingVector.size() != 12)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -627,6 +654,14 @@ void Products::updateByMasqueradedJson(const Json::Value &pJson,
             }
         }
     }
+    if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson[pMasqueradingVector[11]].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(pJson[pMasqueradingVector[11]].asBool());
+        }
+    }
 }
 
 void Products::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -752,6 +787,14 @@ void Products::updateByJson(const Json::Value &pJson) noexcept(false)
                 }
                 updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
+        }
+    }
+    if(pJson.isMember("is_ai_slop"))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson["is_ai_slop"].isNull())
+        {
+            isAiSlop_=std::make_shared<bool>(pJson["is_ai_slop"].asBool());
         }
     }
 }
@@ -988,6 +1031,28 @@ void Products::setUpdatedAt(const ::trantor::Date &pUpdatedAt) noexcept
     dirtyFlag_[10] = true;
 }
 
+const bool &Products::getValueOfIsAiSlop() const noexcept
+{
+    static const bool defaultValue = bool();
+    if(isAiSlop_)
+        return *isAiSlop_;
+    return defaultValue;
+}
+const std::shared_ptr<bool> &Products::getIsAiSlop() const noexcept
+{
+    return isAiSlop_;
+}
+void Products::setIsAiSlop(const bool &pIsAiSlop) noexcept
+{
+    isAiSlop_ = std::make_shared<bool>(pIsAiSlop);
+    dirtyFlag_[11] = true;
+}
+void Products::setIsAiSlopToNull() noexcept
+{
+    isAiSlop_.reset();
+    dirtyFlag_[11] = true;
+}
+
 void Products::updateId(const uint64_t id)
 {
 }
@@ -1004,7 +1069,8 @@ const std::vector<std::string> &Products::insertColumns() noexcept
         "download_count",
         "is_published",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "is_ai_slop"
     };
     return inCols;
 }
@@ -1121,6 +1187,17 @@ void Products::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[11])
+    {
+        if(getIsAiSlop())
+        {
+            binder << getValueOfIsAiSlop();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Products::updateColumns() const
@@ -1165,6 +1242,10 @@ const std::vector<std::string> Products::updateColumns() const
     if(dirtyFlag_[10])
     {
         ret.push_back(getColumnName(10));
+    }
+    if(dirtyFlag_[11])
+    {
+        ret.push_back(getColumnName(11));
     }
     return ret;
 }
@@ -1281,6 +1362,17 @@ void Products::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[11])
+    {
+        if(getIsAiSlop())
+        {
+            binder << getValueOfIsAiSlop();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Products::toJson() const
 {
@@ -1373,6 +1465,14 @@ Json::Value Products::toJson() const
     {
         ret["updated_at"]=Json::Value();
     }
+    if(getIsAiSlop())
+    {
+        ret["is_ai_slop"]=getValueOfIsAiSlop();
+    }
+    else
+    {
+        ret["is_ai_slop"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1385,7 +1485,7 @@ Json::Value Products::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 11)
+    if(pMasqueradingVector.size() == 12)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -1508,6 +1608,17 @@ Json::Value Products::toMasqueradedJson(
                 ret[pMasqueradingVector[10]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[11].empty())
+        {
+            if(getIsAiSlop())
+            {
+                ret[pMasqueradingVector[11]]=getValueOfIsAiSlop();
+            }
+            else
+            {
+                ret[pMasqueradingVector[11]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -1599,6 +1710,14 @@ Json::Value Products::toMasqueradedJson(
     {
         ret["updated_at"]=Json::Value();
     }
+    if(getIsAiSlop())
+    {
+        ret["is_ai_slop"]=getValueOfIsAiSlop();
+    }
+    else
+    {
+        ret["is_ai_slop"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1679,13 +1798,18 @@ bool Products::validateJsonForCreation(const Json::Value &pJson, std::string &er
         if(!validJsonOfField(10, "updated_at", pJson["updated_at"], err, true))
             return false;
     }
+    if(pJson.isMember("is_ai_slop"))
+    {
+        if(!validJsonOfField(11, "is_ai_slop", pJson["is_ai_slop"], err, true))
+            return false;
+    }
     return true;
 }
 bool Products::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                   const std::vector<std::string> &pMasqueradingVector,
                                                   std::string &err)
 {
-    if(pMasqueradingVector.size() != 11)
+    if(pMasqueradingVector.size() != 12)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1799,6 +1923,14 @@ bool Products::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[11].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[11]))
+          {
+              if(!validJsonOfField(11, pMasqueradingVector[11], pJson[pMasqueradingVector[11]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -1869,13 +2001,18 @@ bool Products::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(10, "updated_at", pJson["updated_at"], err, false))
             return false;
     }
+    if(pJson.isMember("is_ai_slop"))
+    {
+        if(!validJsonOfField(11, "is_ai_slop", pJson["is_ai_slop"], err, false))
+            return false;
+    }
     return true;
 }
 bool Products::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 11)
+    if(pMasqueradingVector.size() != 12)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1939,6 +2076,11 @@ bool Products::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
       {
           if(!validJsonOfField(10, pMasqueradingVector[10], pJson[pMasqueradingVector[10]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+      {
+          if(!validJsonOfField(11, pMasqueradingVector[11], pJson[pMasqueradingVector[11]], err, false))
               return false;
       }
     }
@@ -2093,6 +2235,17 @@ bool Products::validJsonOfField(size_t index,
                 return false;
             }
             if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 11:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isBool())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

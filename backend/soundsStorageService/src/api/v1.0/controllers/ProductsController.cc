@@ -292,7 +292,6 @@ void ProductsController::GetSoundData(const HttpRequestPtr& req, std::function<v
     callback(httpResponse);
 }
 
-
 void ProductsController::GetSoundPreview(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t id)
 {
     HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
@@ -427,6 +426,151 @@ void ProductsController::GetSoundsByTags(const HttpRequestPtr& req, std::functio
     httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
     httpResponse->setBody(responseBody);
     httpResponse->setStatusCode(HttpStatusCode::k200OK);;
+
+    fflush(stdout);
+    callback(httpResponse);
+}
+
+void ProductsController::UploadAiSound(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback, uint64_t userId)
+{
+    Json::Value responseJson;
+    HttpResponsePtr httpResponse = HttpResponse::newHttpResponse();
+
+    MultiPartParser parser;
+    parser.parse(req);
+
+    auto& params = parser.getParameters();
+    auto it = params.find("metadata");
+    if (it == params.end() || it->second.empty())
+    {
+        responseJson["message"] = "Metadata is required";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    std::string metadataJson = it->second;
+    Json::Value metadata;
+    Json::Reader reader;
+    if (!reader.parse(metadataJson, metadata))
+    {
+        responseJson["message"] = "Invalid metadata JSON format";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    if (!metadata.isMember("title") || metadata["title"].asString().empty())
+    {
+        responseJson["message"] = "Title is required";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    if (!metadata.isMember("price") || metadata["price"].asString().empty())
+    {
+        responseJson["message"] = "Price is required";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    if (!metadata.isMember("soundURL") || metadata["soundURL"].asString().empty())
+    {
+        responseJson["message"] = "AI slop URL not provided";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k400BadRequest);
+        callback(httpResponse);
+        return;
+    }
+
+    dto::SoundRequestTo soundRequest;
+    soundRequest.userId = userId;
+    soundRequest.filename = "";
+
+    std::string soundUrl(metadata.get("soundURL", "sound").asString().c_str());
+    std::string filename = soundUrl.substr(soundUrl.find_last_of('/'));
+    std::string extension = filename.substr(filename.find_last_of('.'));
+    LOG_INFO << soundUrl;
+
+    soundRequest.originalName = "sound";
+    soundRequest.filePath = "";
+    soundRequest.fileSize = 1;
+    soundRequest.mimeType = "audio/mpeg";
+    soundRequest.durationSeconds = 1;
+
+    dto::SoundResponseTo soundResponse = m_soundService->Create(soundRequest);
+
+    auto& fileId = soundResponse.id;
+
+    if (!m_soundDataService->SaveSoundFileFromUrl(soundUrl, fileId, userId))
+    {
+        responseJson["message"] = "Failed to save audio file";
+        httpResponse->setBody(Json::FastWriter().write(responseJson));
+        httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+        httpResponse->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(httpResponse);
+        return;
+    }
+
+    dto::SoundRequestTo updateRequest;
+    updateRequest.id = soundResponse.id;
+    updateRequest.userId = userId;
+    updateRequest.filename = std::to_string(soundResponse.id) + "." + extension;
+    updateRequest.originalName = soundRequest.originalName;
+    updateRequest.filePath = m_soundDataService->GetSoundFilePath(fileId, userId, extension);
+    updateRequest.fileSize = soundRequest.fileSize;
+    updateRequest.mimeType = soundRequest.mimeType;
+    updateRequest.durationSeconds = soundRequest.durationSeconds;
+
+    m_soundService->Update(updateRequest, fileId);
+
+    dto::ProductRequestTo productRequest;
+    productRequest.soundId = fileId;
+    productRequest.authorId = userId;
+    productRequest.title = metadata["title"].asString();
+    productRequest.description = metadata.get("description", "").asString();
+    productRequest.price = metadata["price"].asString();
+    productRequest.isAiSlop = true;
+
+    if (metadata.isMember("tags") && metadata["tags"].isArray())
+    {
+        for (const auto& tagName : metadata["tags"])
+        {
+            try
+            {
+                auto tagResult = m_tagService->GetByName(tagName.asString());
+                productRequest.tagIds.push_back(tagResult.id);
+            }
+            catch (const NotFoundException&)
+            {
+                dto::TagRequestTo tagRequest;
+                tagRequest.name = tagName.asString();
+                auto newTag = m_tagService->Create(tagRequest);
+                productRequest.tagIds.push_back(newTag.id);
+            }
+        }
+    }
+
+    dto::ProductResponseTo product = m_productService->Create(productRequest);
+
+    responseJson["message"] = "Sound uploaded successfully";
+    responseJson["productId"] = product.id;
+    responseJson["soundId"] = soundResponse.id;
+
+    httpResponse->setBody(Json::FastWriter().write(responseJson));
+    httpResponse->setContentTypeCode(ContentType::CT_APPLICATION_JSON);
+    httpResponse->setStatusCode(HttpStatusCode::k200OK);
 
     fflush(stdout);
     callback(httpResponse);

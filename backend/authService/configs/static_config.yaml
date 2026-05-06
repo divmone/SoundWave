@@ -88,6 +88,11 @@ components_manager:
             method: GET
             task_processor: main-task-processor
 
+#        handler-auth-apple:
+#            path: /auth/apple/callback
+#            method: POST
+#            task_processor: main-task-processor
+
         # handlers-purchase-methods-get:
         #     path: /purchaseMethods/{userID}
         #     method: GET

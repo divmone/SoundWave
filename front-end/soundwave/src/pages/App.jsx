@@ -5,6 +5,7 @@ import { useProducts }  from '../hooks/useProducts';
 import { useStats }     from '../hooks/useStats';
 import { useAuth }      from '../hooks/useAuth';
 import { logoutUser, loginWithGoogle, loginWithApple } from '../api/services/authService';
+import { getProduct } from '../api/services/productsService';
 import { stopAll } from '../hooks/useAudioPlayer';
 import { parseOAuthCallback } from '../utils/oauthUtils';
 
@@ -18,21 +19,39 @@ import EmptyState   from '../components/EmptyState';
 import StatsBar     from '../components/StatsBar';
 import CTASection   from '../components/CTASection';
 import UploadModal  from '../components/product/UploadModal';
+import GenerateModal from '../components/product/GenerateModal';
 
 import LoginPage     from './LoginPage';
 import ProfilePage   from './ProfilePage';
 import AdminPage, { isAdminUser } from './AdminPage';
 import ProductPage   from './ProductPage';
 import PaymentSuccessPage from './PaymentSuccessPage';
+import ClickerPage   from './ClickerPage';
 
-// Определяем начальную страницу: если URL содержит OAuth-callback — показываем лоадер
+const URL_KNOWN_PAGES = ['profile', 'admin', 'clicker', 'product'];
+
 function getInitialPage() {
   const params = new URLSearchParams(window.location.search);
   const state  = params.get('state');
   if ((state === 'google' || state === 'apple') && params.get('code')) return 'oauth-callback';
   if (params.get('payment') === 'success') return 'payment-success';
   if (params.get('payment') === 'cancel') return 'home';
+
+  const path = window.location.pathname.replace(/^\/+/, '').split('/')[0];
+  if (URL_KNOWN_PAGES.includes(path)) return path;
   return 'home';
+}
+
+function getInitialProductId() {
+  const path = window.location.pathname.replace(/^\/+/, '').split('/');
+  if (path[0] === 'product' && path[1]) return path[1];
+  return null;
+}
+
+function pathForPage(page, productId) {
+  if (page === 'home')    return '/';
+  if (page === 'product' && productId) return `/product/${productId}`;
+  return `/${page}`;
 }
 
 export default function App() {
@@ -41,6 +60,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [search,         setSearch]         = useState('');
   const [modal,          setModal]          = useState(false);
+  const [generateModal,  setGenerateModal]  = useState(false);
   const [oauthError,     setOauthError]     = useState('');
   const [currentPage,    setCurrentPage]    = useState(1);
   const [refreshKey,     setRefreshKey]     = useState(0);
@@ -49,14 +69,26 @@ export default function App() {
   const { user, login, logout, checking }      = useAuth();
   const { data: products, total, loading, refresh } = useProducts(search, currentPage, refreshKey);
 
+  const regularProducts = products.filter(p => !p.isAiSlop);
+  const aiProducts      = products.filter(p =>  p.isAiSlop);
+
   const handleNavigate = (target) => {
     if (target === 'home') setRefreshKey(k => k + 1);
+    if (target !== 'product') setSelectedProduct(null);
     setPage(target);
+    if (target !== 'login') {
+      window.history.pushState({ page: target }, '', pathForPage(target));
+    }
   };
 
   const handleOpenProduct = (product) => {
     setSelectedProduct(product);
     setPage('product');
+    window.history.pushState(
+      { page: 'product', productId: product.id },
+      '',
+      pathForPage('product', product.id),
+    );
   };
 
   const PAGE_SIZE    = 9;
@@ -74,15 +106,54 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // ── seed initial history state ─────────────────────────
+  useEffect(() => {
+    const skipSeed = ['login', 'oauth-callback', 'payment-success'];
+    if (!window.history.state && !skipSeed.includes(page)) {
+      const pid = page === 'product' ? getInitialProductId() : null;
+      const seedState = pid ? { page, productId: pid } : { page };
+      window.history.replaceState(seedState, '', pathForPage(page, pid));
+    }
+
+    if (page === 'product' && !selectedProduct) {
+      const pid = getInitialProductId();
+      if (pid) getProduct(pid).then(p => p && setSelectedProduct(p)).catch(() => setPage('home'));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── browser back/forward ───────────────────────────────
+  useEffect(() => {
+    const onPop = (e) => {
+      const next = e.state?.page ?? 'home';
+      stopAll();
+      if (next === 'product') {
+        const pid = e.state?.productId;
+        if (pid) {
+          getProduct(pid)
+            .then(p => { if (p) { setSelectedProduct(p); setPage('product'); } else { setPage('home'); } })
+            .catch(() => setPage('home'));
+        } else {
+          setPage('home');
+        }
+      } else {
+        setSelectedProduct(null);
+        setPage(next);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const handleLogout = async () => {
     await logoutUser();
     logout();
-    setPage('home');
+    handleNavigate('home');
   };
 
   const handleOAuthSuccess = (u) => {
     login(u);
-    setPage('home');
+    handleNavigate('home');
   };
 
   // ── OAuth callback handling ────────────────────────────
@@ -95,7 +166,7 @@ export default function App() {
 
     if (!callback || callback.error) {
       setOauthError(callback?.error || 'OAuth failed');
-      setPage('login');
+      handleNavigate('login');
       return;
     }
 
@@ -109,7 +180,7 @@ export default function App() {
       .then(data => handleOAuthSuccess(data.user))
       .catch(err  => {
         setOauthError(err.message || 'OAuth failed');
-        setPage('login');
+        handleNavigate('login');
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -131,12 +202,14 @@ export default function App() {
   if (page === 'login')       return <LoginPage onNavigate={handleNavigate} initialError={oauthError} />;
   if (page === 'profile')     return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={logout} />;
   if (page === 'admin')       return isAdminUser(user) ? <AdminPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} /> : null;
+  if (page === 'clicker')     return <ClickerPage user={user} onNavigate={handleNavigate} onLogout={handleLogout} onGenerated={refresh} />;
   if (page === 'product' && selectedProduct) return <ProductPage product={selectedProduct} user={user} onNavigate={handleNavigate} onLogout={handleLogout} />;
 
   // ── Main marketplace ───────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
       {modal && <UploadModal onClose={() => setModal(false)} user={user} onSuccess={refresh} />}
+      {generateModal && <GenerateModal onClose={() => setGenerateModal(false)} onSuccess={refresh} />}
 
       <Header
         onUploadClick={() => user ? setModal(true) : handleNavigate('login')}
@@ -149,7 +222,8 @@ export default function App() {
         flex: 1, maxWidth: 1360, width: '100%',
         margin: '0 auto', padding: '0 2rem', boxSizing: 'border-box',
       }}>
-        <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : setPage('login')} />
+        <Hero search={search} onSearch={setSearch} onUploadClick={() => user ? setModal(true) : handleNavigate('login')} />
+
 
         <section>
           <FilterTabs
@@ -163,9 +237,46 @@ export default function App() {
           ) : products.length === 0 ? (
             <EmptyState search={search} onReset={() => { setSearch(''); }} />
           ) : (
-            <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-              {products.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
-            </div>
+            <>
+              {regularProducts.length > 0 && (
+                <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+                  {regularProducts.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
+                </div>
+              )}
+
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+                margin: '1.5rem 0 1rem',
+              }}>
+                <span style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 800,
+                  fontSize: '1.1rem', letterSpacing: '0.02em',
+                  color: 'var(--text)',
+                }}>
+                  AI generated
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.72rem',
+                  color: 'var(--violet)', padding: '2px 8px',
+                  border: '1px solid var(--violet)', borderRadius: 'var(--radius-pill)',
+                }}>
+                  {aiProducts.length}
+                </span>
+                <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+                <button
+                  className="btn-primary"
+                  onClick={() => handleNavigate(user ? 'clicker' : 'login')}
+                  style={{ padding: '0.55rem 1rem', fontSize: '0.78rem' }}
+                >
+                  ✨ Generate
+                </button>
+              </div>
+              {aiProducts.length > 0 && (
+                <div className="r-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+                  {aiProducts.map((p, i) => <ProductCard key={p.id} product={p} user={user} delay={i * 0.05} onOpenProduct={handleOpenProduct} onNavigate={handleNavigate} />)}
+                </div>
+              )}
+            </>
           )}
 
           {totalPages > 1 && (
@@ -231,7 +342,7 @@ export default function App() {
         </section>
 
         <StatsBar stats={stats} />
-        <CTASection onUploadClick={() => user ? setModal(true) : setPage('login')} />
+        <CTASection onUploadClick={() => user ? setModal(true) : handleNavigate('login')} />
       </main>
 
       <Footer />

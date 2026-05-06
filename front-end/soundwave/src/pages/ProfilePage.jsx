@@ -164,14 +164,14 @@ function SoundRow({ sound, onDelete }) {
   );
 }
 
-const CRYPTO_NETWORKS = ['Bitcoin (BTC)', 'Ethereum (ETH)', 'Solana (SOL)', 'Tron USDT (TRC-20)', 'BNB Chain (BEP-20)'];
+export const CRYPTO_NETWORKS = ['Bitcoin (BTC)', 'Ethereum (ETH)', 'Solana (SOL)', 'Tron USDT (TRC-20)', 'BNB Chain (BEP-20)'];
 const pmKey = (userId) => `sw_payment_methods_${userId}`;
 
-function loadMethods(userId) {
+export function loadMethods(userId) {
   try { return JSON.parse(localStorage.getItem(pmKey(userId))) ?? []; } catch { return []; }
 }
 
-function saveMethods(userId, methods) {
+export function saveMethods(userId, methods) {
   localStorage.setItem(pmKey(userId), JSON.stringify(methods));
 }
 
