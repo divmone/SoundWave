@@ -70,6 +70,29 @@ services:
 
   ######################################################
 
+  crypto-payment-postgres:
+    image: postgres:15
+    container_name: soundwave-crypto-payment-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${PAYMENT_DB_NAME:-soundwaveCryptoPayment}
+    expose:
+      - "5432"
+    volumes:
+      - crypto_payment_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${PAYMENT_DB_NAME:-soundwaveCryptoPayment}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - soundwave-network
+    restart: unless-stopped
+
+  ######################################################
+
   migrate-auth:
     image: liquibase/liquibase:4.27
     command: >
@@ -121,6 +144,25 @@ services:
       - ./migrations/paymentService:/liquibase/changelog
     depends_on:
       payment-postgres:
+        condition: service_healthy
+    networks:
+      - soundwave-network
+
+  ######################################################
+
+  migrate-crypto-payment:
+    image: liquibase/liquibase:4.27
+    command: >
+      --url=jdbc:postgresql://crypto-payment-postgres:5432/soundwaveCryptoPayment
+      --username=${POSTGRES_USER:-postgres}
+      --password=${POSTGRES_PASSWORD:-postgres}
+      --changelog-file=db.changelog-master.xml
+      --search-path=/liquibase/changelog
+      update
+    volumes:
+      - ./migrations/cryptoPaymentService:/liquibase/changelog
+    depends_on:
+      crypto-payment-postgres:
         condition: service_healthy
     networks:
       - soundwave-network
@@ -187,6 +229,42 @@ services:
      - 8.8.4.4
     networks:
        - soundwave-network
+    restart: unless-stopped
+
+
+    ######################################################
+
+  crypto-payment-service:
+    build:
+      context: backend/cryptoPaymentService
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - DB_HOST=crypto-payment-postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_NAME=${CRYPTO_PAYMENT_DB_NAME:-soundwaveCryptoPayment}
+      - DB_CONNECTION=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@crypto-payment-postgres:5432/${CRYPTO_PAYMENT_DB_NAME:-soundwaveCryptoPayment}
+      - CPU_LIMIT=${PAYMENT_CPU_LIMIT:-4c}
+      - LOG_LEVEL=${PAYMENT_LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - CRYPTO_WALLET=${CRYPTO_WALLET}
+      - SEPOLIA_CHAIN_ID=${SEPOLIA_CHAIN_ID}
+      - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY}
+    depends_on:
+      crypto-payment-postgres:
+        condition: service_healthy
+      migrate-payment:
+        condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - soundwave-network
     restart: unless-stopped
 
   ######################################################
@@ -351,6 +429,7 @@ volumes:
   frontend_dist:
   pgadmin_data:
   mongo_data:
+  crypto_payment_postgres_data:
 
 networks:
   soundwave-network:
