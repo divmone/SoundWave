@@ -16,7 +16,7 @@
         {
             "name": "default",
             "rdbms": "postgresql",
-            "host": "localhost",
+            "host": "crypto-payment-postgres",
             "port": 5432,
             "dbname": "soundwaveCryptoPayment",
             "user": "myuser",
