@@ -19,9 +19,15 @@ namespace soundwaveCryptoPayment
         explicit TransactionsController(std::unique_ptr<TransactionsService> service);
 
         METHOD_LIST_BEGIN
-            ADD_METHOD_TO(TransactionsController::CreateTransaction, "/api/transactions", drogon::Post);
-            ADD_METHOD_TO(TransactionsController::GetTransaction, "/api/transactions/{transactionId}", drogon::Get);
-            ADD_METHOD_TO(TransactionsController::ClaimTransaction, "/api/transactions/{transactionId}/claim", drogon::Post);
+            ADD_METHOD_TO(TransactionsController::CreateTransaction,
+                    "/api/transactions", drogon::Post,
+                    "soundwaveCryptoPayment::AuthCheckMiddleware");
+            ADD_METHOD_TO(TransactionsController::GetTransaction,
+                    "/api/transactions/{transactionId}", drogon::Get,
+                    "soundwaveCryptoPayment::AuthCheckMiddleware");
+            ADD_METHOD_TO(TransactionsController::ClaimTransaction,
+                    "/api/transactions/{transactionId}/claim", drogon::Post,
+                    "soundwaveCryptoPayment::AuthCheckMiddleware");
         METHOD_LIST_END
 
         void CreateTransaction(
