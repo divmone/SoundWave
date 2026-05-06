@@ -76,13 +76,13 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${PAYMENT_DB_NAME:-soundwaveCryptoPayment}
+      POSTGRES_DB: ${CRYPTO_PAYMENT_DB_NAME:-soundwaveCryptoPayment}
     expose:
       - "5432"
     volumes:
       - crypto_payment_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${PAYMENT_DB_NAME:-soundwaveCryptoPayment}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${CRYPTO_PAYMENT_DB_NAME:-soundwaveCryptoPayment}" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -258,7 +258,7 @@ services:
     depends_on:
       crypto-payment-postgres:
         condition: service_healthy
-      migrate-payment:
+      migrate-crypto-payment:
         condition: service_completed_successfully
     dns:
       - 8.8.8.8
@@ -382,6 +382,7 @@ services:
       - auth-service
       - sounds-service
       - mail-service
+      - crypto-payment-service
     networks:
       - soundwave-network
     restart: unless-stopped
