@@ -30,10 +30,10 @@ namespace soundwaveCryptoPayment
         std::unique_ptr<TransactionsRepository> m_repository;
         drogon::HttpClientPtr m_client;
 
-        const char* WALLET_ADDRESS = std::getenv("CRYPTO_WALLET");
+        const char* WALLET = std::getenv("CRYPTO_WALLET");
         const char* ETHERSCAN_API_KEY = std::getenv("ETHERSCAN_API_KEY");
-        static constexpr const char* ETHERSCAN_BASE_URL = "https://api-sepolia.etherscan.io/api";
-        const int SEPOLIA_CHAIN_ID = std::stoi(std::getenv("SEPOLIA_CHAIN_ID"));
+        static constexpr const char* ETHERSCAN_BASE_URL = "https://api.etherscan.io";
+        const char* SEPOLIA_CHAIN_ID = std::getenv("SEPOLIA_CHAIN_ID");
 
         bool VerifyTransactionOnBlockchain(const std::string& txhash, const std::string& from, int32_t amount);
         std::variant<TransactionResponseTo, DatabaseError> CheckAndUpdateTransactionStatus(int64_t id);

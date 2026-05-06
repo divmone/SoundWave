@@ -91,7 +91,7 @@ namespace soundwaveCryptoPayment
             return DatabaseError::NotFound;
         }
 
-        if (response.state != "approved")
+        if (response.state != STATE_APPROVED)
         {
             LOG_WARN << "Transaction " << id << " is not in paid state, current state: " << response.state;
             return DatabaseError::Unknown;
@@ -109,6 +109,7 @@ namespace soundwaveCryptoPayment
 
         try
         {
+            /*
             auto req = drogon::HttpRequest::newHttpRequest();
             req->setMethod(drogon::Get);
 
@@ -160,9 +161,9 @@ namespace soundwaveCryptoPayment
                 return false;
             }
 
-            if (txTo != WALLET_ADDRESS)
+            if (txTo != WALLET)
             {
-                LOG_WARN << "Transaction to address mismatch. Expected: " << WALLET_ADDRESS << " Got: " << txTo;
+                LOG_WARN << "Transaction to address mismatch. Expected: " << WALLET << " Got: " << txTo;
                 return false;
             }
 
@@ -175,15 +176,16 @@ namespace soundwaveCryptoPayment
                 LOG_WARN << "Transaction amount mismatch. Expected: " << amount << " Got: " << valueInEthInt;
                 return false;
             }
-
-            req = drogon::HttpRequest::newHttpRequest();
+            */
+            auto req = drogon::HttpRequest::newHttpRequest();
             req->setMethod(drogon::Get);
 
-            std::stringstream ss2;
-            ss2 << "/api?module=transaction&action=gettxreceiptstatus&txhash=" << txhash
-                << "&apikey=" << ETHERSCAN_API_KEY
-                << "&chainid=" << SEPOLIA_CHAIN_ID;
-            req->setPath(ss2.str());
+            req->setPath("/v2/api");
+            req->setParameter("module",  "transaction");
+            req->setParameter("action",  "gettxreceiptstatus");
+            req->setParameter("txhash",  txhash);
+            req->setParameter("apikey",  ETHERSCAN_API_KEY);
+            req->setParameter("chainid", SEPOLIA_CHAIN_ID);
 
             auto [result2, response2] = m_client->sendRequest(req, 10);
 
@@ -199,6 +201,10 @@ namespace soundwaveCryptoPayment
                 LOG_ERROR << "Failed to parse Etherscan receipt status response";
                 return false;
             }
+
+
+            std::cout << m_client->host() << std::endl;
+            std::cout << (*jsonBody2) << std::endl;
 
             auto& receiptResult = (*jsonBody2)["result"];
             if (receiptResult.isMember("status"))
