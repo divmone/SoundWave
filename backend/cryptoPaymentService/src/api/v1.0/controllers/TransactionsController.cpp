@@ -26,7 +26,7 @@ void TransactionsController::CreateTransaction(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)> &&callback)
 {
-    LOG_INFO << "POST /api/transactions";
+    LOG_INFO << "POST /api/v1.0/transactions";
 
     try
     {
@@ -44,8 +44,6 @@ void TransactionsController::CreateTransaction(
         }
 
         auto dto = TransactionRequestTo::fromJson(*json);
-
-        dto.to = "0x000000000000000000000000000000000000dEaD";
 
         if (dto.txhash.empty())
         {
@@ -101,7 +99,7 @@ void TransactionsController::GetTransaction(
     std::function<void(const HttpResponsePtr&)> &&callback,
     int64_t transactionId)
 {
-    LOG_INFO << "GET /api/transactions/" << transactionId;
+    LOG_INFO << "GET /api/v1.0/transactions/" << transactionId;
 
     try
     {
@@ -156,7 +154,7 @@ void TransactionsController::ClaimTransaction(
     std::function<void(const HttpResponsePtr&)> &&callback,
     int64_t transactionId)
 {
-    LOG_INFO << "POST /api/transactions/" << transactionId << "/claim";
+    LOG_INFO << "POST /api/v1.0/transactions/" << transactionId << "/claim";
 
     try
     {

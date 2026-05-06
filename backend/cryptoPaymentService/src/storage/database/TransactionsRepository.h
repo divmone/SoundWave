@@ -14,6 +14,8 @@ namespace soundwaveCryptoPayment
 {
     class TransactionsRepository : public IDatabaseRepository<drogon_model::soundwaveCryptoPayment::Transactions, int64_t, DatabaseError>
     {
+    private:
+        const std::string WALLET = std::getenv("CRYPTO_WALLET");
     public:
         std::variant<TransactionResponseTo, DatabaseError> CreateTransaction(const TransactionRequestTo& dto);
         std::variant<TransactionResponseTo, DatabaseError> GetTransactionById(int64_t id);

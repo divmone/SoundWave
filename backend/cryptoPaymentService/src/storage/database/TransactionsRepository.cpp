@@ -28,7 +28,7 @@ namespace soundwaveCryptoPayment
             response.txhash = dto.txhash;
             response.userId = dto.userId;
             response.from = dto.from;
-            response.to = dto.to;
+            response.to = WALLET;
 
             return response;
         }
