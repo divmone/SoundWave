@@ -41,6 +41,11 @@ const SERVICES = {
     baseURL: process.env.REACT_APP_PAYMENT_URL || '',
     defaultPath: '',
   },
+  CRYPTO_PAYMENT: {
+    name: 'crypto_payment',
+    baseURL: process.env.REACT_APP_CRYPTO_PAYMENT_URL || '',
+    defaultPath: '/api',
+  },
 };
 
 // ── Token helpers ──────────────────────────────────────────
@@ -176,15 +181,30 @@ export const storage = {
 export const payment = {
   /** GET /path */
   get: (path, options) => execute('PAYMENT', 'GET', path, null, options),
-  
+
   /** POST /path { body } */
   post: (path, body, options) => execute('PAYMENT', 'POST', path, body, options),
-  
+
   /** PUT /path { body } */
   put: (path, body, options) => execute('PAYMENT', 'PUT', path, body, options),
-  
+
   /** DELETE /path */
   del: (path, options) => execute('PAYMENT', 'DELETE', path, null, options),
+};
+
+// ── Клиент для крипто-платежного сервиса ─────────────────────
+export const cryptoPayment = {
+  /** GET /path */
+  get: (path, options) => execute('CRYPTO_PAYMENT', 'GET', path, null, options),
+
+  /** POST /path { body } */
+  post: (path, body, options) => execute('CRYPTO_PAYMENT', 'POST', path, body, options),
+
+  /** PUT /path { body } */
+  put: (path, body, options) => execute('CRYPTO_PAYMENT', 'PUT', path, body, options),
+
+  /** DELETE /path */
+  del: (path, options) => execute('CRYPTO_PAYMENT', 'DELETE', path, null, options),
 };
 
 // ── Для обратной совместимости (если код использует старые импорты) ──

@@ -6,6 +6,7 @@ import UploadModal from '../components/product/UploadModal';
 import PaymentMethodsPanel from '../components/payment/PaymentMethodsPanel';
 import { logoutUser } from '../api/services/authService';
 import { isAdminUser } from './AdminPage';
+import { getCustomerWallets, addCustomerWallet, deleteCustomerWallet } from '../api/services/cryptoPaymentService';
 
 function StatCard({ label, value }) {
   return (
@@ -276,21 +277,21 @@ function PaymentMethodRow({ method, onRemove }) {
         >{revealed ? '🙈' : '👁'}</button>
       )}
 
-      <button
-        onClick={() => { if (!confirm) { setConfirm(true); return; } onRemove(method.id); }}
-        style={{
-          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-          background: confirm ? 'var(--red-dim)' : 'var(--bg4)',
-          border: `1px solid ${confirm ? 'rgba(255,68,102,0.4)' : 'var(--line2)'}`,
-          color: confirm ? 'var(--red)' : 'var(--text3)',
-          cursor: 'pointer', fontSize: '0.8rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 0.18s',
-        }}
-        onMouseEnter={e => { if (!confirm) { e.currentTarget.style.borderColor = 'rgba(255,68,102,0.4)'; e.currentTarget.style.color = 'var(--red)'; e.currentTarget.style.background = 'var(--red-dim)'; }}}
-        onMouseLeave={e => { if (!confirm) { e.currentTarget.style.borderColor = 'var(--line2)'; e.currentTarget.style.color = 'var(--text3)'; e.currentTarget.style.background = 'var(--bg4)'; }}}
-        title={confirm ? 'Click again to remove' : 'Remove'}
-      >{confirm ? '!' : '✕'}</button>
+        <button
+          onClick={() => { if (!confirm) { setConfirm(true); return; } onRemove(method); }}
+          style={{
+            width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+            background: confirm ? 'var(--red-dim)' : 'var(--bg4)',
+            border: `1px solid ${confirm ? 'rgba(255,68,102,0.4)' : 'var(--line2)'}`,
+            color: confirm ? 'var(--red)' : 'var(--text3)',
+            cursor: 'pointer', fontSize: '0.8rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.18s',
+          }}
+          onMouseEnter={e => { if (!confirm) { e.currentTarget.style.borderColor = 'rgba(255,68,102,0.4)'; e.currentTarget.style.color = 'var(--red)'; e.currentTarget.style.background = 'var(--red-dim)'; }}}
+          onMouseLeave={e => { if (!confirm) { e.currentTarget.style.borderColor = 'var(--line2)'; e.currentTarget.style.color = 'var(--text3)'; e.currentTarget.style.background = 'var(--bg4)'; }}}
+          title={confirm ? 'Click again to remove' : 'Remove'}
+        >{confirm ? '!' : '✕'}</button>
     </div>
   );
 }
@@ -501,7 +502,8 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
   const [error, setError]         = useState(null);
   const [modal, setModal]         = useState(false);
   const [payModal, setPayModal]   = useState(false);
-  const [methods, setMethods]     = useState(() => loadMethods(user?.id));
+  const [methods, setMethods]     = useState([]);
+  const [walletsLoading, setWalletsLoading] = useState(true);
 
   const loadSounds = useCallback(() => {
     if (!user?.id) return;
@@ -529,17 +531,63 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
     setSounds(prev => prev.filter(s => s.id !== id));
   };
 
-  const handleAddMethod = (method) => {
-    const updated = [...methods, method];
-    setMethods(updated);
-    saveMethods(user?.id, updated);
+  const handleAddMethod = async (method) => {
+    if (method.type === 'crypto') {
+      try {
+        await addCustomerWallet(user.id, method.address);
+        fetchWallets();
+      } catch (err) {
+        console.error('Failed to add wallet:', err);
+      }
+    } else {
+      // Card methods still use localStorage (they're for Stripe)
+      const updated = [...methods, method];
+      setMethods(updated);
+      saveMethods(user?.id, updated);
+    }
   };
 
-  const handleRemoveMethod = (id) => {
-    const updated = methods.filter(m => m.id !== id);
-    setMethods(updated);
-    saveMethods(user?.id, updated);
+  const handleRemoveMethod = async (method) => {
+    if (method.type === 'crypto') {
+      try {
+        await deleteCustomerWallet(user.id, method.address);
+        fetchWallets();
+      } catch (err) {
+        console.error('Failed to remove wallet:', err);
+      }
+    } else {
+      const updated = methods.filter(m => m.id !== method.id);
+      setMethods(updated);
+      saveMethods(user?.id, updated);
+    }
   };
+
+  const fetchWallets = async () => {
+    if (!user?.id) return;
+    setWalletsLoading(true);
+    try {
+      const wallets = await getCustomerWallets(user.id);
+      const cryptoMethods = (wallets || []).map((w, i) => ({
+        id: `crypto_${i}`,
+        type: 'crypto',
+        address: w,
+        network: 'Ethereum (ETH)', // Default since API only returns address
+      }));
+      // Keep card methods from localStorage
+      const cardMethods = loadMethods(user.id).filter(m => m.type === 'card');
+      setMethods([...cardMethods, ...cryptoMethods]);
+    } catch (err) {
+      console.error('Failed to load wallets:', err);
+      // Fallback to localStorage
+      setMethods(loadMethods(user?.id) || []);
+    } finally {
+      setWalletsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) fetchWallets();
+  }, [user?.id]);
 
   const totalEarnings = sounds.reduce((sum, s) => {
     const p = parseFloat(s.price);
