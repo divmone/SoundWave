@@ -1,61 +1,33 @@
-#include <drogon/HttpAppFramework.h>
-#include <cstdlib>
+//
+// Created by dmitry on 05.05.2026.
+//
 
-#include <storage/database/PaymentRepository.h>
-#include <storage/database/PurchaseRepository.h>
-#include <storage/database/PaymentMethodRepository.h>
-#include <storage/database/StripeCustomerRepository.h>
-#include <storage/database/PaymentIntentRepository.h>
+#include <memory>
+#include <drogon/drogon.h>
+#include <api/v1.0/controllers/CustomerWalletsController.h>
+#include <api/v1.0/controllers/TransactionsController.h>
+#include <services/CustomerWalletsService.h>
+#include <services/TransactionsService.h>
+#include <storage/database/CustomerWalletsRepository.h>
+#include <storage/database/TransactionsRepository.h>
+#include <middleware/AuthCheckMiddleware.h>
 
-#include <services/PaymentService.h>
-#include <services/PaymentMethodService.h>
-
-#include <api/v1.0/controllers/PaymentsController.h>
-#include <api/v1.0/controllers/PurchasesController.h>
-#include <api/v1.0/controllers/PaymentMethodsController.h>
-#include <api/v1.0/controllers/WebhookController.h>
-
-#include <exceptions/GlobalHandler.h>
-
-#include "middleware/AuthCheckMiddleware.h"
-
-using namespace soundwavePayment;
+using namespace soundwaveCryptoPayment;
 
 int main()
 {
     drogon::app().loadConfigFile("config/app/config.json");
 
-    drogon::app().setExceptionHandler(GlobalExceptionHandler);
+    auto customerWalletsRepository = std::make_shared<CustomerWalletsRepository>();
+    auto customerWalletsService = std::make_unique<CustomerWalletsService>(customerWalletsRepository);
+    auto customerWalletsController = std::make_shared<CustomerWalletsController>(std::move(customerWalletsService));
 
-    auto paymentRepo = std::make_shared<PaymentRepository>();
-    auto purchaseRepo = std::make_shared<PurchaseRepository>();
-    auto paymentMethodRepo = std::make_shared<PaymentMethodRepository>();
-    auto stripeCustomerRepo = std::make_shared<StripeCustomerRepository>();
-    auto paymentIntentRepo = std::make_shared<PaymentIntentRepository>();
+    auto transactionsRepository = std::make_unique<TransactionsRepository>();
+    auto transactionsService = std::make_unique<TransactionsService>(std::move(transactionsRepository));
+    auto transactionsController = std::make_shared<TransactionsController>(std::move(transactionsService));
 
-    auto paymentService = std::make_shared<PaymentService>(
-        paymentRepo,
-        purchaseRepo,
-        paymentMethodRepo,
-        stripeCustomerRepo,
-        paymentIntentRepo
-    );
-
-    auto paymentMethodService = std::make_shared<PaymentMethodService>(
-        paymentMethodRepo,
-        stripeCustomerRepo
-    );
-
-    auto paymentsController = std::make_shared<PaymentsController>(paymentService);
-    auto purchasesController = std::make_shared<PurchasesController>(paymentService);
-    auto paymentMethodsController = std::make_shared<PaymentMethodsController>(paymentMethodService);
-    auto webhookController = std::make_shared<WebhookController>(paymentService);
-
-    drogon::app().registerController(paymentsController);
-    drogon::app().registerController(purchasesController);
-    drogon::app().registerController(paymentMethodsController);
-    drogon::app().registerController(webhookController);
+    drogon::app().registerController(customerWalletsController);
+    drogon::app().registerController(transactionsController);
     drogon::app().run();
-
     return 0;
 }
