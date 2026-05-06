@@ -44,7 +44,7 @@ const SERVICES = {
   CRYPTO_PAYMENT: {
     name: 'crypto_payment',
     baseURL: process.env.REACT_APP_CRYPTO_PAYMENT_URL || '',
-    defaultPath: '/api',
+    defaultPath: '',
   },
 };
 

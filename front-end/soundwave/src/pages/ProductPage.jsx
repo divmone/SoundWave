@@ -495,9 +495,11 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                           Cryptocurrency
                         </div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>
-                          {cryptoWallets.length > 0
-                            ? `${cryptoWallets.length} wallet${cryptoWallets.length > 1 ? 's' : ''} saved`
-                            : 'Add wallets in Profile settings'}
+                          {walletsLoading 
+                            ? 'Loading wallets...' 
+                            : cryptoWallets.length > 0
+                              ? `${cryptoWallets.length} wallet${cryptoWallets.length > 1 ? 's' : ''} saved`
+                              : 'Add wallets in Profile settings'}
                         </div>
                       </div>
                       <svg style={{ marginLeft: 'auto', flexShrink: 0, color: 'var(--text3)' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -552,7 +554,11 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.88rem', color: 'var(--text)' }}>₿ Crypto payment</span>
                   </div>
 
-                  {cryptoWallets.length === 0 ? (
+                  {walletsLoading ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text3)' }}>
+                      Loading wallets...
+                    </div>
+                  ) : cryptoWallets.length === 0 ? (
                     <div style={{ padding: '1.5rem', textAlign: 'center', background: 'var(--bg3)', borderRadius: 'var(--radius-md)', marginBottom: '1.2rem' }}>
                       <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>🔐</div>
                       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.88rem', color: 'var(--text)', marginBottom: 6 }}>No wallets saved</div>

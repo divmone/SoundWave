@@ -326,7 +326,6 @@ function AddPaymentModal({ onClose, onAdd }) {
       if (!/^\d{2}\/\d{2}$/.test(card.expiry)) e.expiry = 'Format: MM/YY';
       if (!card.name.trim()) e.name = 'Cardholder name is required';
       if (Object.keys(e).length) { setErrors(e); return; }
-      // PCI DSS: храним только первые 6 и последние 4 цифры, остальное отбрасывается
       onAdd({ type: 'card', firstSix: digits.slice(0, 6), lastFour: digits.slice(-4), expiry: card.expiry, name: card.name.trim(), id: Date.now() });
     } else {
       if (crypto.address.length < 10) e.address = 'Enter a valid wallet address';
@@ -504,6 +503,10 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
   const [payModal, setPayModal]   = useState(false);
   const [methods, setMethods]     = useState([]);
   const [walletsLoading, setWalletsLoading] = useState(true);
+  const [showAddCrypto, setShowAddCrypto] = useState(false);
+  const [cryptoAddress, setCryptoAddress] = useState('');
+  const [cryptoError, setCryptoError] = useState('');
+  const [cryptoWalletsList, setCryptoWalletsList] = useState([]);
 
   const loadSounds = useCallback(() => {
     if (!user?.id) return;
@@ -567,18 +570,19 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
     setWalletsLoading(true);
     try {
       const wallets = await getCustomerWallets(user.id);
+      setCryptoWalletsList(wallets || []);
       const cryptoMethods = (wallets || []).map((w, i) => ({
         id: `crypto_${i}`,
         type: 'crypto',
         address: w,
-        network: 'Ethereum (ETH)', // Default since API only returns address
+        network: 'Ethereum (ETH)',
       }));
       // Keep card methods from localStorage
       const cardMethods = loadMethods(user.id).filter(m => m.type === 'card');
       setMethods([...cardMethods, ...cryptoMethods]);
     } catch (err) {
       console.error('Failed to load wallets:', err);
-      // Fallback to localStorage
+      setCryptoWalletsList([]);
       setMethods(loadMethods(user?.id) || []);
     } finally {
       setWalletsLoading(false);
@@ -813,8 +817,173 @@ export default function ProfilePage({ user, onNavigate, onLogout: onLogoutProp, 
             </div>
           )}
         </div>
-{/* Payment methods section */}
+        {/* Payment methods section */}
           <PaymentMethodsPanel user={user} />
+
+        {/* Crypto Wallets section */}
+        <div style={{
+          background: 'var(--bg2)',
+          border: '1px solid var(--line)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.5rem',
+          marginTop: '1.5rem',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1rem',
+          }}>
+            <h3 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1rem',
+              fontWeight: 900,
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              ₿ Crypto Wallets
+            </h3>
+            {!showAddCrypto && (
+              <button
+                onClick={() => { setShowAddCrypto(true); setCryptoAddress(''); setCryptoError(''); }}
+                className="btn-primary"
+                style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
+              >
+                + Add Wallet
+              </button>
+            )}
+          </div>
+
+          {walletsLoading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text3)' }}>
+              Loading wallets...
+            </div>
+          ) : (
+            <>
+              {cryptoWalletsList.length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '2rem',
+                  color: 'var(--text3)',
+                  fontSize: '0.85rem',
+                }}>
+                  No crypto wallets added yet
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {cryptoWalletsList.map((w, i) => (
+                    <div key={i} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.9rem 1rem',
+                      background: 'var(--bg3)',
+                      border: '1px solid var(--line2)',
+                      borderRadius: 'var(--radius-md)',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{
+                          width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                          background: 'linear-gradient(135deg, rgba(255,180,0,0.15), rgba(255,100,0,0.1))',
+                          border: '1px solid var(--line2)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem',
+                        }}>₿</div>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.8rem', color: 'var(--text)', marginBottom: 2 }}>
+                            {w.slice(0, 8)}…{w.slice(-6)}
+                          </div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>Ethereum (ETH)</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await deleteCustomerWallet(user.id, w);
+                            fetchWallets();
+                          } catch (err) {
+                            console.error('Failed to remove wallet:', err);
+                          }
+                        }}
+                        style={{
+                          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                          background: 'var(--bg4)',
+                          border: '1px solid var(--line2)',
+                          color: 'var(--text3)',
+                          cursor: 'pointer', fontSize: '0.8rem',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.18s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,68,102,0.4)'; e.currentTarget.style.color = 'var(--red)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--line2)'; e.currentTarget.style.color = 'var(--text3)'; }}
+                        title="Remove wallet"
+                      >✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {showAddCrypto && (
+                <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg3)', borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ marginBottom: '0.75rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text3)', marginBottom: 6, fontFamily: 'var(--font-mono)' }}>
+                      Wallet Address
+                    </label>
+                    <input
+                      type="text"
+                      value={cryptoAddress}
+                      onChange={e => { setCryptoAddress(e.target.value); setCryptoError(''); }}
+                      placeholder="0x..."
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.9rem',
+                        background: 'var(--bg4)',
+                        border: `1px solid ${cryptoError ? 'var(--red)' : 'var(--line2)'}`,
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text)',
+                        fontSize: '0.9rem',
+                        fontFamily: 'var(--font-mono)',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    {cryptoError && <div style={{ color: 'var(--red)', fontSize: '0.72rem', marginTop: 4 }}>{cryptoError}</div>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button
+                      onClick={() => { setShowAddCrypto(false); setCryptoAddress(''); setCryptoError(''); }}
+                      className="btn-ghost"
+                      style={{ flex: 1, padding: '0.6rem', justifyContent: 'center', fontSize: '0.8rem' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (cryptoAddress.length < 10) {
+                          setCryptoError('Enter a valid wallet address');
+                          return;
+                        }
+                        try {
+                          await addCustomerWallet(user.id, cryptoAddress.trim());
+                          setShowAddCrypto(false);
+                          setCryptoAddress('');
+                          fetchWallets();
+                        } catch (err) {
+                          setCryptoError(err.message || 'Failed to add wallet');
+                        }
+                      }}
+                      className="btn-primary"
+                      style={{ flex: 2, padding: '0.6rem', justifyContent: 'center', fontSize: '0.8rem' }}
+                    >
+                      Save Wallet
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
       </main>
 
