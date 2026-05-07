@@ -1,144 +1,50 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import { storage } from '../api/httpClient';
-import { useAuth } from '../hooks/useAuth';
-import { getApprovedTransactions } from '../api/services/cryptoPaymentService';
+import { getProduct } from '../api/services/productsService';
 
 export default function PaymentSuccessPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
-  const sessionId = params.get('session_id');
-  
-  const [loading, setLoading] = useState(true);
-  const [purchases, setPurchases] = useState([]);
-  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const productId = params.get('productId');
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(!!productId);
   const [downloading, setDownloading] = useState(false);
-  
-  const { user, checking } = useAuth();
-  const fetchedRef = useRef(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (checking || fetchedRef.current) return;
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-
-    fetchedRef.current = true;
-
-    async function getPurchases() {
-      const allPurchases = [];
-
-      // Fetch card/stripe purchases
-      if (sessionId) {
-        try {
-          const data = await storage.get(`/api/payment/purchases/user/${user.id}`);
-          if (Array.isArray(data)) {
-            for (const p of data) {
-              allPurchases.push(p);
-            }
-          }
-        } catch (err) {
-          console.error('[PaymentSuccess] Card purchase error:', err);
-        }
-      }
-
-      // Fetch crypto approved transactions
-      try {
-        const cryptoData = await getApprovedTransactions(user.id);
-        if (Array.isArray(cryptoData)) {
-          for (const t of cryptoData) {
-            if (t.state === 'approved') {
-              allPurchases.push({
-                id: `crypto_${t.id}`,
-                productId: t.productId,
-                productTitle: `Sound #${t.productId}`,
-                amount: t.amount,
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.error('[PaymentSuccess] Crypto purchase error:', err);
-      }
-
-      setPurchases(allPurchases);
-      if (allPurchases.length === 1) {
-        setSelectedPurchase(allPurchases[0]);
-      }
-      setLoading(false);
-    }
-
-    getPurchases();
-  }, [user, checking, sessionId]);
+    if (!productId) { setLoading(false); return; }
+    getProduct(productId)
+      .then(p => setProduct(p))
+      .catch(() => setError('Could not load product'))
+      .finally(() => setLoading(false));
+  }, [productId]);
 
   const handleDownload = async () => {
-    if (!selectedPurchase) return;
-
+    if (!product) return;
     setDownloading(true);
     try {
-      const response = await fetch(`/api/v1.0/sounds/${selectedPurchase.productId}/data`, {
+      const response = await fetch(`/api/v1.0/sounds/${product.id}/data`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('sw_token')}`,
         },
       });
-
-      if (!response.ok) throw new Error('Failed to download');
-
+      if (!response.ok) throw new Error('Download failed');
       const blob = await response.blob();
-      const extension = response.headers.get('Content-Type')?.includes('wav') ? 'wav' : 'mp3';
-      const title = (selectedPurchase.productTitle || 'sound').replace(/[^a-zA-Z0-9]/g, '_');
-      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${title}.${extension}`;
+      a.download = `${(product.title || 'sound').replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      console.error('[PaymentSuccess] Download error:', err);
+      setError(err.message);
     } finally {
       setDownloading(false);
     }
   };
-
-  if (loading || checking) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Header />
-        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ 
-            width: 40, height: 40, 
-            border: '3px solid rgba(255,255,255,0.15)', 
-            borderTopColor: 'var(--cyan)', 
-            borderRadius: '50%', 
-            animation: 'spin 0.8s linear infinite',
-            display: 'inline-block' 
-          }} />
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Header />
-        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Please log in</h1>
-            <button onClick={() => onNavigate?.('login')} className="btn-primary" style={{ padding: '0.8rem 2rem' }}>
-              Go to Login
-            </button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -171,62 +77,40 @@ export default function PaymentSuccessPage({ onNavigate }) {
           <p style={{ color: 'var(--text3)', marginBottom: '2rem', fontSize: '0.9rem' }}>
             Thank you for your purchase.
           </p>
-          
-          {purchases.length === 0 ? (
-            <p style={{ color: 'var(--text3)' }}>No purchases found</p>
-          ) : (
-            <>
-              {purchases.length === 1 ? (
-                <p style={{ marginBottom: '1rem', color: 'var(--text2)' }}>
-                  {purchases[0].productTitle || 'Sound'}
-                </p>
-              ) : (
-                <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text3)', marginBottom: '0.5rem' }}>
-                    Select a sound to download:
-                  </label>
-                  <select
-                    value={selectedPurchase?.id || ''}
-                    onChange={e => {
-                      const p = purchases.find(x => x.id === parseInt(e.target.value));
-                      setSelectedPurchase(p);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      background: 'var(--bg4)',
-                      border: '1px solid var(--line2)',
-                      borderRadius: 'var(--radius-sm)',
-                      color: 'var(--text)',
-                      fontSize: '0.9rem',
-                    }}
-                  >
-                    {purchases.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.productTitle || `Sound #${p.productId}`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
 
+          {loading ? (
+            <div style={{
+              width: 32, height: 32, margin: '0 auto 1.5rem',
+              border: '3px solid rgba(255,255,255,0.15)',
+              borderTopColor: 'var(--cyan)',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+              display: 'inline-block',
+            }} />
+          ) : error ? (
+            <p style={{ color: 'var(--text3)', marginBottom: '1.5rem' }}>{error}</p>
+          ) : product ? (
+            <>
+              <p style={{ marginBottom: '1.5rem', color: 'var(--text2)', fontSize: '1.1rem' }}>
+                {product.title}
+              </p>
               <button
                 onClick={handleDownload}
-                disabled={downloading || !selectedPurchase}
+                disabled={downloading}
                 className="btn-primary"
                 style={{
                   padding: '1rem 2rem',
                   fontSize: '1rem',
                   fontWeight: 700,
-                  opacity: downloading || !selectedPurchase ? 0.7 : 1,
-                  cursor: downloading || !selectedPurchase ? 'wait' : 'pointer',
+                  opacity: downloading ? 0.7 : 1,
+                  cursor: downloading ? 'wait' : 'pointer',
                 }}
               >
-                {downloading ? '⏳ Downloading...' : '⬇ Download'}
+                {downloading ? 'Downloading...' : 'Download'}
               </button>
             </>
-          )}
-          
+          ) : null}
+
           <button
             onClick={() => onNavigate?.('home')}
             className="btn-ghost"
