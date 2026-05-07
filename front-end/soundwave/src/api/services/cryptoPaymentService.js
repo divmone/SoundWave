@@ -29,3 +29,7 @@ export async function getTransaction(transactionId) {
 export async function claimTransaction(transactionId, userId) {
   return cryptoPayment.post(`/api/v1.0/transactions/${transactionId}/claim`, { userId });
 }
+
+export async function getApprovedTransactions(userId) {
+  return cryptoPayment.get(`/api/v1.0/transactions/approved/user/${userId}`);
+}

@@ -3,6 +3,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { storage } from '../api/httpClient';
 import { useAuth } from '../hooks/useAuth';
+import { getApprovedTransactions } from '../api/services/cryptoPaymentService';
 
 export default function PaymentSuccessPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
@@ -26,29 +27,50 @@ export default function PaymentSuccessPage({ onNavigate }) {
     fetchedRef.current = true;
 
     async function getPurchases() {
+      const allPurchases = [];
+
+      // Fetch card/stripe purchases
+      if (sessionId) {
+        try {
+          const data = await storage.get(`/api/payment/purchases/user/${user.id}`);
+          if (Array.isArray(data)) {
+            for (const p of data) {
+              allPurchases.push(p);
+            }
+          }
+        } catch (err) {
+          console.error('[PaymentSuccess] Card purchase error:', err);
+        }
+      }
+
+      // Fetch crypto approved transactions
       try {
-        const data = await storage.get(`/api/payment/purchases/user/${user.id}`);
-        if (Array.isArray(data)) {
-          setPurchases(data);
-          if (data.length === 1) {
-            setSelectedPurchase(data[0]);
+        const cryptoData = await getApprovedTransactions(user.id);
+        if (Array.isArray(cryptoData)) {
+          for (const t of cryptoData) {
+            if (t.state === 'approved') {
+              allPurchases.push({
+                id: `crypto_${t.id}`,
+                productId: t.productId,
+                productTitle: `Sound #${t.productId}`,
+                amount: t.amount,
+              });
+            }
           }
         }
       } catch (err) {
-        console.error('[PaymentSuccess] Error:', err);
-      } finally {
-        setLoading(false);
+        console.error('[PaymentSuccess] Crypto purchase error:', err);
       }
+
+      setPurchases(allPurchases);
+      if (allPurchases.length === 1) {
+        setSelectedPurchase(allPurchases[0]);
+      }
+      setLoading(false);
     }
 
     getPurchases();
-  }, [user, checking]);
-
-  useEffect(() => {
-    if (!loading && selectedPurchase) {
-      window.history.replaceState({}, '', '/?payment=verified');
-    }
-  }, [loading, selectedPurchase]);
+  }, [user, checking, sessionId]);
 
   const handleDownload = async () => {
     if (!selectedPurchase) return;

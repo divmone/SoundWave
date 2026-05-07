@@ -25,6 +25,9 @@ namespace soundwaveCryptoPayment
             ADD_METHOD_TO(TransactionsController::GetTransaction,
                     "/api/v1.0/transactions/{transactionId}", drogon::Get,
                     "soundwaveCryptoPayment::AuthCheckMiddleware");
+            ADD_METHOD_TO(TransactionsController::GetApprovedTransactions,
+                    "/api/v1.0/transactions/approved/user/{userId}", drogon::Get,
+                    "soundwaveCryptoPayment::AuthCheckMiddleware");
             ADD_METHOD_TO(TransactionsController::ClaimTransaction,
                     "/api/v1.0/transactions/{transactionId}/claim", drogon::Post,
                     "soundwaveCryptoPayment::AuthCheckMiddleware");
@@ -38,6 +41,11 @@ namespace soundwaveCryptoPayment
             const drogon::HttpRequestPtr& req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback,
             int64_t transactionId);
+
+        void GetApprovedTransactions(
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+            int64_t userId);
 
         void ClaimTransaction(
             const drogon::HttpRequestPtr& req,

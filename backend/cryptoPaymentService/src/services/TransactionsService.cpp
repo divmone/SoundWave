@@ -285,4 +285,11 @@ namespace soundwaveCryptoPayment
 
         return response;
     }
+
+    std::variant<std::vector<TransactionResponseTo>, DatabaseError>
+        TransactionsService::GetApprovedTransactions(int64_t userId)
+    {
+        LOG_DEBUG << "Getting approved transactions for user: " << userId;
+        return m_repository->GetApprovedTransactionsByUserId(userId);
+    }
 }
