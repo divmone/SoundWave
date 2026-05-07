@@ -5,6 +5,7 @@
 #ifndef SOUNDSSTORAGESERVICE_TRANSACTIONSREPOSITORY_H
 #define SOUNDSSTORAGESERVICE_TRANSACTIONSREPOSITORY_H
 
+#include <vector>
 #include <dto/responses/TransactionResponseTo.h>
 #include <dto/requests/TransactionRequestTo.h>
 #include "IDatabaseRepository.h"
@@ -19,6 +20,7 @@ namespace soundwaveCryptoPayment
     public:
         std::variant<TransactionResponseTo, DatabaseError> CreateTransaction(const TransactionRequestTo& dto);
         std::variant<TransactionResponseTo, DatabaseError> GetTransactionById(int64_t id);
+        std::variant<std::vector<TransactionResponseTo>, DatabaseError> GetApprovedTransactionsByUserId(int64_t userId);
         std::variant<bool, DatabaseError> UpdateTransactionState(int64_t id, const std::string& state);
     };
 }

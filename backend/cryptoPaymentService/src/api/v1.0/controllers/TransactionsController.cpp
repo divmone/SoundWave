@@ -151,6 +151,55 @@ void TransactionsController::GetTransaction(
     }
 }
 
+void TransactionsController::GetApprovedTransactions(
+    const HttpRequestPtr& req,
+    std::function<void(const HttpResponsePtr&)> &&callback,
+    int64_t userId)
+{
+    LOG_INFO << "GET /api/v1.0/transactions/approved/user/" << userId;
+
+    try
+    {
+        auto result = m_service->GetApprovedTransactions(userId);
+
+        if (std::holds_alternative<DatabaseError>(result))
+        {
+            auto response = HttpResponse::newHttpResponse();
+            response->setStatusCode(k500InternalServerError);
+            response->setContentTypeCode(CT_APPLICATION_JSON);
+            Json::Value body;
+            body["error"] = "Failed to get approved transactions";
+            response->setBody(body.toStyledString());
+            callback(response);
+            return;
+        }
+
+        auto& transactions = std::get<std::vector<TransactionResponseTo>>(result);
+
+        Json::Value jsonArray(Json::arrayValue);
+        for (auto& t : transactions)
+        {
+            jsonArray.append(t.toJson());
+        }
+
+        auto response = HttpResponse::newHttpResponse();
+        response->setStatusCode(k200OK);
+        response->setContentTypeCode(CT_APPLICATION_JSON);
+        response->setBody(jsonArray.toStyledString());
+        callback(response);
+    }
+    catch (const std::exception& e)
+    {
+        auto response = HttpResponse::newHttpResponse();
+        response->setStatusCode(k500InternalServerError);
+        response->setContentTypeCode(CT_APPLICATION_JSON);
+        Json::Value body;
+        body["error"] = e.what();
+        response->setBody(body.toStyledString());
+        callback(response);
+    }
+}
+
 void TransactionsController::ClaimTransaction(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)> &&callback,

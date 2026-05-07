@@ -72,12 +72,13 @@ export default function App() {
   const regularProducts = products.filter(p => !p.isAiSlop);
   const aiProducts      = products.filter(p =>  p.isAiSlop);
 
-  const handleNavigate = (target) => {
+  const handleNavigate = (target, params) => {
     if (target === 'home') setRefreshKey(k => k + 1);
     if (target !== 'product') setSelectedProduct(null);
     setPage(target);
     if (target !== 'login') {
-      window.history.pushState({ page: target }, '', pathForPage(target));
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      window.history.pushState({ page: target, ...params }, '', pathForPage(target) + qs);
     }
   };
 
