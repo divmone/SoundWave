@@ -214,12 +214,12 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
   const handleClaim = async (txId) => {
     try {
       await claimTransaction(txId, user.id);
-      setHasPurchased(true);
       setShowBuyModal(false);
       setPayMethod(null);
       setTransactionId(null);
       setTxHash('');
       setPolling(false);
+      onNavigate?.('payment-success');
     } catch (err) {
       setPurchaseError(err.message || 'Failed to claim product. Please contact support.');
       setPayMethod(null);

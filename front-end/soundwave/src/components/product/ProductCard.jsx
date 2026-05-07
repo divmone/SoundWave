@@ -216,7 +216,7 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
       setTransactionId(null);
       setTxHash('');
       setPolling(false);
-      alert('Product purchased successfully!');
+      onNavigate?.('payment-success');
     } catch (err) {
       setPurchaseError(err.message || 'Failed to claim product.');
       setPayMethod(null);
