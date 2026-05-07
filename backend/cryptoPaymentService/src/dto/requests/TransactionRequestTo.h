@@ -38,7 +38,8 @@ namespace soundwaveCryptoPayment
             }
             if (json.isMember("amount"))
             {
-                dto.amount = json["amount"].asInt64();
+                // amount comes as string (wei in decimal representation)
+                dto.amount = json["amount"].asString();
             }
             if (json.isMember("productId"))
             {

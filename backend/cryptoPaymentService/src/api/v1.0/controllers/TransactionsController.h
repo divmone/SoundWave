@@ -23,10 +23,10 @@ namespace soundwaveCryptoPayment
                     "/api/v1.0/transactions", drogon::Post,
                     "soundwaveCryptoPayment::AuthCheckMiddleware");
             ADD_METHOD_TO(TransactionsController::GetTransaction,
-                    "/api/1.0/transactions/{transactionId}", drogon::Get,
+                    "/api/v1.0/transactions/{transactionId}", drogon::Get,
                     "soundwaveCryptoPayment::AuthCheckMiddleware");
             ADD_METHOD_TO(TransactionsController::ClaimTransaction,
-                    "/api/1.0/transactions/{transactionId}/claim", drogon::Post,
+                    "/api/v1.0/transactions/{transactionId}/claim", drogon::Post,
                     "soundwaveCryptoPayment::AuthCheckMiddleware");
         METHOD_LIST_END
 

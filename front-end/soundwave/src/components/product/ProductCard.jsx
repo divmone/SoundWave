@@ -170,7 +170,7 @@ export default function ProductCard({ product, user, delay = 0, onOpenProduct, o
       const res = await createTransaction({
         txhash: finalTxHash,
         from: fromAddress,
-        amount: amountWei,
+        amount: String(amountWei), // ensure string
         productId: product.id,
         userId: user.id,
       });

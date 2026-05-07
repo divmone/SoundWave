@@ -173,7 +173,7 @@ export default function ProductPage({ product, user, onNavigate, onLogout }) {
       const res = await createTransaction({
         txhash: finalTxHash,
         from: fromAddress,
-        amount: amountWei,
+        amount: String(amountWei), // ensure string
         productId: product.id,
         userId: user.id,
       });
