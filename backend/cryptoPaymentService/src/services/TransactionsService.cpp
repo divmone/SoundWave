@@ -103,7 +103,7 @@ namespace soundwaveCryptoPayment
     bool TransactionsService::VerifyTransactionOnBlockchain(
         const std::string& txhash,
         const std::string& from,
-        int32_t amount)
+        const std::string& amount)
     {
         LOG_DEBUG << "Verifying transaction " << txhash << " on blockchain";
 
@@ -151,9 +151,9 @@ namespace soundwaveCryptoPayment
 
             std::string txFrom = resultObj.isMember("from") ? resultObj["from"].asString() : "";
             std::string txTo = resultObj.isMember("to") ? resultObj["to"].asString() : "";
-            std::string valueWei = resultObj.isMember("value") ? resultObj["value"].asString() : "0x0";
+            std::string valueWeiHex = resultObj.isMember("value") ? resultObj["value"].asString() : "0x0";
 
-            LOG_DEBUG << "Transaction from: " << txFrom << " to: " << txTo << " value: " << valueWei;
+            LOG_DEBUG << "Transaction from: " << txFrom << " to: " << txTo << " value: " << valueWeiHex;
 
             if (txFrom != from)
             {
@@ -167,13 +167,22 @@ namespace soundwaveCryptoPayment
                 return false;
             }
 
-            int64_t valueInWei = std::stoull(valueWei.substr(2), nullptr, 16);
-            double valueInEth = static_cast<double>(valueInWei) / 1e18;
-            int32_t valueInEthInt = static_cast<int32_t>(std::round(valueInEth));
-
-            if (std::abs(valueInEthInt - amount) > 0)
-            {
-                LOG_WARN << "Transaction amount mismatch. Expected: " << amount << " Got: " << valueInEthInt;
+            // amount comes in wei as decimal string, compare with the value from blockchain (hex)
+            std::string amountWeiStr = amount; // already in decimal string
+            // Convert valueWeiHex (hex) to decimal for comparison, or compare directly if possible
+            // valueWeiHex is like "0x..." (hex), amount is decimal string
+            // We'll compare by converting both to the same representation
+            try {
+                // Convert hex value to decimal string
+                int64_t valueInWei = std::stoull(valueWeiHex.substr(2), nullptr, 16);
+                std::string valueWeiDecimal = std::to_string(valueInWei);
+                if (valueWeiDecimal != amountWeiStr)
+                {
+                    LOG_WARN << "Transaction amount mismatch. Expected: " << amountWeiStr << " Got: " << valueWeiDecimal;
+                    return false;
+                }
+            } catch (...) {
+                LOG_WARN << "Failed to parse transaction value for comparison";
                 return false;
             }
             */

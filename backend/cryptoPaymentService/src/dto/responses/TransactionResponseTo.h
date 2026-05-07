@@ -21,7 +21,7 @@ namespace soundwaveCryptoPayment
         std::int64_t id = 0;
         std::int64_t productId = 0;
         std::string state = "pending";
-        std::int32_t amount = 0;
+        std::string amount = "0";
         std::string txhash = "";
         std::int64_t userId = 0;
         std::string from = "";
@@ -33,7 +33,7 @@ namespace soundwaveCryptoPayment
             result["id"] = static_cast<Json::Int64>(id);
             result["productId"] = static_cast<Json::Int64>(productId);
             result["state"] = state;
-            result["amount"] = amount;
+            result["amount"] = amount; // wei as string
             result["txhash"] = txhash;
             result["userId"] = static_cast<Json::Int64>(userId);
             result["from"] = from;

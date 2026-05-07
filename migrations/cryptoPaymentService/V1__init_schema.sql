@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     id BIGSERIAL PRIMARY KEY,
     product_id BIGSERIAL,
     state STATE_TYPE,
-    amount INTEGER,
+    amount VARCHAR(32),
     txhash VARCHAR(128),
     user_id BIGINT NOT NULL
 );

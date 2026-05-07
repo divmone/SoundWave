@@ -30,6 +30,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 find_package(Drogon REQUIRED)
 find_package(Jsoncpp REQUIRED)
+find_package(Boost REQUIRED)
 
 add_executable(${PROJECT_NAME}
         ${SOURCE_FILES}
@@ -41,7 +42,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         "${DROGON_INCLUDE_DIRS}"
 )
 
-target_link_libraries(${PROJECT_NAME} Drogon::Drogon)
+target_link_libraries(${PROJECT_NAME}
+        Drogon::Drogon
+        Boost::headers
+)
 
 # Копирование папки config в директорию сборки
 add_custom_command(

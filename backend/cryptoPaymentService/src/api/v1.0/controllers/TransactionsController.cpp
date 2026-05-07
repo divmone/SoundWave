@@ -10,6 +10,7 @@
 #include <exceptions/DatabaseException.h>
 #include <trantor/utils/Logger.h>
 #include <dto/requests/TransactionRequestTo.h>
+#include <boost/stacktrace.hpp>
 
 namespace soundwaveCryptoPayment
 {
@@ -84,6 +85,7 @@ void TransactionsController::CreateTransaction(
     }
     catch (const std::exception& e)
     {
+        std::cout << boost::stacktrace::stacktrace() << std::endl;
         auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k500InternalServerError);
         response->setContentTypeCode(CT_APPLICATION_JSON);
