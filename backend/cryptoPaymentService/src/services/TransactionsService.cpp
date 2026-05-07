@@ -260,14 +260,14 @@ namespace soundwaveCryptoPayment
 
         if (verified)
         {
-            m_repository->UpdateTransactionState(id, "paid");
-            response.state = "paid";
-            LOG_INFO << "Transaction " << id << " verified and marked as paid";
+            m_repository->UpdateTransactionState(id, STATE_APPROVED);
+            response.state = STATE_APPROVED;
+            LOG_INFO << "Transaction " << id << " verified and marked as approved";
         }
         else
         {
-            m_repository->UpdateTransactionState(id, "failed");
-            response.state = "failed";
+            m_repository->UpdateTransactionState(id, STATE_DECLINED);
+            response.state = STATE_DECLINED;
             LOG_INFO << "Transaction " << id << " verification failed";
         }
 
