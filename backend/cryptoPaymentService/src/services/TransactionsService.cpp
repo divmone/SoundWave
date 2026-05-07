@@ -100,10 +100,10 @@ namespace soundwaveCryptoPayment
         return response;
     }
 
-    bool TransactionsService::VerifyTransactionOnBlockchain(
+    TransactionsService::VerificationResult TransactionsService::VerifyTransactionOnBlockchain(
         const std::string& txhash,
         const std::string& from,
-        int32_t amount)
+        const std::string& amount)
     {
         LOG_DEBUG << "Verifying transaction " << txhash << " on blockchain";
 
@@ -151,9 +151,9 @@ namespace soundwaveCryptoPayment
 
             std::string txFrom = resultObj.isMember("from") ? resultObj["from"].asString() : "";
             std::string txTo = resultObj.isMember("to") ? resultObj["to"].asString() : "";
-            std::string valueWei = resultObj.isMember("value") ? resultObj["value"].asString() : "0x0";
+            std::string valueWeiHex = resultObj.isMember("value") ? resultObj["value"].asString() : "0x0";
 
-            LOG_DEBUG << "Transaction from: " << txFrom << " to: " << txTo << " value: " << valueWei;
+            LOG_DEBUG << "Transaction from: " << txFrom << " to: " << txTo << " value: " << valueWeiHex;
 
             if (txFrom != from)
             {
@@ -167,13 +167,22 @@ namespace soundwaveCryptoPayment
                 return false;
             }
 
-            int64_t valueInWei = std::stoull(valueWei.substr(2), nullptr, 16);
-            double valueInEth = static_cast<double>(valueInWei) / 1e18;
-            int32_t valueInEthInt = static_cast<int32_t>(std::round(valueInEth));
-
-            if (std::abs(valueInEthInt - amount) > 0)
-            {
-                LOG_WARN << "Transaction amount mismatch. Expected: " << amount << " Got: " << valueInEthInt;
+            // amount comes in wei as decimal string, compare with the value from blockchain (hex)
+            std::string amountWeiStr = amount; // already in decimal string
+            // Convert valueWeiHex (hex) to decimal for comparison, or compare directly if possible
+            // valueWeiHex is like "0x..." (hex), amount is decimal string
+            // We'll compare by converting both to the same representation
+            try {
+                // Convert hex value to decimal string
+                int64_t valueInWei = std::stoull(valueWeiHex.substr(2), nullptr, 16);
+                std::string valueWeiDecimal = std::to_string(valueInWei);
+                if (valueWeiDecimal != amountWeiStr)
+                {
+                    LOG_WARN << "Transaction amount mismatch. Expected: " << amountWeiStr << " Got: " << valueWeiDecimal;
+                    return false;
+                }
+            } catch (...) {
+                LOG_WARN << "Failed to parse transaction value for comparison";
                 return false;
             }
             */
@@ -192,37 +201,45 @@ namespace soundwaveCryptoPayment
             if (result2 != drogon::ReqResult::Ok || !response2)
             {
                 LOG_ERROR << "Failed to send receipt status request to Etherscan API";
-                return false;
+                return VerificationResult::PENDING;
             }
 
             auto jsonBody2 = response2->getJsonObject();
+
+            std::cout << jsonBody2 << std::endl;
+
             if (!jsonBody2 || !jsonBody2->isMember("result"))
             {
                 LOG_ERROR << "Failed to parse Etherscan receipt status response";
-                return false;
+                return VerificationResult::DECLINED;
             }
-
-
-            std::cout << m_client->host() << std::endl;
-            std::cout << (*jsonBody2) << std::endl;
 
             auto& receiptResult = (*jsonBody2)["result"];
-            if (receiptResult.isMember("status"))
+
+            if (receiptResult.isNull() || !receiptResult.isMember("status"))
             {
-                std::string status = receiptResult["status"].asString();
-                if (status != "1")
-                {
-                    LOG_WARN << "Transaction receipt status is not success: " << status;
-                    return false;
-                }
+                LOG_DEBUG << "Transaction " << txhash << " is not yet mined (no receipt status)";
+                return VerificationResult::PENDING;
             }
 
-            return true;
+            std::string status = receiptResult["status"].asString();
+
+            if (status == "")
+            {
+                return VerificationResult::PENDING;
+            }
+            if (status != "1")
+            {
+                LOG_WARN << "Transaction receipt status is not success: " << status;
+                return VerificationResult::DECLINED;
+            }
+
+            return VerificationResult::APPROVED;
         }
         catch (const std::exception& e)
         {
             LOG_ERROR << "Exception during blockchain verification: " << e.what();
-            return false;
+            return VerificationResult::DECLINED;
         }
     }
 
@@ -243,23 +260,27 @@ namespace soundwaveCryptoPayment
             return response;
         }
 
-        bool verified = VerifyTransactionOnBlockchain(
+        auto verification = VerifyTransactionOnBlockchain(
             response.txhash,
             response.from,
             response.amount
         );
 
-        if (verified)
+        if (verification == VerificationResult::APPROVED)
         {
-            m_repository->UpdateTransactionState(id, "paid");
-            response.state = "paid";
-            LOG_INFO << "Transaction " << id << " verified and marked as paid";
+            m_repository->UpdateTransactionState(id, STATE_APPROVED);
+            response.state = STATE_APPROVED;
+            LOG_INFO << "Transaction " << id << " verified and marked as approved";
         }
-        else
+        else if (verification == VerificationResult::DECLINED)
         {
-            m_repository->UpdateTransactionState(id, "failed");
-            response.state = "failed";
+            m_repository->UpdateTransactionState(id, STATE_DECLINED);
+            response.state = STATE_DECLINED;
             LOG_INFO << "Transaction " << id << " verification failed";
+        }
+        else // PENDING
+        {
+            LOG_DEBUG << "Transaction " << id << " is still pending (not mined yet)";
         }
 
         return response;

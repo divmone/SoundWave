@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libssl-dev \
     libcurl4-openssl-dev \
+    libboost-stacktrace-dev \
     git \
     tree \
     gdb \

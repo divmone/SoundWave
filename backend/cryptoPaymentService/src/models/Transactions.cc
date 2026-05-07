@@ -27,7 +27,7 @@ const std::vector<typename Transactions::MetaData> Transactions::metaData_={
 {"id","int64_t","bigint",8,1,1,1},
 {"product_id","int64_t","bigint",8,1,0,1},
 {"state","std::string","USER-DEFINED",0,0,0,0},
-{"amount","int32_t","integer",4,0,0,0},
+{"amount","std::string","character varying",32,0,0,0},
 {"txhash","std::string","character varying",128,0,0,0},
 {"user_id","int64_t","bigint",8,0,0,1}
 };
@@ -54,7 +54,7 @@ Transactions::Transactions(const Row &r, const ssize_t indexOffset) noexcept
         }
         if(!r["amount"].isNull())
         {
-            amount_=std::make_shared<int32_t>(r["amount"].as<int32_t>());
+            amount_=std::make_shared<std::string>(r["amount"].as<std::string>());
         }
         if(!r["txhash"].isNull())
         {
@@ -92,7 +92,7 @@ Transactions::Transactions(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 3;
         if(!r[index].isNull())
         {
-            amount_=std::make_shared<int32_t>(r[index].as<int32_t>());
+            amount_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 4;
         if(!r[index].isNull())
@@ -144,7 +144,7 @@ Transactions::Transactions(const Json::Value &pJson, const std::vector<std::stri
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            amount_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
+            amount_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
     if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
@@ -196,7 +196,7 @@ Transactions::Transactions(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[3]=true;
         if(!pJson["amount"].isNull())
         {
-            amount_=std::make_shared<int32_t>((int32_t)pJson["amount"].asInt64());
+            amount_=std::make_shared<std::string>(pJson["amount"].asString());
         }
     }
     if(pJson.isMember("txhash"))
@@ -252,7 +252,7 @@ void Transactions::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            amount_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
+            amount_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
     if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
@@ -302,7 +302,7 @@ void Transactions::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[3] = true;
         if(!pJson["amount"].isNull())
         {
-            amount_=std::make_shared<int32_t>((int32_t)pJson["amount"].asInt64());
+            amount_=std::make_shared<std::string>(pJson["amount"].asString());
         }
     }
     if(pJson.isMember("txhash"))
@@ -389,20 +389,25 @@ void Transactions::setStateToNull() noexcept
     dirtyFlag_[2] = true;
 }
 
-const int32_t &Transactions::getValueOfAmount() const noexcept
+const std::string &Transactions::getValueOfAmount() const noexcept
 {
-    static const int32_t defaultValue = int32_t();
+    static const std::string defaultValue = std::string();
     if(amount_)
         return *amount_;
     return defaultValue;
 }
-const std::shared_ptr<int32_t> &Transactions::getAmount() const noexcept
+const std::shared_ptr<std::string> &Transactions::getAmount() const noexcept
 {
     return amount_;
 }
-void Transactions::setAmount(const int32_t &pAmount) noexcept
+void Transactions::setAmount(const std::string &pAmount) noexcept
 {
-    amount_ = std::make_shared<int32_t>(pAmount);
+    amount_ = std::make_shared<std::string>(pAmount);
+    dirtyFlag_[3] = true;
+}
+void Transactions::setAmount(std::string &&pAmount) noexcept
+{
+    amount_ = std::make_shared<std::string>(std::move(pAmount));
     dirtyFlag_[3] = true;
 }
 void Transactions::setAmountToNull() noexcept
@@ -1037,9 +1042,17 @@ bool Transactions::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isInt())
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            if(pJson.isString() && std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+                .from_bytes(pJson.asCString()).size() > 32)
+            {
+                err="String length exceeds limit for the " +
+                    fieldName +
+                    " field (the maximum value is 32)";
                 return false;
             }
             break;

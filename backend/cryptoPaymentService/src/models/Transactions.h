@@ -129,11 +129,12 @@ class Transactions
 
     /**  For column amount  */
     ///Get the value of the column amount, returns the default value if the column is null
-    const int32_t &getValueOfAmount() const noexcept;
+    const std::string &getValueOfAmount() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int32_t> &getAmount() const noexcept;
+    const std::shared_ptr<std::string> &getAmount() const noexcept;
     ///Set the value of the column amount
-    void setAmount(const int32_t &pAmount) noexcept;
+    void setAmount(const std::string &pAmount) noexcept;
+    void setAmount(std::string &&pAmount) noexcept;
     void setAmountToNull() noexcept;
 
     /**  For column txhash  */
@@ -180,7 +181,7 @@ class Transactions
     std::shared_ptr<int64_t> id_;
     std::shared_ptr<int64_t> productId_;
     std::shared_ptr<std::string> state_;
-    std::shared_ptr<int32_t> amount_;
+    std::shared_ptr<std::string> amount_;
     std::shared_ptr<std::string> txhash_;
     std::shared_ptr<int64_t> userId_;
     struct MetaData

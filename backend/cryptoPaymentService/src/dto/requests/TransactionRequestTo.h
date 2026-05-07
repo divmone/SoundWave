@@ -17,7 +17,7 @@ namespace soundwaveCryptoPayment
         std::string txhash;
         std::string from;
         std::string to;
-        std::int32_t amount;
+        std::string amount;
         std::int64_t productId;
         std::int64_t userId;
 
@@ -38,7 +38,8 @@ namespace soundwaveCryptoPayment
             }
             if (json.isMember("amount"))
             {
-                dto.amount = json["amount"].asInt();
+                // amount comes as string (wei in decimal representation)
+                dto.amount = json["amount"].asString();
             }
             if (json.isMember("productId"))
             {
