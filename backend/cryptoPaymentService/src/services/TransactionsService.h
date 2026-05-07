@@ -19,6 +19,13 @@ namespace soundwaveCryptoPayment
 {
     class TransactionsService
     {
+        enum class VerificationResult
+        {
+            PENDING,
+            APPROVED,
+            DECLINED
+        };
+
     public:
         explicit TransactionsService(std::unique_ptr<TransactionsRepository> repository);
 
@@ -35,7 +42,7 @@ namespace soundwaveCryptoPayment
         static constexpr const char* ETHERSCAN_BASE_URL = "https://api.etherscan.io";
         const char* SEPOLIA_CHAIN_ID = std::getenv("SEPOLIA_CHAIN_ID");
 
-        bool VerifyTransactionOnBlockchain(const std::string& txhash, const std::string& from, const std::string& amount);
+        VerificationResult VerifyTransactionOnBlockchain(const std::string& txhash, const std::string& from, const std::string& amount);
         std::variant<TransactionResponseTo, DatabaseError> CheckAndUpdateTransactionStatus(int64_t id);
     };
 }

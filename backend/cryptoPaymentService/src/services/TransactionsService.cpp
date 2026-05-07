@@ -100,7 +100,7 @@ namespace soundwaveCryptoPayment
         return response;
     }
 
-    bool TransactionsService::VerifyTransactionOnBlockchain(
+    TransactionsService::VerificationResult TransactionsService::VerifyTransactionOnBlockchain(
         const std::string& txhash,
         const std::string& from,
         const std::string& amount)
@@ -201,37 +201,45 @@ namespace soundwaveCryptoPayment
             if (result2 != drogon::ReqResult::Ok || !response2)
             {
                 LOG_ERROR << "Failed to send receipt status request to Etherscan API";
-                return false;
+                return VerificationResult::PENDING;
             }
 
             auto jsonBody2 = response2->getJsonObject();
+
+            std::cout << jsonBody2 << std::endl;
+
             if (!jsonBody2 || !jsonBody2->isMember("result"))
             {
                 LOG_ERROR << "Failed to parse Etherscan receipt status response";
-                return false;
+                return VerificationResult::DECLINED;
             }
-
-
-            std::cout << m_client->host() << std::endl;
-            std::cout << (*jsonBody2) << std::endl;
 
             auto& receiptResult = (*jsonBody2)["result"];
-            if (receiptResult.isMember("status"))
+
+            if (receiptResult.isNull() || !receiptResult.isMember("status"))
             {
-                std::string status = receiptResult["status"].asString();
-                if (status != "1")
-                {
-                    LOG_WARN << "Transaction receipt status is not success: " << status;
-                    return false;
-                }
+                LOG_DEBUG << "Transaction " << txhash << " is not yet mined (no receipt status)";
+                return VerificationResult::PENDING;
             }
 
-            return true;
+            std::string status = receiptResult["status"].asString();
+
+            if (status == "")
+            {
+                return VerificationResult::PENDING;
+            }
+            if (status != "1")
+            {
+                LOG_WARN << "Transaction receipt status is not success: " << status;
+                return VerificationResult::DECLINED;
+            }
+
+            return VerificationResult::APPROVED;
         }
         catch (const std::exception& e)
         {
             LOG_ERROR << "Exception during blockchain verification: " << e.what();
-            return false;
+            return VerificationResult::DECLINED;
         }
     }
 
@@ -252,23 +260,27 @@ namespace soundwaveCryptoPayment
             return response;
         }
 
-        bool verified = VerifyTransactionOnBlockchain(
+        auto verification = VerifyTransactionOnBlockchain(
             response.txhash,
             response.from,
             response.amount
         );
 
-        if (verified)
+        if (verification == VerificationResult::APPROVED)
         {
             m_repository->UpdateTransactionState(id, STATE_APPROVED);
             response.state = STATE_APPROVED;
             LOG_INFO << "Transaction " << id << " verified and marked as approved";
         }
-        else
+        else if (verification == VerificationResult::DECLINED)
         {
             m_repository->UpdateTransactionState(id, STATE_DECLINED);
             response.state = STATE_DECLINED;
             LOG_INFO << "Transaction " << id << " verification failed";
+        }
+        else // PENDING
+        {
+            LOG_DEBUG << "Transaction " << id << " is still pending (not mined yet)";
         }
 
         return response;
